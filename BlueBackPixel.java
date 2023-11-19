@@ -149,9 +149,9 @@ public class BlueBackPixel extends LinearOpMode
       
       if (/*findPropPL.propLocation == "LEFT"*/ true){
 
-       normalFlipper(190);            // square w/ ground
+      normalFlipper(190);            // square w/ ground
       closeClamp();
-       sleep(100);
+      sleep(100);
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
       groundTransitionFlipper(85);  // <keep flipper from getting caught>
       armraise(20,0);             // Raise 20 for carrying pixels
@@ -189,6 +189,56 @@ public class BlueBackPixel extends LinearOpMode
       groundTransitionFlipper(400);  // get arm in position to clear axle
       armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                   // ...leave up ~15 deg from driving to park pos
+                                  
+      // TODO: PARK IN LEFT CORNER, get out of way of alliance partner
+                                  
+                                  
+      openClamp();
+      armraise(-10.0, 0.159);     // finish lowering claw to ground
+      normalFlipper(190);            // square w/ ground
+      } else if (/*findPropPL.propLocation == "MIDDLE"*/ false) { // If pixel is in MIDDLE
+      normalFlipper(190);            // square w/ ground
+      closeClamp();
+      sleep(100);
+      drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
+      groundTransitionFlipper(85);  // <keep flipper from getting caught>
+      armraise(20,0);             // Raise 20 for carrying pixels
+      drive(15.0,0,0,DRIVE_POWER);        // Fwd 13.5" toward spike marks
+      drive(0,0,-5,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
+      drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
+      armextend(4,0.47);          // Extend arm 4" hopefully reaching pixel over spike
+      armraise(-10, 0.15);        // lower arm 10 deg to set pixel stack on spike
+                                  // ... slower than default to NOT slam into ground
+      //sleep(100);
+      normalFlipper(310);            // square w/ ground
+      openClampLittle();          // drop pixel stack
+      
+    // After drop-off
+      armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
+      sleep(100);
+      closeClamp();               // Grab the top pixel
+      groundTransitionFlipper(220);  // <prevent catching on axle>
+      armraise(12, 0);            // raise 12 deg for driving around
+      drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
+                                  // ...but also don't go back to far into frames
+      sleep(100);
+      drive(0, 0, -83, DRIVE_POWER);      // CCW 83 to face backdrop
+      sleep(50);
+      drive(25.5, 0, 0, DRIVE_POWER);       // FWD 25.5" toward backdrop
+      drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
+      drive(0, -5, 0, DRIVE_POWER);       // back 4" toward backdrop
+      armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+      armraise(45, 0.127);        // slow down to avoid tipping over
+      reverseFlipper();           // put flipper in rev pos for placing pixel on board
+      armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
+      drive(-5, 0, 0, 0.2);       // REV last 5" to board
+      openClampLittle();          // release pixel on board
+      armraise(-100, 0.41);        // bring the arm back down
+      groundTransitionFlipper(400);  // get arm in position to clear axle
+      armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
+                                  // ...leave up ~15 deg from driving to park pos
+      drive(0, -18, 0, DRIVE_POWER);
+      drive(5, 0, 0, DRIVE_POWER);
                                   
       // TODO: PARK IN LEFT CORNER, get out of way of alliance partner
                                   
@@ -449,7 +499,10 @@ public class BlueBackPixel extends LinearOpMode
   private void closeClamp() { closeClamp(GRABBER_SERVO_PAUSE_TIME_MS); }
   private void closeClamp(int pause_time_ms) {
     grabber.setPosition(GRABBER_SERVO_CLOSED_POS);
-    sleep(pause_time_ms);
+    until (grabber.getPosition == GRABBER_SERVO_CLOSED_POS) { // Hold in the function until position is reached
+      sleep(1);                                               // eliminate need to specify wait time? time save?
+    }
+    sleep(5);
   }
   private void openClamp() { openClamp(GRABBER_SERVO_PAUSE_TIME_MS); }
   private void openClamp(int pause_time_ms) {
@@ -464,12 +517,15 @@ public class BlueBackPixel extends LinearOpMode
   
   
   //**********************************************
-  // FLIPPER COMMAND FUNCTIONS
+  // FLIPPER COMMAND FUNCTIONS                    
   //**********************************************
   private void reverseFlipper() { reverseFlipper(FLIPPER_SERVO_PAUSE_TIME_MS); }
   private void reverseFlipper(int pause_time_ms) {
     flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
-    sleep(pause_time_ms);
+    until (flipper.getPosition == CLAW_FLIP_SERVO_FLIPPED_POS) { 
+      sleep(1);
+    }
+    sleep(5);
   }
   private void normalFlipper() { normalFlipper(FLIPPER_SERVO_PAUSE_TIME_MS); }
   private void normalFlipper(int pause_time_ms) {
