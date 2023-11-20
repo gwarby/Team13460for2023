@@ -286,9 +286,8 @@ public class BlueBackPixel extends LinearOpMode
         openClamp();
         armraise(-10.0, 0.159);     // finish lowering claw to ground
         normalFlipper("wait");            // square w/ ground
-        
       }
-
+      
       while (opModeIsActive()) {
         // Put loop blocks here.
 
