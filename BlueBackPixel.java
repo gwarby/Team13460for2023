@@ -263,7 +263,7 @@ public class BlueBackPixel extends LinearOpMode
         armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
         sleep(50);
         closeClamp("wait");               // Grab the top pixel
-        groundTransitionFlipper(220);  // <prevent catching on axle>
+        groundTransitionFlipper("wait");  // <prevent catching on axle>
         armraise(12, 0);            // raise 12 deg for driving around
         drive(-2, 0, 0, DRIVE_POWER); // back up 2" to clear spike mark
         drive(0, 0, -133, DRIVE_POWER);      // CCW 133 to face backdrop
