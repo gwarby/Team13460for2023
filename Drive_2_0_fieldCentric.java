@@ -245,15 +245,15 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       // run arm to set positions using buttons
       // a -> ground, b -> second stacked pixel, y -> holding
       // x grabs/ lets go of pixel (still)
-      if (DriverCmd_ArmToGround) {
+      if (DriverCmd_ArmToGround) { // send the arm all the way to the ground
         isArmHolding = true;
-        armraise.setTargetPosition(0);
-      } else if (DriverCmd_GrabTopPixel) {
+        armRaiseTargetPosition = 0;
+      } else if (DriverCmd_GrabTopPixel) { // grab top pixel in stack of two
         isArmHolding = true;
-        armraise.setTargetPosition(4.557);
-      } else if (DriverCmd_ArmToHolding) {
+        armRaiseTargetPosition = 4.557;
+      } else if (DriverCmd_ArmToHolding) { // Put arm back to holding position
         isArmHolding = false;
-        armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
+        armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
       }
 
 
