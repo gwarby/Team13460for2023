@@ -152,7 +152,7 @@ public class BlueBackPixel extends LinearOpMode
       if (/*findPropPL.propLocation == "LEFT"*/ true){
 
       normalFlipper();            // square w/ ground
-      closeClamp("wait");
+      closeClampWait();
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
       groundTransitionFlipper();  // <keep flipper from getting caught>
       armraise(20,0);             // Raise 20 for carrying pixels
@@ -163,13 +163,13 @@ public class BlueBackPixel extends LinearOpMode
       armraise(-10, 0.15);        // lower arm 10 deg to set pixel stack on spike
                                   // ... slower than default to NOT slam into ground
       //sleep(100);
-      normalFlipper("wait");            // square w/ ground
-      openClampLittle("wait");          // drop pixel stack
+      normalFlipperWait();            // square w/ ground
+      openClampLittleWait();          // drop pixel stack
       
     // After drop-off
       armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
       sleep(50);
-      closeClamp("wait");               // Grab the top pixel
+      closeClampWait();               // Grab the top pixel
       groundTransitionFlipper();  // <prevent catching on axle>
       armraise(12, 0);            // raise 12 deg for driving around
       drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
@@ -185,7 +185,7 @@ public class BlueBackPixel extends LinearOpMode
       armraise(45, 0.127);        // slow down to avoid tipping over
       armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
       drive(-5, 0, 0, 0.2);       // REV last 5" to board
-      openClampLittle("wait");          // release pixel on board
+      openClampLittleWait();          // release pixel on board
       armraise(-100, 0.41);        // bring the arm back down
       groundTransitionFlipper();  // get arm in position to clear axle
       armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
@@ -201,7 +201,7 @@ public class BlueBackPixel extends LinearOpMode
       } else if (/*findPropPL.propLocation == "MIDDLE"*/ false) { // If pixel is in MIDDLE
         
       normalFlipper();            // square w/ ground
-      closeClamp("wait");
+      closeClampWait();
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
       groundTransitionFlipper();  // <keep flipper from getting caught>
       armraise(20,0);             // Raise 20 for carrying pixels
@@ -212,13 +212,13 @@ public class BlueBackPixel extends LinearOpMode
       armraise(-10, 0.15);        // lower arm 10 deg to set pixel stack on spike
                                   // ... slower than default to NOT slam into ground
       //sleep(100);
-      normalFlipper("wait");            // square w/ ground
-      openClampLittle("wait");          // drop pixel stack
+      normalFlipperWait();            // square w/ ground
+      openClampLittleWait();          // drop pixel stack
       
     // After drop-off
       armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
       sleep(50);
-      closeClamp("wait");               // Grab the top pixel
+      closeClampWait();               // Grab the top pixel
       groundTransitionFlipper(220);  // <prevent catching on axle>
       armraise(12, 0);            // raise 12 deg for driving around
       drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
@@ -234,21 +234,21 @@ public class BlueBackPixel extends LinearOpMode
       armraise(45, 0.127);        // slow down to avoid tipping over
       armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
       drive(-5, 0, 0, 0.2);       // REV last 5" to board
-      openClampLittle("wait");          // release pixel on board
+      openClampLittleWait();          // release pixel on board
       armraise(-100, 0.41);        // bring the arm back down
-      groundTransitionFlipper("wait");  // get arm in position to clear axle
+      groundTransitionFlipperWait();  // get arm in position to clear axle
       armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                   // ...leave up ~15 deg from driving to park pos
       drive(0, 18, 0, DRIVE_POWER); // drive right 18" to wall
       drive(-5, 0, 0, DRIVE_POWER); // drive back 5" behind/over line
       openClamp();
       armraise(-10.0, 0.159);     // finish lowering claw to ground
-      normalFlipper("wait");            // square w/ ground
+      normalFlipperWait();            // square w/ ground
         
       } else { // RIGHT code
 
         normalFlipper();            // square w/ ground
-        closeClamp("wait");
+        closeClampWait();
         drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         groundTransitionFlipper();  // <keep flipper from getting caught>
         armraise(20,0);             // Raise 20 for carrying pixels
@@ -258,14 +258,14 @@ public class BlueBackPixel extends LinearOpMode
         armextend(4,0.47);          // Extend arm 4" hopefully reaching pixel over spike
         armraise(-10, 0.15);        // lower arm 10 deg to set pixel stack on spike
                                     // ... slower than default to NOT slam into ground
-        normalFlipper("wait");            // square w/ ground
-        openClampLittle("wait");          // drop pixel stack
+        normalFlipperWait();            // square w/ ground
+        openClampLittleWait();          // drop pixel stack
        
       // After drop-off
         armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
         sleep(50);
-        closeClamp("wait");               // Grab the top pixel
-        groundTransitionFlipper("wait");  // <prevent catching on axle>
+        closeClampWait();               // Grab the top pixel
+        groundTransitionFlipperWait();  // <prevent catching on axle>
         armraise(12, 0);            // raise 12 deg for driving around
         drive(-2, 0, 0, DRIVE_POWER); // back up 2" to clear spike mark
         drive(0, 0, -133, DRIVE_POWER);      // CCW 133 to face backdrop
@@ -278,16 +278,16 @@ public class BlueBackPixel extends LinearOpMode
         armraise(45, 0.127);        // slow down to avoid tipping over
         armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
         drive(-5, 0, 0, 0.2);       // REV last 5" to board
-        openClampLittle("wait");          // release pixel on board
+        openClampLittleWait();          // release pixel on board
         armraise(-100, 0.41);        // bring the arm back down
-        groundTransitionFlipper("wait");  // get arm in position to clear axle
+        groundTransitionFlipperWait();  // get arm in position to clear axle
         armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                     // ...leave up ~15 deg from driving to park pos
         drive(0, 24, 0, DRIVE_POWER); // drive right 24" to wall
         drive(-5, 0, 0, DRIVE_POWER); // drive back 5" behind/over line
         openClamp();
         armraise(-10.0, 0.159);     // finish lowering claw to ground
-        normalFlipper("wait");            // square w/ ground
+        normalFlipperWait();            // square w/ ground
       }
       
       while (opModeIsActive()) {
