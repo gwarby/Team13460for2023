@@ -170,36 +170,36 @@ public class BlueBackPixel extends LinearOpMode
       openClampLittleWait();          // drop pixel stack
       
     // After drop-off
-      armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
+      armraise(0.5, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
       sleep(50);
       closeClampWait();               // Grab the top pixel
       groundTransitionFlipper();  // <prevent catching on axle>
       armraise(12, 0);            // raise 12 deg for driving around
       drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                   // ...but also don't go back to far into frames
-      sleep(50);
       drive(0, 0, -43, DRIVE_POWER);      // CCW -43 to face backdrop
       sleep(100);
       drive(24, 0, 0, DRIVE_POWER);       // FWD 24" toward backdrop
       drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
-      drive(0, -5, 0, DRIVE_POWER);       // back 4" toward backdrop
+      drive(0, -13, 0, DRIVE_POWER);       // back 5" toward backdrop
       armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
       reverseFlipper();           // put flipper in rev pos for placing pixel on board
-      armraise(45, 0.127);        // slow down to avoid tipping over
+      armraise(45, 0.09);        // slow down to avoid tipping over
       armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
-      drive(-5, 0, 0, 0.2);       // REV last 5" to board
-      openClampLittleWait();          // release pixel on board
-      armraise(-100, 0.41);        // bring the arm back down
+      drive(-4.3, 0, 0, 0.2);       // REV last 4" to board
+      openClampWait();          // release pixel on board
+      sleep(350);
+      drive(3, 0, 0, DRIVE_POWER); 
+      closeClampWait();
       groundTransitionFlipper();  // get arm in position to clear axle
-      armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
+      armraise(-100, 0.41);        // bring the arm back down
+      armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                   // ...leave up ~15 deg from driving to park pos
-                                  
-      // TODO: PARK IN LEFT CORNER, get out of way of alliance partner
-                                  
-                                  
-      openClamp();
       armraise(-10.0, 0.159);     // finish lowering claw to ground
       normalFlipper();            // square w/ ground
+      openClamp();
+      drive(0, 23, 0, DRIVE_POWER); 
+      drive(-13, 0, 0, DRIVE_POWER);
 
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         
