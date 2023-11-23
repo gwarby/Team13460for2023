@@ -235,16 +235,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
       } else {  // isArmCmdDown
         isArmHolding = false;
-        if (isArmTooLow) {
-          if (driverCmd_ArmRaise < -.1) {
-            armraise.setTargetPosition(0);
-          } else {
-            armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
-          }
+        if (isArmTooLow || isArmNearLowLimit) {
+        armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
         armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armraise.setPower(0.265);
-        } else if (isArmNearLowLimit) {
-          armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
         } else {
           armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
@@ -261,7 +255,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         isArmHolding = true;
         armRaiseTargetPosition = GRAB_TOP_PIXEL_TICKS;
       } else if (DriverCmd_ArmToHolding) { // Put arm back to holding position
-        isArmHolding = false;
+        isArmHolding = true;
         armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
       }
 
