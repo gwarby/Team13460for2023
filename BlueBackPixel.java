@@ -555,23 +555,23 @@ public class BlueBackPixel extends LinearOpMode
   // to calculate a more customized wait time, instead of an arbitrary number
   private void closeClamp() { grabber.setPosition(GRABBER_SERVO_CLOSED_POS); }
   private void closeClampWait() {
-    double distance = Math.abs(grabber.getPosition - GRABBER_SERVO_CLOSED_POS); // Calculate movement BEFORE setting new position
-    grabber.setPosition(GRABBER_SERVO_OPENED_POS); // Set new position
-    sleep(distance * CALC_GRABBER_WAIT_MS + 5); // Wait distance converted to ms (.3 -> 300 ms), plus 5 for fun. Probably will want to change conversion factor
+    double distance = Math.abs(grabber.getPosition() - GRABBER_SERVO_CLOSED_POS); // Calculate movement BEFORE setting new position
+    grabber.setPosition(GRABBER_SERVO_CLOSED_POS); // Set new position
+    sleep((int) (distance * CALC_GRABBER_WAIT_MS + 5)); // Wait distance converted to ms (.3 -> 300 ms), plus 5 for fun. Probably will want to change conversion factor
   }
   
   private void openClamp() { grabber.setPosition(GRABBER_SERVO_OPENED_POS); }
   private void openClampWait() {
-    double distance = Math.abs(grabber.getPosition - GRABBER_SERVO_OPENED_POS);
+    double distance = Math.abs(grabber.getPosition() - GRABBER_SERVO_OPENED_POS);
     grabber.setPosition(GRABBER_SERVO_OPENED_POS);
-    sleep(distance * CALC_GRABBER_WAIT_MS + 5); 
+    sleep((int) (distance * CALC_GRABBER_WAIT_MS + 5)); 
   }
   
   private void openClampLittle() { grabber.setPosition(OPEN_A_LITTLE); }
   private void openClampLittleWait() { 
-    double distance = Math.abs(grabber.getPosition - OPEN_A_LITTLE);
+    double distance = Math.abs(grabber.getPosition() - OPEN_A_LITTLE);
     grabber.setPosition(OPEN_A_LITTLE);
-    sleep(distance * CALC_GRABBER_WAIT_MS + 5);
+    sleep((int) (distance * CALC_GRABBER_WAIT_MS + 5));
     
   }
   
@@ -582,24 +582,24 @@ public class BlueBackPixel extends LinearOpMode
   // double functin same idea as above
   private void reverseFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS); }
   private void reverseFlipperWait() {
-    double distance = Math.abs(grabber.getPosition - CLAW_FLIP_SERVO_FLIPPED_POS);
+    double distance = Math.abs(grabber.getPosition() - CLAW_FLIP_SERVO_FLIPPED_POS);
     grabber.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
-    sleep(distance * CALC_FLIPPER_WAIT_MS + 5);
+    sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
     
   }
   private void normalFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS); }
   private void normalFlipperWait() {
-    double distance = Math.abs(grabber.getPosition - CLAW_FLIP_SERVO_NORMAL_POS);
+    double distance = Math.abs(grabber.getPosition() - CLAW_FLIP_SERVO_NORMAL_POS);
     grabber.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
-    sleep(distance * CALC_FLIPPER_WAIT_MS + 5);
+    sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
     
-    }
+  
   }
-  private void groundTransitionFlipper() { flipper.setPostion(CLAW_FLIP_SERVO_TO_FROM_GROUND); }
+  private void groundTransitionFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND); }
   private void groundTransitionFlipperWait() {
-    double distance = Math.abs(grabber.getPosition - CLAW_FLIP_SERVO_TO_FROM_GROUND);
+    double distance = Math.abs(grabber.getPosition() - CLAW_FLIP_SERVO_TO_FROM_GROUND);
     grabber.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
-    sleep(distance * CALC_FLIPPER_WAIT_MS + 5);
+    sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
     
   }
 }
