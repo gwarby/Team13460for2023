@@ -27,6 +27,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   int MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP = 150;
   int MIN_ARM_RAISE_TICKS = 20;
   double STICK_DEADZONE = 0.011;
+  double GRAB_TOP_PIXEL_TICKS = 4;
 
   double MAX_ARM_EXTEND_POWER = 0.45;
   double MAX_ARM_RETRACT_POWER = 0.45;
@@ -258,7 +259,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         armRaiseTargetPosition = 0;
       } else if (DriverCmd_GrabTopPixel) { // grab top pixel in stack of two
         isArmHolding = true;
-        armRaiseTargetPosition = 4.557;
+        armRaiseTargetPosition = GRAB_TOP_PIXEL_TICKS;
       } else if (DriverCmd_ArmToHolding) { // Put arm back to holding position
         isArmHolding = false;
         armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
