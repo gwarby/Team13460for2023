@@ -41,6 +41,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   double GRABBER_SERVO_OPENED_POS = 0.35;
   double GRABBER_SERVO_CLOSED_POS = 0.16;
 
+  double DRONE_SERVO_LOAD_POS = 0.61;
+  double DRONE_SERVO_LAUNCH_POS = 0.16;
+
   //   An ElapsedTime'r for operations that should wait without pausing the loop
   private ElapsedTime currentTime = new ElapsedTime();
 
@@ -68,6 +71,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     Servo grabber = hardwareMap.get(Servo.class, "grabber");
     //   Motor for end game lifting of the robot
     DcMotor lifter = hardwareMap.get(DcMotor.class, "lifter");
+    // Servo for launching drone
+    Servo launcher = hardwareMap.get(Servo.class, "launcher");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
     frontright.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -117,7 +122,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     int loopsExecuted = 0;
     double prevTimeMs = 0.0;
     //ElapsedTime currentTime = new ElaspedTime();
+    // Set flipper to normal position
     flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
+    // Pull launcher servo back to load drone
+    launcher.setPosition(DRONE_SERVO_LOAD_POS);
     waitForStart();
     // AFTER START, BEFORE LOOP:
     // TODO: minor arm move: raise, extend, lower but keep slightly off ground
@@ -363,6 +371,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       //  lifter.setPower(1);
       //  lifterUp = false;
       //}
+
+      // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
+      if (gamepad2.DpadUp && gamepad1.DpadUp && (currTimeMs/1000) > 90) {
+        launcher.setPosition(DRONE_SERVO_LAUNCH_POS);
+      }
 
       loopsExecuted += 1;
       double currTimeMs = currentTime.milliseconds();
