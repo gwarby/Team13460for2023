@@ -93,6 +93,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     boolean driverCmd_GrabberToggle, driverCmd_ClawFlipToggle;
     double driverCmd_RaiseLifterHooks, driverCmd_LowerLifterHooks;
     boolean driverCmd_AutoHoldLifterHooks;
+    boolean DriverCmd_ArmToGround, DriverCmd_GrabTopPixel, DriverCmd_ArmToHolding;
     // Variables for current positions, headings, etc.
     int armExtendPositionTicks;
     int armRaisePositionTicks;
@@ -131,8 +132,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       // :arm rotate (aka raise/lower) & arm extend
       driverCmd_ArmRaise = -gamepad2.left_stick_y;
       driverCmd_ArmExtend = -gamepad2.right_stick_y;
+      driverCmd_ArmToGround = gamepad2.a;
+      driverCmd_GrabTopPixel = gamepad2.b;
+      driverCmd_ArmToHolding = gamepad2.y;
       // :claw grab & flip 
-      driverCmd_GrabberToggle = gamepad2.a;
+      driverCmd_GrabberToggle = gamepad2.x;
       driverCmd_ClawFlipToggle = gamepad2.right_bumper;
       // :lifter aka hanger
       driverCmd_RaiseLifterHooks = gamepad2.right_trigger;
@@ -223,7 +227,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       } else {  // isArmCmdDown
         isArmHolding = false;
         if (isArmTooLow) {
-          if (driverCmd_ArmRaise < .5) {
+          if (driverCmd_ArmRaise < -.1) {
             armraise.setTargetPosition(0);
           } else {
             armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
@@ -236,6 +240,20 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
         }
+      }
+      
+      // run arm to set positions using buttons
+      // a -> ground, b -> second stacked pixel, y -> holding
+      // x grabs/ lets go of pixel (still)
+      if (DriverCmd_ArmToGround) { // send the arm all the way to the ground
+        isArmHolding = true;
+        armRaiseTargetPosition = 0;
+      } else if (DriverCmd_GrabTopPixel) { // grab top pixel in stack of two
+        isArmHolding = true;
+        armRaiseTargetPosition = 4.557;
+      } else if (DriverCmd_ArmToHolding) { // Put arm back to holding position
+        isArmHolding = false;
+        armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
       }
 
 
