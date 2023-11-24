@@ -170,25 +170,30 @@ public class RedBackPixel extends LinearOpMode
       openClampLittleWait();          // drop pixel stack
       
     // After drop-off
-      armraise(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
+      armraise(0.5, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
       sleep(50);
       closeClampWait();               // Grab the top pixel
       groundTransitionFlipper();  // <prevent catching on axle>
       armraise(12, 0);            // raise 12 deg for driving around
-      sleep(50);
+      // back up: not needed for red, propLocation = LEFT
       drive(0, 0, -43, DRIVE_POWER);      // CCW 43 to face away from backdrop
-      sleep(50);
+      sleep(100);
       drive(-24, 0, 0, DRIVE_POWER);       // BACK 25" toward backdrop
+      // turn around not needed for red, propLocation = LEFT
       drive(0, 5, 0, DRIVE_POWER);         // Right 5" to left side of backdrop
       drive(0, -5, 0, DRIVE_POWER);       // back 5" toward backdrop
       armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
       reverseFlipper();           // put flipper in rev pos for placing pixel on board
-      armraise(45, 0.127);        // slow down to avoid tipping over
+      armraise(45, 0.09);        // slow down to avoid tipping over
       armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
       drive(-5, 0, 0, 0.2);       // REV last 5" to board
-      openClampLittleWait();          // release pixel on board
+      openClampWait();          // release pixel on board
+      sleep(350);
+      drive(3, 0, 0, DRIVE_POWER);
+      closeClampWait();
+      groundTransitionFlipper();
       armraise(-100, 0.41);        // bring the arm back down
-      armraise(-30.6, 0.221);      // lower arm back to ground to prevent slamming between programs
+      armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                   // ...leave up ~15 deg from driving to park pos
       drive(0, -26, 0, DRIVE_POWER); // Drive left 26" to wall
       drive(-5, 0, 0, DRIVE_POWER);  // Park over/behind line
