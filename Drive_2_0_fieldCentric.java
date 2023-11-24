@@ -27,6 +27,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   int MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP = 150;
   int MIN_ARM_RAISE_TICKS = 20;
   double STICK_DEADZONE = 0.011;
+  double GRAB_TOP_PIXEL_TICKS = 4;
 
   double MAX_ARM_EXTEND_POWER = 0.45;
   double MAX_ARM_RETRACT_POWER = 0.45;
@@ -40,6 +41,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   int GRABBER_TIME_DEBOUNCE_MS = 350;
   double GRABBER_SERVO_OPENED_POS = 0.35;
   double GRABBER_SERVO_CLOSED_POS = 0.16;
+
+  double DRONE_SERVO_LOAD_POS = 0.61;
+  double DRONE_SERVO_LAUNCH_POS = 0.16;
 
   //   An ElapsedTime'r for operations that should wait without pausing the loop
   private ElapsedTime currentTime = new ElapsedTime();
@@ -68,6 +72,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     Servo grabber = hardwareMap.get(Servo.class, "grabber");
     //   Motor for end game lifting of the robot
     DcMotor lifter = hardwareMap.get(DcMotor.class, "lifter");
+    // Servo for launching drone
+    Servo droneLauncher = hardwareMap.get(Servo.class, "droneLauncher");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
     frontright.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -117,7 +123,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     int loopsExecuted = 0;
     double prevTimeMs = 0.0;
     //ElapsedTime currentTime = new ElaspedTime();
+    // Set flipper to normal position
     flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
+    // Pull droneLauncher servo back to load drone
+    droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
     waitForStart();
     // AFTER START, BEFORE LOOP:
     // TODO: minor arm move: raise, extend, lower but keep slightly off ground
@@ -226,16 +235,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
       } else {  // isArmCmdDown
         isArmHolding = false;
-        if (isArmTooLow) {
-          if (driverCmd_ArmRaise < -.1) {
-            armraise.setTargetPosition(0);
-          } else {
-            armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
-          }
+        if (isArmTooLow || isArmNearLowLimit) {
+        armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
         armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armraise.setPower(0.265);
-        } else if (isArmNearLowLimit) {
-          armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
         } else {
           armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
@@ -250,9 +253,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         armRaiseTargetPosition = 0;
       } else if (DriverCmd_GrabTopPixel) { // grab top pixel in stack of two
         isArmHolding = true;
-        armRaiseTargetPosition = 4.557;
+        armRaiseTargetPosition = GRAB_TOP_PIXEL_TICKS;
       } else if (DriverCmd_ArmToHolding) { // Put arm back to holding position
-        isArmHolding = false;
+        isArmHolding = true;
         armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
       }
 
@@ -363,6 +366,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       //  lifter.setPower(1);
       //  lifterUp = false;
       //}
+
+      // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
+      if (gamepad2.DpadUp && gamepad1.DpadUp && (currTimeMs/1000) > 90) {
+        droneLauncher.setPosition(DRONE_SERVO_LAUNCH_POS);
+      }
 
       loopsExecuted += 1;
       double currTimeMs = currentTime.milliseconds();
