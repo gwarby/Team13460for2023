@@ -73,7 +73,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     //   Motor for end game lifting of the robot
     DcMotor lifter = hardwareMap.get(DcMotor.class, "lifter");
     // Servo for launching drone
-    Servo droneLauncher = hardwareMap.get(Servo.class, "droneLauncher");
+    Servo droneLauncher = hardwareMap.get(Servo.class, "dronelauncher");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
     frontright.setDirection(DcMotorSimple.Direction.REVERSE);
