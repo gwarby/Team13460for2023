@@ -34,8 +34,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 
-@Autonomous(name = "BlueBackPixel")
-public class BlueBackPixel extends LinearOpMode 
+@Autonomous(name = "RedBackPixel")
+public class RedBackPixel extends LinearOpMode 
 {
   private DcMotor frontleft;
   private DcMotor rearleft;
