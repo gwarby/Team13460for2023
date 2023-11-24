@@ -561,14 +561,14 @@ public class BlueBackPixel extends LinearOpMode
   private void reverseFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS); }
   private void reverseFlipperWait() {
     double distance = Math.abs(grabber.getPosition - CLAW_FLIP_SERVO_FLIPPED_POS);
-    grabber.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
+    flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
     sleep(distance * CALC_FLIPPER_WAIT_MS + 5);
     
   }
   private void normalFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS); }
   private void normalFlipperWait() {
     double distance = Math.abs(grabber.getPosition - CLAW_FLIP_SERVO_NORMAL_POS);
-    grabber.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
+    flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
     sleep(distance * CALC_FLIPPER_WAIT_MS + 5);
     
     }
@@ -576,7 +576,7 @@ public class BlueBackPixel extends LinearOpMode
   private void groundTransitionFlipper() { flipper.setPostion(CLAW_FLIP_SERVO_TO_FROM_GROUND); }
   private void groundTransitionFlipperWait() {
     double distance = Math.abs(grabber.getPosition - CLAW_FLIP_SERVO_TO_FROM_GROUND);
-    grabber.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
+    flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
     sleep(distance * CALC_FLIPPER_WAIT_MS + 5);
     
   }
