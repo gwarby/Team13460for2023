@@ -114,6 +114,7 @@ public class BlueBackPixel extends LinearOpMode
 
         findPropPL.ColorChannel = 1;  // channel 1: red,  channel 2: blue
         findPropPL.MinDetectionChroma = 132.72;  //142.0; // 142.0 was good with chonky bottom side of prop
+        findPropPL.MinDeltaDetectionChroma = 12.0;
         findPropPL.ScanLowestYBlock = 4;
         findPropPL.ScanLeftmostXBlock = 4;
         findPropPL.MidRightXBoundary = 9;
@@ -133,7 +134,9 @@ public class BlueBackPixel extends LinearOpMode
       {
         telemetry.addLine("Waiting for start");
         telemetry.addData("PROP LOCATION: ", findPropPL.propLocation);
+        telemetry.addData(" -MAX_DELTA_CHROMA: ", findPropPL.max_delta_chroma);
         telemetry.addData(" -MAX_CHROMA: ", findPropPL.max_chroma);
+        telemetry.addData(" -MIN_CHROMA: ", findPropPL.min_chroma);
         telemetry.addData(" -MAX_X: ", findPropPL.max_x);
         telemetry.addData(" -MAX_Y: ", findPropPL.max_y);
         telemetry.update();
@@ -149,7 +152,7 @@ public class BlueBackPixel extends LinearOpMode
     if (opModeIsActive()) {
       // Put run blocks here.
       
-      if (/*findPropPL.propLocation == "LEFT"*/ true){
+      if (findPropPL.propLocation == "LEFT"){
 
       normalFlipper();            // square w/ ground
       closeClampWait();
@@ -193,7 +196,7 @@ public class BlueBackPixel extends LinearOpMode
       armraise(-10.0, 0.159);     // finish lowering claw to ground
       normalFlipper();            // square w/ ground
 
-      } else if (/*findPropPL.propLocation == "MIDDLE"*/ false) { // If pixel is in MIDDLE
+      } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         
       normalFlipper();            // square w/ ground
       closeClampWait();
@@ -371,13 +374,17 @@ public class BlueBackPixel extends LinearOpMode
 
       max_x = 0;
       max_y = 0;
-      max_chroma = 0.0;
+      max_chroma = 0.0; 
+      min_chroma = 255.0;
       for (int i = ScanLeftmostXBlock; i < (SAMPLE_X_SZ-1); ++i) {
         for (int j = 0; j <= ScanLowestYBlock; ++j) { //for (int j = 0; j < (SAMPLE_Y_SZ-1); ++j) {
           if (sampleChromas[i][j] > max_chroma) {
             max_chroma = sampleChromas[i][j];
             max_x = i;
             max_y = j;
+          }
+          if (sampleChromas[i][j] < max_chroma) {
+            min_chroma = sampleChromas[i][j];
           }
         }
       }
@@ -390,7 +397,8 @@ public class BlueBackPixel extends LinearOpMode
       //int ScanLowestYBlock = 4;
       //int MidRightXBoundary = 9;
       propLocation = "LEFT";
-      if (max_chroma > MinDetectionChroma)
+      //if (max_chroma > MinDetectionChroma)
+      if (max_delta_chroma > MinDeltaDetectionChroma)
       {
         if (max_x > MidRightXBoundary)
           propLocation = "RIGHT";
