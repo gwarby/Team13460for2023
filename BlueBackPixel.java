@@ -171,7 +171,7 @@ public class BlueBackPixel extends LinearOpMode
       if (findPropPL.propLocation == "LEFT"){
         /************************************************************************
          *
-         * LEFT:
+         * LEFT: (BLUE BACK)
          *
          ************************************************************************/
       normalFlipper();            // square w/ ground
@@ -223,7 +223,7 @@ public class BlueBackPixel extends LinearOpMode
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
          *
-         * MIDDLE:
+         * MIDDLE: (BLUE BACK)
          *
          ************************************************************************/
       normalFlipper();            // square w/ ground
@@ -278,7 +278,7 @@ public class BlueBackPixel extends LinearOpMode
       } else { // RIGHT code
         /************************************************************************
          *
-         * RIGHT:
+         * RIGHT: (BLUE BACK)
          *
          ************************************************************************/
         ((DcMotorEx) frontleft).setTargetPositionTolerance(12);

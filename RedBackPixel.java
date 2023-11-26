@@ -166,7 +166,7 @@ public class RedBackPixel extends LinearOpMode
       if (findPropPL.propLocation == "LEFT"){
         /************************************************************************
          *
-         * LEFT:
+         * LEFT: (RED BACK)
          *
          ************************************************************************/
       normalFlipper();            // square w/ ground
@@ -213,7 +213,7 @@ public class RedBackPixel extends LinearOpMode
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
          *
-         * MIDDLE:
+         * MIDDLE: (RED BACK)
          *
          ************************************************************************/
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
@@ -262,7 +262,7 @@ public class RedBackPixel extends LinearOpMode
       } else { // RIGHT code
         /************************************************************************
          *
-         * RIGHT:
+         * RIGHT: (RED BACK)
          *
          ************************************************************************/
         normalFlipper();            // square w/ ground
