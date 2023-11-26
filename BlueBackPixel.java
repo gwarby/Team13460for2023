@@ -591,6 +591,26 @@ public class BlueBackPixel extends LinearOpMode
    * ARM EXTEND / RETRACT
    * FUNCTIONS:
    ************************************************************************/
+  private void armextendwait(double extend_retract, double power) {
+
+    if (extend_retract == 0) {
+      extend_retract = 0;
+    }
+    if (power == 0) {
+      power = 0.33;
+    }
+    extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert
+    extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
+    armextend.setTargetPosition((int) extend_retract);
+    armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armextend.setPower(Math.abs(power));
+    while (armextend.isBusy()) {
+      // Disable telemetry for competition as it slows the loop down
+      sleep(10);
+    }
+    //armextend.setPower(0);
+  }
+
   private void armextend(double extend_retract, double power) {
     if (extend_retract == 0) {
       extend_retract = 0;
