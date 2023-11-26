@@ -116,8 +116,15 @@ public class BlueBackPixel extends LinearOpMode
         findPropPL.ColorChannel = 2;  // channel 1: red,  channel 2: blue
         findPropPL.MinDeltaDetectionChroma = 25;
         findPropPL.ScanLowestYBlock = 4;
-        findPropPL.ScanLeftmostXBlock = 4;
-        findPropPL.MidRightXBoundary = 9;
+        findPropPL.ScanLeftmostXBlock = 4;  // originally 4,
+                                            // adjust to 1, 2, or 3 for right tile starting positions?
+                                            // try not to include left spikemark tape
+
+        findPropPL.MidRightXBoundary = 9;   // originally 9,
+                                            // adjust for left/right edge tile starting position once camera is locked in
+                                            // try 6, 7 or 8 for right tile starting positions?
+                                            // left tile edge starting: BlueBack & RedFront
+                                            // right tile edge starting: BlueFront & RedBack
         findPropPL.EnableDetection = true;
       }
 
