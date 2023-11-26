@@ -114,7 +114,6 @@ public class BlueBackPixel extends LinearOpMode
         webcam.startStreaming(544, 288, OpenCvCameraRotation.UPRIGHT);  //320x240  //432x240   //640x480
 
         findPropPL.ColorChannel = 2;  // channel 1: red,  channel 2: blue
-        findPropPL.MinDetectionChroma = 132.72;  //142.0; // 142.0 was good with chonky bottom side of prop
         findPropPL.MinDeltaDetectionChroma = 25;
         findPropPL.ScanLowestYBlock = 4;
         findPropPL.ScanLeftmostXBlock = 4;
@@ -352,7 +351,6 @@ public class BlueBackPixel extends LinearOpMode
     double max_chroma, min_chroma;
     double max_delta_chroma;
     int max_x = 0, max_y = 0;
-    double MinDetectionChroma = 142.0;
     double MinDeltaDetectionChroma = 12.0;
     int ScanLowestYBlock = 4;
     int ScanLeftmostXBlock = 4;
@@ -426,11 +424,7 @@ public class BlueBackPixel extends LinearOpMode
         new Scalar(240, 199, 185)
         );
 
-      //double MinDetectionChroma = 142.0;
-      //int ScanLowestYBlock = 4;
-      //int MidRightXBoundary = 9;
       propLocation = "LEFT";
-      //if (max_chroma > MinDetectionChroma)
       if (max_delta_chroma > MinDeltaDetectionChroma)
       {
         if (max_x > MidRightXBoundary)
@@ -439,20 +433,6 @@ public class BlueBackPixel extends LinearOpMode
           propLocation = "MIDDLE";
       }
 
-      /*
-      // compare the scores in order to report the position
-      if (rightChroma > midChroma && rightChroma > leftChroma)
-      {
-        propLocation = "RIGHT";
-      }
-      else if (leftChroma > midChroma && leftChroma > rightChroma)
-      {
-        propLocation = "LEFT";
-      }
-      else {
-        propLocation = "MIDDLE";
-      }
-      */
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
   }
