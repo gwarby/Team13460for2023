@@ -38,20 +38,21 @@ import org.openftc.easyopencv.OpenCvWebcam;
 @Autonomous(name = "BlueBackPixel")
 public class BlueBackPixel extends LinearOpMode 
 {
-  private DcMotor frontleft;
-  private DcMotor rearleft;
-  private DcMotor frontright;
-  private DcMotor rearright;
-  private Servo grabber;
-  DcMotor armextend;
-  DcMotor armraise;
-  Servo flipper;
-  
+  // Declare the variables for our hardware, they will be mapped later
+  private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
+  private Servo grabber, flipper;
   OpenCvWebcam webcam;
 
+  /************************************************************************
+   * CALIBRATION CONSTANTS:
+   *   Use for common servo positions, motor tick scaling, motor limits,
+   *   default times, default powers.
+   *   This allows the code to be adjusted only in this section, if
+   *   a servo is mounted in a different orientation, for example.
+   ************************************************************************/
   double GRABBER_SERVO_OPENED_POS = 0.37;//0.45;
   double GRABBER_SERVO_CLOSED_POS = 0.163;//0.12;
-  double OPEN_A_LITTLE = 0.206;//0.22;
+  double GRABBER_SERVO_OPEN_A_LITTLE_POS = 0.206;//0.22;
   int GRABBER_SERVO_PAUSE_TIME_MS = 355;//450;
   
   double ARM_RAISE_TICKS_PER_DEG = 7.595;
@@ -67,11 +68,17 @@ public class BlueBackPixel extends LinearOpMode
   double DRIVE_POWER = 0.5;
 
  /**
-   * This function is executed when this OpMode is selected from the Driver Station.
+   * This function is executed when this OpMode is selected & Init is pressed
    */
   @Override
   public void runOpMode() 
   {
+    /************************************************************************
+     * INIT CODE:
+     *   -map hardware specific to our robot
+     *   -config hardware settings (like reversed motor directions)
+     *   -config camera & OpenCV pipeline used for prop location detection
+     ************************************************************************/
     frontleft = hardwareMap.get(DcMotor.class, "frontleft");
     rearleft = hardwareMap.get(DcMotor.class, "rearleft");
     frontright = hardwareMap.get(DcMotor.class, "frontright");
@@ -156,10 +163,17 @@ public class BlueBackPixel extends LinearOpMode
     waitForStart();
 
     if (opModeIsActive()) {
-      // Put run blocks here.
+      /************************************************************************
+       * START / RUN OPMODE CODE:
+       *   -perform autonomous driving based on identified prop location
+       ************************************************************************/
       
       if (findPropPL.propLocation == "LEFT"){
-
+        /************************************************************************
+         *
+         * LEFT:
+         *
+         ************************************************************************/
       normalFlipper();            // square w/ ground
       closeClampWait();
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
@@ -207,7 +221,11 @@ public class BlueBackPixel extends LinearOpMode
       drive(-13, 0, 0, DRIVE_POWER);
 
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
-        
+        /************************************************************************
+         *
+         * MIDDLE:
+         *
+         ************************************************************************/
       normalFlipper();            // square w/ ground
       closeClampWait();
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
@@ -258,6 +276,11 @@ public class BlueBackPixel extends LinearOpMode
       armraisewait(-10.0, 0.159);     // finish lowering claw to ground
 
       } else { // RIGHT code
+        /************************************************************************
+         *
+         * RIGHT:
+         *
+         ************************************************************************/
         ((DcMotorEx) frontleft).setTargetPositionTolerance(12);
         ((DcMotorEx) rearleft).setTargetPositionTolerance(12);
         ((DcMotorEx) frontright).setTargetPositionTolerance(12);
@@ -337,32 +360,41 @@ public class BlueBackPixel extends LinearOpMode
       }
     }
   }
-  
-  
-  
-  
-  
-  // vvvv need this vvvv
-  
-  
-  
-  
-  
-  
+
+  /************************************************************************
+   * VISION PROCESSING / PROP DETECTION PIPELINE:
+   *   OpenCV works by attaching 'pipelines' to each streamed camera
+   *   frame.
+   *   This pipeline currently uses either the red or blue chroma
+   *   channel of a YCrCb color format.
+   *   This approach was based on:
+   *     the SkystoneDeterminationExample.java within
+   *     github.com/OpenFTC/EasyOpenCV
+   *
+   *   Our camera view isn't wide enough to see all 3 prop locations
+   *   from both the right tile & left tile starting alignments. So
+   *   this pipeline is looking for middle or right props, and
+   *   assuming LEFT position otherwise.
+   ************************************************************************/
   class FindPropPipeline extends OpenCvPipeline
   {
-    // Attributes accessed by caller
+    /************************************************************************
+     * Attributes calibrated by the caller:
+     ************************************************************************/
     int ColorChannel = 2;  // channel 1: red,  channel 2: blue
-    String propLocation = "none";
-    double max_chroma, min_chroma;
-    double max_delta_chroma;
-    int max_x = 0, max_y = 0;
     double MinDeltaDetectionChroma = 12.0;
     int ScanLowestYBlock = 4;
     int ScanLeftmostXBlock = 4;
-    int MidRightXBoundary = 9;
+    int MidRightXBoundary = 9;  // the x block boundary between middle & right
     boolean EnableDetection = false;
-    
+
+    /************************************************************************
+     * Attributes read by the caller:
+     ************************************************************************/
+    String propLocation = "none";  // set to "LEFT", "MIDDLE" or "RIGHT" values
+    double max_chroma, min_chroma, max_delta_chroma;
+    int max_x = 0, max_y = 0;
+
     // private attr
     private Mat YCrCb = new Mat();   // Mat for converting color system
     private Mat ChromaMat = new Mat();   // Mat for extracting desired Chroma channel
@@ -375,12 +407,13 @@ public class BlueBackPixel extends LinearOpMode
     private Mat[][] sampleMats = new Mat[SAMPLE_X_SZ][SAMPLE_Y_SZ];
     private Rect[][] sampleRects = new Rect[SAMPLE_X_SZ][SAMPLE_Y_SZ];
     private double[][] sampleChromas = new double[SAMPLE_X_SZ][SAMPLE_Y_SZ];
-    
+
+    /************************************************************************
+     * init() creates all the Rect objects at the calculated positions
+     ************************************************************************/
     @Override
     public void init(Mat firstFrame)
     {
-      // see the SkystoneDeterminationExample.java within
-      //    github.com/OpenFTC/EasyOpenCV
       for (int i = 0; i < (SAMPLE_X_SZ-1); i++) {
         for (int j = 0; j < (SAMPLE_Y_SZ-1); j++) {
           // sample overlapping 2x2's
@@ -389,6 +422,12 @@ public class BlueBackPixel extends LinearOpMode
       }    
     }
 
+    /************************************************************************
+     * processFrame() scans through each Rect zone looking for max chroma,
+     *   min chroma is used to calculate a delta chroma that hopefully
+     *   is more consistent than just the raw chroma value if we play
+     *   on fields that have different lighting conditions.
+     ************************************************************************/
     @Override
     public Mat processFrame(Mat input)
     {
@@ -425,11 +464,6 @@ public class BlueBackPixel extends LinearOpMode
       }
       max_delta_chroma = max_chroma - min_chroma;
       
-      Imgproc.rectangle(ChromaMat, 
-        new Point(max_x * X_WIDTH + 0, max_y * Y_WIDTH + 0), new Point( ((max_x+1)*(X_WIDTH) + X_WIDTH - 1), ((max_y+1)*(Y_WIDTH) + Y_WIDTH - 1)),
-        new Scalar(240, 199, 185)
-        );
-
       propLocation = "LEFT";
       if (max_delta_chroma > MinDeltaDetectionChroma)
       {
@@ -439,10 +473,20 @@ public class BlueBackPixel extends LinearOpMode
           propLocation = "MIDDLE";
       }
 
+      // Draw a rectangle where the prop was detected for manual debugging w/ camera stream
+      Imgproc.rectangle(ChromaMat,
+              new Point(max_x * X_WIDTH + 0, max_y * Y_WIDTH + 0), new Point( ((max_x+1)*(X_WIDTH) + X_WIDTH - 1), ((max_y+1)*(Y_WIDTH) + Y_WIDTH - 1)),
+              new Scalar(240, 199, 185)
+      );
+
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
   }
 
+  /************************************************************************
+   * COMMON DRIVE FUNCTION:
+   *   Used to simplify autonomous programming with simple & readable cmds
+   ************************************************************************/
   private void drive(double fwd_bck, double right_left, double cw_ccw, double power) {
     double frontLeftDistance;
     double rearLeftDistance;
@@ -506,11 +550,11 @@ public class BlueBackPixel extends LinearOpMode
     rearright.setPower(0);
   }
 
+  /************************************************************************
+   * ARM RAISE / LOWER
+   * FUNCTIONS:
+   ************************************************************************/
   private void armraisewait(double raise_lower, double power) {
-
-    double armRaiseDistance;
-    double armRaisePower;
-  
     if (raise_lower == 0) {
       raise_lower = 0;
     }
@@ -526,14 +570,10 @@ public class BlueBackPixel extends LinearOpMode
       // Disable telemetry for competition as it slows the loop down
       sleep(10);
     }
-    //armraise.setPower(0);
+    //armraise.setPower(0);  // arm will fall if power is set to 0
   }
 
   private void armraise(double raise_lower, double power) {
-
-    double armRaiseDistance;
-    double armRaisePower;
-  
     if (raise_lower == 0) {
       raise_lower = 0;
     }
@@ -547,11 +587,11 @@ public class BlueBackPixel extends LinearOpMode
     armraise.setPower(Math.abs(power));
   }
 
+  /************************************************************************
+   * ARM EXTEND / RETRACT
+   * FUNCTIONS:
+   ************************************************************************/
   private void armextend(double extend_retract, double power) {
-
-    double armExtendDistance;
-    double armExtendPower;
-  
     if (extend_retract == 0) {
       extend_retract = 0;
     }
@@ -570,12 +610,13 @@ public class BlueBackPixel extends LinearOpMode
     //armextend.setPower(0);
   }
 
-  //**********************************************
-  // GRABBER COMMAND FUNCTIONS
-  //**********************************************
-  // Description: 1st function sets servo to run to position, then moves on
-  // 2nd function finds how far the servo is moving, and uses the distance
-  // to calculate a more customized wait time, instead of an arbitrary number
+  /************************************************************************
+   * GRABBER COMMAND
+   * FUNCTIONS:
+   *   1st function: sets servo to run to position, then moves on without wait
+   *   2nd function: finds how far the servo is moving, and uses the distance
+   *   to calculate a more customized wait time, instead of an arbitrary number
+   ************************************************************************/
   private void closeClamp() { grabber.setPosition(GRABBER_SERVO_CLOSED_POS); }
   private void closeClampWait() {
     double distance = Math.abs(grabber.getPosition() - GRABBER_SERVO_CLOSED_POS); // Calculate movement BEFORE setting new position
@@ -590,39 +631,35 @@ public class BlueBackPixel extends LinearOpMode
     sleep((int) (distance * CALC_GRABBER_WAIT_MS + 5)); 
   }
   
-  private void openClampLittle() { grabber.setPosition(OPEN_A_LITTLE); }
+  private void openClampLittle() { grabber.setPosition(GRABBER_SERVO_OPEN_A_LITTLE_POS); }
   private void openClampLittleWait() { 
-    double distance = Math.abs(grabber.getPosition() - OPEN_A_LITTLE);
-    grabber.setPosition(OPEN_A_LITTLE);
+    double distance = Math.abs(grabber.getPosition() - GRABBER_SERVO_OPEN_A_LITTLE_POS);
+    grabber.setPosition(GRABBER_SERVO_OPEN_A_LITTLE_POS);
     sleep((int) (distance * CALC_GRABBER_WAIT_MS + 5));
     
   }
-  
-  
-  //**********************************************
-  // FLIPPER COMMAND FUNCTIONS                    
-  //**********************************************
-  // double functin same idea as above
+
+  /************************************************************************
+   * FLIPPER COMMAND
+   * FUNCTIONS:
+   *   double function, with & without wait, same as above
+   ************************************************************************/
   private void reverseFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS); }
   private void reverseFlipperWait() {
     double distance = Math.abs(flipper.getPosition() - CLAW_FLIP_SERVO_FLIPPED_POS);
     flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
     sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
-    
   }
   private void normalFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS); }
   private void normalFlipperWait() {
     double distance = Math.abs(flipper.getPosition() - CLAW_FLIP_SERVO_NORMAL_POS);
     flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
     sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
-    
-  
   }
   private void groundTransitionFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND); }
   private void groundTransitionFlipperWait() {
     double distance = Math.abs(flipper.getPosition() - CLAW_FLIP_SERVO_TO_FROM_GROUND);
     flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
     sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
-    
   }
 }
