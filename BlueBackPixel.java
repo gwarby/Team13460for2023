@@ -143,6 +143,7 @@ public class BlueBackPixel extends LinearOpMode
       }
     }
 
+    findPropPL.EnableDetection = false;
 
     // wait for user to press start on Driver Station
     waitForStart();
