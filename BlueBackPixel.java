@@ -143,8 +143,6 @@ public class BlueBackPixel extends LinearOpMode
       }
     }
 
-    telemetry.addLine("Waiting for start");
-    telemetry.update();
 
     // wait for user to press start on Driver Station
     waitForStart();
