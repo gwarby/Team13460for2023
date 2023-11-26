@@ -394,7 +394,7 @@ public class RedBackPixel extends LinearOpMode
             max_x = i;
             max_y = j;
           }
-          if (sampleChromas[i][j] < max_chroma) {
+          if (sampleChromas[i][j] < min_chroma) {
             min_chroma = sampleChromas[i][j];
           }
         }
