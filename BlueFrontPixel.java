@@ -35,7 +35,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 
 @Autonomous(name = "BlueFrontPixel")
-public class RedBackPixel extends LinearOpMode 
+public class BLUEFRONTPixel extends LinearOpMode 
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
@@ -126,7 +126,7 @@ public class RedBackPixel extends LinearOpMode
                                             // adjust for left/right edge tile starting position once camera is locked in
                                             // try 6, 7 or 8 for right tile starting positions?
                                             // left tile edge starting: BlueBack & RedFront
-                                            // right tile edge starting: BlueFront & RedBack
+                                            // right tile edge starting: BlueFront & BLUEFRONT
         findPropPL.EnableDetection = true;
       }
 
@@ -166,7 +166,7 @@ public class RedBackPixel extends LinearOpMode
       if (findPropPL.propLocation == "LEFT"){
         /************************************************************************
          *
-         * LEFT: (RED BACK)
+         * LEFT: (BLUE FRONT)
          *
          ************************************************************************/
       normalFlipper();            // square w/ ground
@@ -200,7 +200,7 @@ public class RedBackPixel extends LinearOpMode
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
          *
-         * MIDDLE: (RED BACK)
+         * MIDDLE: (BLUE FRONT)
          *
          ************************************************************************/
       drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
@@ -231,7 +231,7 @@ public class RedBackPixel extends LinearOpMode
       } else { // RIGHT code
         /************************************************************************
          *
-         * RIGHT: (RED BACK)
+         * RIGHT: (BLUE FRONT)
          *
          ************************************************************************/
         normalFlipper();            // square w/ ground
