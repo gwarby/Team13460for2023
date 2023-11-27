@@ -247,7 +247,6 @@ public class BlueBackPixel extends LinearOpMode
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -9, 0, DRIVE_POWER);       // left 10" along backdrop
         armraisewait(45, 0.127);        // slow down to avoid tipping over
-        armextend(-4,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
         drive(-2, 0, 0, 0.2);       // REV last 5" to board
         openClampWait();          // release pixel on board
         sleep(400);
