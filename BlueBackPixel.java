@@ -555,15 +555,17 @@ public class BlueBackPixel extends LinearOpMode
    * FUNCTIONS:
    ************************************************************************/
   private void armraisewait(double raise_lower, double power) {
-    if (raise_lower == 0) {
-      raise_lower = 0;
-    }
+  
     if (power == 0) {
       power = 0.33;
     }
-    raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
-    raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
-    armraise.setTargetPosition((int) raise_lower);
+    if (raise_lower == 0) {
+      armraise.setTargetPosition(0);
+    } else {
+      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
+      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
+      armraise.setTargetPosition((int) raise_lower);
+    }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
     while (armraise.isBusy()) {
@@ -572,19 +574,22 @@ public class BlueBackPixel extends LinearOpMode
     }
     //armraise.setPower(0);  // arm will fall if power is set to 0
   }
-
+  
   private void armraise(double raise_lower, double power) {
-    if (raise_lower == 0) {
-      raise_lower = 0;
-    }
+  
     if (power == 0) {
       power = 0.33;
     }
-    raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
-    raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
-    armraise.setTargetPosition((int) raise_lower);
+    if (raise_lower == 0) {
+      armraise.setTargetPosition(0);
+    } else {
+      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
+      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
+      armraise.setTargetPosition((int) raise_lower);
+    }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
+    //armraise.setPower(0);
   }
 
   /************************************************************************
@@ -592,16 +597,17 @@ public class BlueBackPixel extends LinearOpMode
    * FUNCTIONS:
    ************************************************************************/
   private void armextendwait(double extend_retract, double power) {
-
-    if (extend_retract == 0) {
-      extend_retract = 0;
-    }
+    
     if (power == 0) {
       power = 0.33;
     }
-    extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert
-    extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
-    armextend.setTargetPosition((int) extend_retract);
+    if (extend_retract == 0) {
+      armextend.setTargetPosition(0);
+    } else {
+      extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
+      extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
+      armextend.setTargetPosition((int) extend_retract);
+    }
     armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armextend.setPower(Math.abs(power));
     while (armextend.isBusy()) {
@@ -610,23 +616,21 @@ public class BlueBackPixel extends LinearOpMode
     }
     //armextend.setPower(0);
   }
-
+  
   private void armextend(double extend_retract, double power) {
-    if (extend_retract == 0) {
-      extend_retract = 0;
-    }
+
     if (power == 0) {
       power = 0.33;
     }
-    extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
-    extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
-    armextend.setTargetPosition((int) extend_retract);
+    if (extend_retract == 0) {
+      armextend.setTargetPosition(0);
+    } else {
+      extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
+      extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
+      armextend.setTargetPosition((int) extend_retract);
+    }
     armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armextend.setPower(Math.abs(power));
-    while (armextend.isBusy()) {
-      // Disable telemetry for competition as it slows the loop down
-      sleep(10);
-    }
     //armextend.setPower(0);
   }
 
