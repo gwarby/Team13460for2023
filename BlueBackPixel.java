@@ -183,13 +183,7 @@ public class BlueBackPixel extends LinearOpMode
         drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        // Drop off on spike mark
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
+        dropBottomPixel();
         armextend(0, 0.5);         // retract arm
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
@@ -230,12 +224,7 @@ public class BlueBackPixel extends LinearOpMode
         drive(24.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(4,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-      // After drop-off
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();              // Drop bottom pixel
         armextend(0, 0.5);            // retract arm
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
@@ -282,12 +271,7 @@ public class BlueBackPixel extends LinearOpMode
         armextend(10.5,0.6);          // Extend arm 4" reaching pixel over spike
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
       // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-      // After drop-off
-        armraisewait(0.68, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
         ((DcMotorEx) armraise).setTargetPositionTolerance(12);
         armextend(0,0.31);         // retract arm
         
@@ -462,6 +446,18 @@ public class BlueBackPixel extends LinearOpMode
 
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
+  }
+
+  /************************************************************************
+    *  DROP BOTTOM PIXEL FUNCTION
+    *     Used to improve readability/ simplify editing of pixel drop off procedure
+  *************************************************************************/
+  private void dropBottomPixel() {
+    normalFlipperWait();            // square w/ ground
+    openClampLittleWait();          // drop bototm stack
+    armraisewait(0.6, 0);           // Wait
+    sleep(50);                      // Wait
+    closeClampWait();               // Grab the top pixel
   }
 
   /************************************************************************
