@@ -170,39 +170,36 @@ public class RedBackPixel extends LinearOpMode
          *
          ************************************************************************/
         normalFlipper();            // square w/ ground
-        closeClampWait();
-        sleep(50);
+        closeClamp();
         drive(2, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraisewait(20, 0.5);             // Raise 20 deg for carrying pixels
+        armraise(20, 0.5);             // Raise 20 deg for carrying pixels
+        sleep(100);                    // Give arm time to get off ground
         drive(15,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(10, 0.47);
+        armextend(10, 0.47);               // extend arm 10" for reach
         drive(0,0,-55,DRIVE_POWER);         // CCW 45 deg to face LEFT spike mark
         drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
-        // Drop-off
+      // Drop-off
         normalFlipperWait();            // square w/ ground
         openClampLittleWait();          // drop pixel stack
-        
-        // After drop-off
         armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
         sleep(50);
         closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
-        armextend(0,0.31);         // retract arm fully
+      // After drop-off
+        armextend(0,0.31);             // retract arm fully
         drive(0, 0, (55+90), DRIVE_POWER);      // CCW 43 to face away from backdrop
-        drive(25, 0, 0, DRIVE_POWER);       // BACK 25" toward backdrop
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(0, 0, 180, DRIVE_POWER);
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+        drive(25, 0, 0, DRIVE_POWER);       // Drive 25" toward backdrop
+        drive(0, 0, 180, DRIVE_POWER);       // Rotate 180 deg
         drive(0, 12, 0, DRIVE_POWER);         // Right 5" to left side of backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         armraise(45, 0.09);        // slow down to avoid tipping over
         drive(-5, 0, 0, 0.2);       // REV last 5" to board
         openClampWait();          // release pixel on board
         sleep(350);
-        drive(3, 0, 0, DRIVE_POWER);
+        drive(3, 0, 0, DRIVE_POWER);  // Get off of board
         groundTransitionFlipper();
-        armraise(-140, 0.41);        // bring the arm back down
+        armraise(-100, 0.3);        // bring the arm back down
         drive(0, -26, 0, DRIVE_POWER); // Drive left 26" to wall
         armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                     // ...leave up ~15 deg from driving to park pos
@@ -216,49 +213,47 @@ public class RedBackPixel extends LinearOpMode
          * MIDDLE: (RED BACK)
          *
          ************************************************************************/
+        normalFlipper();
+        closeClamp();
         drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraisewait(20,0);             // Raise 20 for carrying pixels
+        armraise(20,0);             // Raise 20 for carrying pixels
+        sleep(100);
         armextend(3.5,0.47);          // Extend arm 4" hopefully reaching pixel over spike
         drive(23.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
   
-        // Drop-off
+     // Drop-off
         normalFlipperWait();            // square w/ ground
         openClampLittleWait();          // drop pixel stack
-        
-        // After drop-off
         armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
         sleep(50);
         closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
-        armraisewait(15, 0);            // raise 12 deg for driving around
-  
+     // After drop-off
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
         sleep(100);
+        armextend(0, 0.4);              // retract arm fully
         drive(0, 0, 90, DRIVE_POWER);      // CCW 83 to face backdrop    
         sleep(50);
-        drive(21.5, 0, 0, DRIVE_POWER);    // FWD 25.5" toward backdrop
         armraise(75, 0.3);                 // raise arm 120 deg (all the way back/up for placing pixel on board)
-        armextend(0, 0.2);              // retract arm fully
+        drive(21.5, 0, 0, DRIVE_POWER);    // FWD 25.5" toward backdrop
         drive(0, 0, 181, DRIVE_POWER);     // CW 180 deg to back into backdrop
         reverseFlipper();                 // put flipper in rev pos for placing pixel on board
         drive(0, 4, 0, DRIVE_POWER);    // right 4" along backdrop to left pos
-        armraisewait(45, 0.127);        // slow down to avoid tipping over
+        armraisewait(45, 0.127);        // slowly finish putting arm back
         drive(-5, 0, 0, 0.2);       // REV last 5" to board
-        openClampWait();          // release pixel on board
-        sleep(200);
-        drive(2, 0, 0, DRIVE_POWER); // drive back 5" behind/over line
-        closeClamp();
+      // Place pixel on backdrop
+        openClampLittleWait();          // release pixel on board
+        sleep(300);
+        openClamp();                  // fully open grabber
+        drive(2, 0, 0, DRIVE_POWER); // forward 2" to get off board
         groundTransitionFlipper();  // get arm in position to clear axle
-        armraisewait(-100, 0.41);        // bring the arm back down
-        normalFlipper();            // square w/ ground
-        openClamp();
-        armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming
+        armraise(-100, 0.31);        // bring the arm back down
         drive(0, -21, 0, DRIVE_POWER); // drive right 18" to wall
+        armraise(-20.6, 0.31);      // lower arm back to ground to prevent slamming
         drive(-13, 0, 0, DRIVE_POWER); // drive back 5" behind/over line
         armraisewait(0, 0.159);     // finish lowering claw to ground
-        normalFlipper();
+        normalFlipperWait();
 
       } else { // RIGHT code
         /************************************************************************
@@ -267,49 +262,43 @@ public class RedBackPixel extends LinearOpMode
          *
          ************************************************************************/
         normalFlipper();            // square w/ ground
-        closeClampWait();
-        armraisewait(20,0);             // Raise 20 for carrying pixels
-        sleep(100);
+        closeClamp();
         drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        armextend(4,0.47);          // Extend arm 4" hopefully reaching pixel over spike
         groundTransitionFlipper();  // <keep flipper from getting caught>
+        armraise(20,0);             // Raise 20 for carrying pixels
+        sleep(100);
+        armextend(4,0.47);          // Extend arm 4" hopefully reaching pixel over spike
         drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,35,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
         drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
-        // drop off
+      // drop off
         normalFlipperWait();            // square w/ ground
         openClampLittleWait();          // drop pixel stack
-      
-        // After drop-off
         armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
         sleep(50);
         closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
-        armraise(12, 0);            // raise 12 deg for driving around
+      // After drop-off
         armextend(0,0.31);         // pull arm all the way in
         drive(-3, 0, 0, DRIVE_POWER); // back up 3"
         drive(0, 0, 55, DRIVE_POWER);      // CCW 55 to face backdrop
-        sleep(50);
-        drive(25, 0, 0, DRIVE_POWER);       // Drive 30" toward backdrop
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+        drive(25, 0, 0, DRIVE_POWER);       // Drive 30" toward backdrop
         drive(0, 0, 180, DRIVE_POWER);  // rotate 180
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, 2, 0, DRIVE_POWER); // Slide right 1"
         armraise(45, 0.127);        // slow down to avoid tipping over
-        // drive(0, 2, 0, DRIVE_POWER); // Slide robot left 4" to right side of backdrop
         drive(-4.5, 0, 0, 0.2);       // REV last 5" to board
-        sleep(50);
-        openClampWait();          // release pixel on board
-        sleep(100);
+      // Place pixel on backdrop
+        openClampLitlteWait();          // release pixel on board
+        sleep(300);
+        openClamp();                   // Fully open grabber
         drive(2, 0, 0, DRIVE_POWER); // forward 2 to get away from backdrop
         groundTransitionFlipperWait();  // get arm in position to clear axle
-        armraise(-100, 0.41);        // bring the arm back down
+        armraise(-100, 0.31);        // bring the arm back down
         drive(0, -14, 0, DRIVE_POWER); // drive left 8" to wall
-        armraise(-20, 0.221);      // lower arm back to ground to prevent slamming between programs
-                                    // ...leave up ~15 deg from driving to park pos
+        armraise(-20, 0.221);      // lower arm further, leave up ~15 deg for driving
         drive(-14, 0, 0, DRIVE_POWER); // drive back 5" behind/over line
-        openClamp();
-        armraisewait(0, 0.159);     // finish lowering claw to ground
+        armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipperWait();            // square w/ ground
       }
       
