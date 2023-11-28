@@ -187,10 +187,9 @@ public class RedBackPixel extends LinearOpMode
         closeClampWait();               // Grab the top pixel
       // After drop-off
         armextend(0,0.31);             // retract arm fully
-        drive(0, 0, (55+90), DRIVE_POWER);      // CCW 43 to face away from backdrop
+        drive(0, 0, (-35), DRIVE_POWER);      // CCW 43 to face away from backdrop
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(25, 0, 0, DRIVE_POWER);       // Drive 25" toward backdrop
-        drive(0, 0, 180, DRIVE_POWER);       // Rotate 180 deg
+        drive(-25, 0, 0, DRIVE_POWER);       // BACK 25" toward backdrop
         drive(0, 12, 0, DRIVE_POWER);         // Right 5" to left side of backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         armraise(45, 0.09);        // slow down to avoid tipping over
@@ -233,11 +232,10 @@ public class RedBackPixel extends LinearOpMode
                                     // ...but also don't go back to far into frames
         sleep(100);
         armextend(0, 0.4);              // retract arm fully
-        drive(0, 0, 90, DRIVE_POWER);      // CCW 83 to face backdrop    
+        drive(0, 0, -90, DRIVE_POWER);      // CCW 83 to face away from backdrop    
         sleep(50);
         armraise(75, 0.3);                 // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(21.5, 0, 0, DRIVE_POWER);    // FWD 25.5" toward backdrop
-        drive(0, 0, 181, DRIVE_POWER);     // CW 180 deg to back into backdrop
+        drive(-21.5, 0, 0, DRIVE_POWER);    // BACK 25.5" toward backdrop
         reverseFlipper();                 // put flipper in rev pos for placing pixel on board
         drive(0, 4, 0, DRIVE_POWER);    // right 4" along backdrop to left pos
         armraisewait(45, 0.127);        // slowly finish putting arm back
@@ -278,16 +276,15 @@ public class RedBackPixel extends LinearOpMode
         sleep(50);
         closeClampWait();               // Grab the top pixel
       // After drop-off
-        armextend(0,0.31);         // pull arm all the way in
-        drive(-3, 0, 0, DRIVE_POWER); // back up 3"
-        drive(0, 0, 55, DRIVE_POWER);      // CCW 55 to face backdrop
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(25, 0, 0, DRIVE_POWER);       // Drive 30" toward backdrop
-        drive(0, 0, 180, DRIVE_POWER);  // rotate 180
-        reverseFlipper();           // put flipper in rev pos for placing pixel on board
-        drive(0, 2, 0, DRIVE_POWER); // Slide right 1"
-        armraise(45, 0.127);        // slow down to avoid tipping over
-        drive(-4.5, 0, 0, 0.2);       // REV last 5" to board
+        armextend(0,0.31);                   // pull arm all the way in
+        drive(-3, 0, 0, DRIVE_POWER);       // back up 3"
+        drive(0, 0, -125, DRIVE_POWER);      // CCW 125 deg to face away from backdrop
+        armraise(75, 0.3);                   // raise arm 120 deg (all the way back/up for placing pixel on board)
+        drive(-25, 0, 0, DRIVE_POWER);       // Back 30" toward backdrop
+        reverseFlipper();                   // put flipper in rev pos for placing pixel on board
+        drive(0, 2, 0, DRIVE_POWER);     // Slide right 1"
+        armraise(45, 0.127);                // slow down to avoid tipping over
+        drive(-4.5, 0, 0, 0.2);           // REV last 5" to board
       // Place pixel on backdrop
         openClampLitlteWait();          // release pixel on board
         sleep(300);
