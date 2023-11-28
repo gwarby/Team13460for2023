@@ -364,18 +364,6 @@ public class RedBackPixel extends LinearOpMode
     }
 
     /************************************************************************
-    *  DROP BOTTOM PIXEL FUNCTION
-    *     Used to improve readability/ simplify editing of pixel drop off procedure
-    *************************************************************************/
-    private void dropBottomPixel() {
-      normalFlipperWait();            // square w/ ground
-      openClampLittleWait();          // drop bototm stack
-      armraisewait(0.6, 0);           // Wait
-      sleep(50);                      // Wait
-      closeClampWait();               // Grab the top pixel
-    }
-
-    /************************************************************************
      * processFrame() scans through each Rect zone looking for max chroma,
      *   min chroma is used to calculate a delta chroma that hopefully
      *   is more consistent than just the raw chroma value if we play
@@ -435,6 +423,18 @@ public class RedBackPixel extends LinearOpMode
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
   }
+
+  /************************************************************************
+    *  DROP BOTTOM PIXEL FUNCTION
+    *     Used to improve readability/ simplify editing of pixel drop off procedure
+  *************************************************************************/
+  private void dropBottomPixel() {
+     normalFlipperWait();            // square w/ ground
+     openClampLittleWait();          // drop bototm stack
+     armraisewait(0.6, 0);           // Wait
+     sleep(50);                      // Wait
+     closeClampWait();               // Grab the top pixel
+   }
 
   /************************************************************************
    * COMMON DRIVE FUNCTION:
