@@ -268,7 +268,7 @@ public class RedBackPixel extends LinearOpMode
         armraise(45, 0.127);                // slow down to avoid tipping over
         drive(-4.5, 0, 0, 0.2);           // REV last 5" to board
       // Place pixel on backdrop
-        openClampLitlteWait();          // release pixel on board
+        openClampLittleWait();          // release pixel on board
         sleep(300);
         openClamp();                   // Fully open grabber
         drive(2, 0, 0, DRIVE_POWER); // forward 2 to get away from backdrop
