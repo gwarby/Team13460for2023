@@ -181,9 +181,10 @@ public class BLUEFRONTPixel extends LinearOpMode
         dropBottomPixel();                // Dropt pixel
         armextend(0,0.31);                 // retract arm
         drive(0, 0, 55, DRIVE_POWER);      // CCW 43 to face forward
+        drive(0, -4, 0, DRIVE_POWER);      // Slide left 4" to avoid pixel
         drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
-        drive(60, 0, 0, DRIVE_POWER);      // Drive forward to parking zone, with second pixel
+        drive(76, 0, 0, DRIVE_POWER);      // Drive forward 6' 4" to parking zone, with second pixel
         armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipper();            // square w/ ground
         openClampWait();                      // Drop pixel to score
@@ -204,10 +205,10 @@ public class BLUEFRONTPixel extends LinearOpMode
         drive(23.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         dropBottomPixel();
         armextend(0,0.31);         // retract arm
-        drive(0, 7, 0, DRIVE_POWER);      // Strafe right 7" to go around pixel
+        drive(0, 10, 0, DRIVE_POWER);      // Strafe right 7" to go around pixel
         drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
-        drive(67, 0, 0, DRIVE_POWER);      // Drive forward 6' 7" to parking zone
+        drive(82, 0, 0, DRIVE_POWER);      // Drive forward 6' 10" to parking zone
         armextend(0, 0.3);
         armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipper();            // square w/ ground
@@ -234,7 +235,7 @@ public class BLUEFRONTPixel extends LinearOpMode
         drive(0, -5, 0, DRIVE_POWER);       // Strafe left 5 deg to avoid pixel/marker
         drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
-        drive(65, 0, 0, DRIVE_POWER);      // Drive forward to parking zone, with second pixel
+        drive(77, 0, 0, DRIVE_POWER);      // Drive forward 7' 5" to parking zone, with second pixel
         armextend(0, 0.3);
         armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipper();            // square w/ ground
