@@ -179,7 +179,7 @@ public class RedFrontPixel extends LinearOpMode
         drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         groundTransitionFlipper();  // <keep flipper from getting caught>
         armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100):                  // Give arm time to get off ground
+        sleep(100);                  // Give arm time to get off ground
         drive(15, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
@@ -188,7 +188,7 @@ public class RedFrontPixel extends LinearOpMode
         drive(0, 0, 45, DRIVE_POWER); // Rotate 45 deg back to facing forward
         drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(72, 0, 0, DRIVE_POWER); // Forward 6'
+        drive(60, 0, 0, DRIVE_POWER); // Forward 5'
         groundTransitionFlipper();
         armraise(0, 0.14);           // Reset arm rotate
         normalFlipper();            // square w/ ground
@@ -211,10 +211,10 @@ public class RedFrontPixel extends LinearOpMode
         drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
         dropBottomPixel();
         armextend(0, 0.4);          // Retract arm
-        drive(0, -10, 0, DRIVE_POWER); // Slide left 10" to go around pixel/marker
+        drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
         drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(82, 0, 0, DRIVE_POWER); // Forward 5' 10"
+        drive(67, 0, 0, DRIVE_POWER); // Forward 5' 7"
         groundTransitionFlipper();
         armraise(0, 0.14);           // Reset arm rotate
         normalFlipper();            // square w/ ground
@@ -238,10 +238,10 @@ public class RedFrontPixel extends LinearOpMode
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
         dropBottomPixel();
         armextend(-4, 0.4);          // Retract arm
-        drive(0, -4, 0, DRIVE_POWER); // Slide left 4" to go around pixel/marker
+        drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
         drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(76, 0, 0, DRIVE_POWER); // Forward 6' 4"
+        drive(67, 0, 0, DRIVE_POWER); // Forward 5' 7"
         groundTransitionFlipper();
         armextend(0, 0.3);            // Reset arm extend
         armraise(0, 0.14);           // Reset arm rotate
