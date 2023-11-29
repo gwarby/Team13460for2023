@@ -35,7 +35,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 
 @Autonomous(name = "BlueFrontPixel")
-public class BLUEFRONTPixel extends LinearOpMode 
+public class BlueFrontPixel extends LinearOpMode 
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
