@@ -181,7 +181,6 @@ public class BLUEFRONTPixel extends LinearOpMode
         dropBottomPixel();                // Dropt pixel
         armextend(0,0.31);                 // retract arm
         drive(0, 0, 55, DRIVE_POWER);      // CCW 43 to face forward
-        drive(0, -4, 0, DRIVE_POWER);      // Slide left 4" to avoid pixel
         drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
         drive(76, 0, 0, DRIVE_POWER);      // Drive forward 6' 4" to parking zone, with second pixel
