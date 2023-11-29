@@ -204,8 +204,8 @@ public class BlueFrontPixel extends LinearOpMode
         drive(23.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         dropBottomPixel();
         armextend(0,0.31);         // retract arm
-        drive(0, 10, 0, DRIVE_POWER);      // Strafe right 7" to go around pixel
-        drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
+        drive(0, 7, 0, DRIVE_POWER);      // Strafe right 7" to go around pixel
+        drive(24, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
         drive(82, 0, 0, DRIVE_POWER);      // Drive forward 6' 10" to parking zone
         armextend(0, 0.3);
