@@ -463,7 +463,7 @@ public class BlueBackPixel extends LinearOpMode
     normalFlipperWait();            // square w/ ground
     openClampLittleWait();          // drop bototm stack
     armraisewait(0.6, 0);           // Wait
-    sleep(50);                      // Wait
+    sleep(190);  //TODO  //sleep(50);                      // Wait
     closeClampWait();               // Grab the top pixel
   }
 
