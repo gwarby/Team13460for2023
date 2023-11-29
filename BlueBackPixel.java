@@ -292,7 +292,7 @@ public class BlueBackPixel extends LinearOpMode
         sleep(50);
         drive(-24, 0, 0, DRIVE_POWER);       // FWD 26" toward backdrop
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
+        //drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -16.5, 0, DRIVE_POWER);       // left 4" along backdrop
         armraise(45, 0.127);        // slow down to avoid tipping over
