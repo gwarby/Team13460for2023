@@ -41,6 +41,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   int GRABBER_TIME_DEBOUNCE_MS = 350;
   double GRABBER_SERVO_OPENED_POS = 0.35;
   double GRABBER_SERVO_CLOSED_POS = 0.16;
+  double GRABBER_SERVO_OPENED_A_LITTLE_POS = .206;
+  double GRABBER_BOTTOM_PIXEL_DEBOUNCE_MS = 350;
 
   double DRONE_SERVO_LOAD_POS = 0.6;
   double DRONE_SERVO_LAUNCH_POS = 0.3;
@@ -100,7 +102,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     boolean driverCmd_GrabberToggle, driverCmd_ClawFlipToggle;
     double driverCmd_RaiseLifterHooks, driverCmd_LowerLifterHooks;
     boolean driverCmd_AutoHoldLifterHooks;
-    boolean driverCmd_ArmToGround, driverCmd_GrabTopPixel, driverCmd_ArmToHolding;
+    boolean driverCmd_ArmToGround, driverCmd_GrabTopPixel, driverCmd_ArmToHolding, driverCmd_DropBottomPixel;
     boolean driverCmd_LaunchDrone, driverCmd_LoadDrone;
     // Variables for current positions, headings, etc.
     int armExtendPositionTicks;
@@ -118,6 +120,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
     boolean isGrabberInClosedPosition = true; // true is closed
     int lastTimeGrabberToggledMs = 0;
+    int lastTimeBottomPixelMs = 0;
     
     boolean lifterUp = false; // false is down
     int lastTimeLifted = 0; // used to unbounce lifter command
@@ -153,6 +156,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       driverCmd_RaiseLifterHooks = gamepad2.right_trigger;
       driverCmd_LowerLifterHooks = gamepad2.left_trigger;
       driverCmd_AutoHoldLifterHooks = gamepad2.dpad_down;
+      driverCmd_DropBottomPixel = gamepad2.left_bumper;
       
       driverCmd_LaunchDrone = gamepad1.y && gamepad2.y;
       driverCmd_LoadDrone = gamepad1.x && gamepad2.x;
@@ -263,7 +267,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         isArmHolding = true;
         armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
       }
-
+      
 
       // Extend Arm code
       armExtendPositionTicks = armextend.getCurrentPosition(); // set to current position of rotate motor
@@ -361,6 +365,18 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
         lastTimeGrabberToggledMs = (int) currentTime.milliseconds();  // refresh 'lastTime', regardless of which direction we went
       }
+
+      // drop bottom pixel code
+      boolean isBottomPixelDebounceTimeElapse = ((int) currentTime.milliseconds() - lastTimeBottomPixelMs)
+                                                                                > GRABBER_BOTTOM_PIXEL_DEBOUNCE_MS;
+
+      if (driverCmd_DropBottomPixel ) {
+        flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
+        grabber.setPosition(GRABBER_SERVO_OPEN_A_LITTE_POS);
+        sleep(100);
+        grabber.setPosition(GRABBER_SERVO_OPENED_POS);
+        lastTimeBottomPIxelMs = currentTime.milliseconds();
+      }
       
       // LIFTER (aka robot HANGING)
       lifter.setPower(driverCmd_RaiseLifterHooks - driverCmd_LowerLifterHooks);
@@ -373,7 +389,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       //}
 
       // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
-      if (driverCmd_LaunchDrone /*&& (currTimeMs/1000) > 90 */) {
+      if (driverCmd_LaunchDrone && (currTimeMs/1000) > 90 ) {
         droneLauncher.setPosition(DRONE_SERVO_LAUNCH_POS);
       }
       
