@@ -176,30 +176,30 @@ public class BlueBackPixel extends LinearOpMode
          ************************************************************************/
         normalFlipper();            // square w/ ground
         closeClamp();
+        //sleep(100);
         drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0.5);             // Raise 20 deg for carrying pixels
+        //groundTransitionFlipper();  // <keep flipper from getting caught>
+        armraise(12,0.3);             // Raise 20 deg for carrying pixels
         sleep(200);                  // Give arm time to get off ground
         drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        // Drop off on spike mark
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
+        armraise(-12,0.2);             // Raise 20 deg for carrying pixels
+        dropBottomPixel();
+        armraise(20,0.5);             // Raise 20 deg for carrying pixels
+        sleep(350);
         armextend(0, 0.5);         // retract arm
-        drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
+        drive(-2.5, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
-        drive(0, 0, -43, DRIVE_POWER);      // CCW -43 to face backdrop
+        drive(0, 0, 45, DRIVE_POWER);      // CW 135 to face away from backdrop
+        drive(-2, -2, 0, DRIVE_POWER);
+        drive(0, 0, 90, DRIVE_POWER);      // CW 135 to face away from backdrop
+        //drive(0, 0, 135, DRIVE_POWER);      // CW 135 to face away from backdrop
         sleep(100);
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(24, 0, 0, DRIVE_POWER);       // FWD 24" toward backdrop
-        drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
+        drive(-22, -7, 0, DRIVE_POWER);       // BACK 24" toward backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
-        drive(0, -5, 0, DRIVE_POWER);       // left 5" along backdrop
+        //drive(0, -5, 0, DRIVE_POWER);       // left 5" along backdrop
         armraisewait(45, 0.09);        // raise arm last 45 deg
         drive(-4.3, 0, 0, 0.2);       // REV last 4" to board
         openClampWait();          // release pixel on board
@@ -208,7 +208,7 @@ public class BlueBackPixel extends LinearOpMode
         drive(3, 0, 0, DRIVE_POWER);  // get away from board
         groundTransitionFlipper();  // get arm in position to clear axle
         armraise(-100, 0.41);        // bring the arm back down
-        drive(0, 20, 0, DRIVE_POWER); // right 20" along backboard
+        drive(0, 17, 0, DRIVE_POWER); // right 20" along backboard
         armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                     // ...leave up ~15 deg from driving to park pos
         armextend(0, 0.3);          // reset arm extension
@@ -231,20 +231,14 @@ public class BlueBackPixel extends LinearOpMode
         drive(24.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(4,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-      // After drop-off
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();              // Drop bottom pixel
         armextend(0, 0.5);            // retract arm
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
-        drive(0, 0, -72, DRIVE_POWER);      // CCW 83 to face backdrop
+        drive(0, 0, 108, DRIVE_POWER);      // CW 108 to face away from backdrop
         sleep(50);
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(24, 0, 0, DRIVE_POWER);       // FWD 25.5" toward backdrop
-        drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
+        drive(-24, 0, 0, DRIVE_POWER);       // FWD 25.5" toward backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -9, 0, DRIVE_POWER);       // left 10" along backdrop
         armraise(45, 0.127);        // slow down to avoid tipping over
@@ -284,16 +278,9 @@ public class BlueBackPixel extends LinearOpMode
         armextend(10.5,0.6);          // Extend arm 4" reaching pixel over spike
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
       // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        sleep(120);
-       
-      // After drop-off
-        armraisewait(0.68, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
         ((DcMotorEx) armraise).setTargetPositionTolerance(12);
-        armextend(0,0.31);         // drop pixel from lowest pos to avoid bouncing as much as possible
+        armextend(0,0.31);         // retract arm
         
         // WHAT IS HAPPENING TO POWER??
       //  telemetry.addData(" DRIVE_POWER: ", DRIVE_POWER);
@@ -301,11 +288,11 @@ public class BlueBackPixel extends LinearOpMode
        // sleep(4000);
         
         drive(-2, 0, 0, DRIVE_POWER); // back up 2" to clear spike mark
-        drive(0, 0, -142, DRIVE_POWER);      // CCW 133 to face backdrop
+        drive(0, 0, 40, DRIVE_POWER);      // CW 40 to face away from backdrop
         sleep(50);
-        drive(24, 0, 0, DRIVE_POWER);       // FWD 26" toward backdrop
+        drive(-24, 0, 0, DRIVE_POWER);       // FWD 26" toward backdrop
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
+        //drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -16.5, 0, DRIVE_POWER);       // left 4" along backdrop
         armraise(45, 0.127);        // slow down to avoid tipping over
@@ -466,6 +453,18 @@ public class BlueBackPixel extends LinearOpMode
 
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
+  }
+
+  /************************************************************************
+    *  DROP BOTTOM PIXEL FUNCTION
+    *     Used to improve readability/ simplify editing of pixel drop off procedure
+  *************************************************************************/
+  private void dropBottomPixel() {
+    normalFlipperWait();            // square w/ ground
+    openClampLittleWait();          // drop bototm stack
+    armraisewait(0.6, 0);           // Wait
+    sleep(190);  //TODO  //sleep(50);                      // Wait
+    closeClampWait();               // Grab the top pixel
   }
 
   /************************************************************************

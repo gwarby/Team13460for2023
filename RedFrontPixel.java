@@ -179,17 +179,11 @@ public class RedFrontPixel extends LinearOpMode
         drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         groundTransitionFlipper();  // <keep flipper from getting caught>
         armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100):                  // Give arm time to get off ground
+        sleep(100);                  // Give arm time to get off ground
         drive(15, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        
-      // After drop-off
-        armraisewait(0., 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
         armextend(0, 0.4);          // Retract arm
         drive(0, 0, 45, DRIVE_POWER); // Rotate 45 deg back to facing forward
         drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
@@ -215,14 +209,7 @@ public class RedFrontPixel extends LinearOpMode
         drive(24.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(4,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
-      // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        sleep(50);
-      // After drop-off
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
         armextend(0, 0.4);          // Retract arm
         drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
         drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
@@ -249,14 +236,7 @@ public class RedFrontPixel extends LinearOpMode
         drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
         armextend(10.5,0.47);          // Extend arm 4" reaching pixel over spike
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        sleep(120);
-         
-      // After drop-off
-        armraisewait(0.68, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(100);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
         armextend(-4, 0.4);          // Retract arm
         drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
         drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
@@ -410,6 +390,18 @@ public class RedFrontPixel extends LinearOpMode
 
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
+  }
+
+  /************************************************************************
+    *  DROP BOTTOM PIXEL FUNCTION
+    *     Used to improve readability/ simplify editing of pixel drop off procedure
+    **********************************************************************/
+  private void dropBottomPixel() {
+    normalFlipperWait();            // square w/ ground
+    openClampLittleWait();          // drop bottom stack
+    armraisewait(0.6, 0);           // Wait
+    sleep(50);                      // Wait
+    closeClampWait();               // Grab the top pixel
   }
 
   /************************************************************************

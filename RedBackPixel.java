@@ -179,18 +179,11 @@ public class RedBackPixel extends LinearOpMode
         armextend(10, 0.47);               // extend arm 10" for reach
         drive(0,0,-55,DRIVE_POWER);         // CCW 45 deg to face LEFT spike mark
         drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
-      // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
-      // After drop-off
+        dropBottomPixel();
         armextend(0,0.31);             // retract arm fully
-        drive(0, 0, (55+90), DRIVE_POWER);      // CCW 43 to face away from backdrop
+        drive(0, 0, (-35), DRIVE_POWER);      // CCW 43 to face away from backdrop
         armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(25, 0, 0, DRIVE_POWER);       // Drive 25" toward backdrop
-        drive(0, 0, 180, DRIVE_POWER);       // Rotate 180 deg
+        drive(-25, 0, 0, DRIVE_POWER);       // BACK 25" toward backdrop
         drive(0, 12, 0, DRIVE_POWER);         // Right 5" to left side of backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         armraise(45, 0.09);        // slow down to avoid tipping over
@@ -221,23 +214,16 @@ public class RedBackPixel extends LinearOpMode
         sleep(100);
         armextend(3.5,0.47);          // Extend arm 4" hopefully reaching pixel over spike
         drive(23.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-  
-     // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
      // After drop-off
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
         sleep(100);
         armextend(0, 0.4);              // retract arm fully
-        drive(0, 0, 90, DRIVE_POWER);      // CCW 83 to face backdrop    
+        drive(0, 0, -90, DRIVE_POWER);      // CCW 83 to face away from backdrop    
         sleep(50);
         armraise(75, 0.3);                 // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(21.5, 0, 0, DRIVE_POWER);    // FWD 25.5" toward backdrop
-        drive(0, 0, 181, DRIVE_POWER);     // CW 180 deg to back into backdrop
+        drive(-21.5, 0, 0, DRIVE_POWER);    // BACK 25.5" toward backdrop
         reverseFlipper();                 // put flipper in rev pos for placing pixel on board
         drive(0, 4, 0, DRIVE_POWER);    // right 4" along backdrop to left pos
         armraisewait(45, 0.127);        // slowly finish putting arm back
@@ -271,25 +257,18 @@ public class RedBackPixel extends LinearOpMode
         drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,35,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
         drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
-      // drop off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
-      // After drop-off
-        armextend(0,0.31);         // pull arm all the way in
-        drive(-3, 0, 0, DRIVE_POWER); // back up 3"
-        drive(0, 0, 55, DRIVE_POWER);      // CCW 55 to face backdrop
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        drive(25, 0, 0, DRIVE_POWER);       // Drive 30" toward backdrop
-        drive(0, 0, 180, DRIVE_POWER);  // rotate 180
-        reverseFlipper();           // put flipper in rev pos for placing pixel on board
-        drive(0, 2, 0, DRIVE_POWER); // Slide right 1"
-        armraise(45, 0.127);        // slow down to avoid tipping over
-        drive(-4.5, 0, 0, 0.2);       // REV last 5" to board
+        dropBottomPixel();
+        armextend(0,0.31);                   // pull arm all the way in
+        drive(-3, 0, 0, DRIVE_POWER);       // back up 3"
+        drive(0, 0, -125, DRIVE_POWER);      // CCW 125 deg to face away from backdrop
+        armraise(75, 0.3);                   // raise arm 120 deg (all the way back/up for placing pixel on board)
+        drive(-25, 0, 0, DRIVE_POWER);       // Back 30" toward backdrop
+        reverseFlipper();                   // put flipper in rev pos for placing pixel on board
+        drive(0, 2, 0, DRIVE_POWER);     // Slide right 1"
+        armraise(45, 0.127);                // slow down to avoid tipping over
+        drive(-4.5, 0, 0, 0.2);           // REV last 5" to board
       // Place pixel on backdrop
-        openClampLitlteWait();          // release pixel on board
+        openClampLittleWait();          // release pixel on board
         sleep(300);
         openClamp();                   // Fully open grabber
         drive(2, 0, 0, DRIVE_POWER); // forward 2 to get away from backdrop
@@ -444,6 +423,18 @@ public class RedBackPixel extends LinearOpMode
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
   }
+
+  /************************************************************************
+    *  DROP BOTTOM PIXEL FUNCTION
+    *     Used to improve readability/ simplify editing of pixel drop off procedure
+  *************************************************************************/
+  private void dropBottomPixel() {
+     normalFlipperWait();            // square w/ ground
+     openClampLittleWait();          // drop bototm stack
+     armraisewait(0.6, 0);           // Wait
+     sleep(50);                      // Wait
+     closeClampWait();               // Grab the top pixel
+   }
 
   /************************************************************************
    * COMMON DRIVE FUNCTION:

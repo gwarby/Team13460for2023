@@ -35,7 +35,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 
 @Autonomous(name = "BlueFrontPixel")
-public class BLUEFRONTPixel extends LinearOpMode 
+public class BlueFrontPixel extends LinearOpMode 
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
@@ -178,20 +178,12 @@ public class BLUEFRONTPixel extends LinearOpMode
         drive(15,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         armextend(11, 0.5);              // extend arm 11" while rotating
         drive(0,0,-55,DRIVE_POWER);         // CCW 45 deg to face LEFT spike mark
-        // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        
-        // After drop-off
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
-        armextend(0,0.31);         // retract arm
+        dropBottomPixel();                // Dropt pixel
+        armextend(0,0.31);                 // retract arm
         drive(0, 0, 55, DRIVE_POWER);      // CCW 43 to face forward
         drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
-        drive(60, 0, 0, DRIVE_POWER);      // Drive forward to parking zone, with second pixel
+        drive(76, 0, 0, DRIVE_POWER);      // Drive forward 6' 4" to parking zone, with second pixel
         armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipper();            // square w/ ground
         openClampWait();                      // Drop pixel to score
@@ -210,21 +202,12 @@ public class BLUEFRONTPixel extends LinearOpMode
         sleep(100);
         armextend(3.5,0.47);          // Extend arm 4" hopefully reaching pixel over spike
         drive(23.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-  
-        // Drop-off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-        
-        // After drop-off
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
-        groundTransitionFlipper();  // <prevent catching on axle>
+        dropBottomPixel();
         armextend(0,0.31);         // retract arm
         drive(0, 7, 0, DRIVE_POWER);      // Strafe right 7" to go around pixel
-        drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
+        drive(24, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
-        drive(67, 0, 0, DRIVE_POWER);      // Drive forward 6' 7" to parking zone
+        drive(82, 0, 0, DRIVE_POWER);      // Drive forward 6' 10" to parking zone
         armextend(0, 0.3);
         armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipper();            // square w/ ground
@@ -245,20 +228,13 @@ public class BLUEFRONTPixel extends LinearOpMode
         drive(15, 0, 0,DRIVE_POWER);    // Fwd 15" toward spike marks
         armextend(5,0.47);              // Extend arm 4" hopefully reaching pixel over spike
         drive(0, 0, 35,DRIVE_POWER);  // CW 35 deg to face RIGHT spike mark
-        // drop off
-        normalFlipperWait();            // square w/ ground
-        openClampLittleWait();          // drop pixel stack
-      
-        // After drop-off
-        armraisewait(0.6, 0);           // Raise 0.6 deg to leave bottom pixel, regrab top
-        sleep(50);
-        closeClampWait();               // Grab the top pixel
+        dropBottomPixel();
         armextend(0,0.31);         // retract arm
         drive(0, 0, -35, DRIVE_POWER);      // CCW 43 to face forward
         drive(0, -5, 0, DRIVE_POWER);       // Strafe left 5 deg to avoid pixel/marker
         drive(15, 0, 0, DRIVE_POWER);       // Drive 15" forward to bridge
         drive(0, 0, -90, DRIVE_POWER);      // Rotate CCW 90 dg to face back wall
-        drive(65, 0, 0, DRIVE_POWER);      // Drive forward to parking zone, with second pixel
+        drive(77, 0, 0, DRIVE_POWER);      // Drive forward 7' 5" to parking zone, with second pixel
         armextend(0, 0.3);
         armraise(0, 0.159);     // finish lowering claw to ground
         normalFlipper();            // square w/ ground
@@ -406,6 +382,18 @@ public class BLUEFRONTPixel extends LinearOpMode
 
       return ChromaMat;  // return the chroma blue channel w/ rectangles overlaid
     }
+  }
+
+  /************************************************************************
+    *  DROP BOTTOM PIXEL FUNCTION
+    *     Used to improve readability/ simplify editing of pixel drop off procedure
+  *************************************************************************/
+  private void dropBottomPixel() {
+    normalFlipperWait();            // square w/ ground
+    openClampLittleWait();          // drop bototm stack
+    armraisewait(0.6, 0);           // Wait
+    sleep(50);                      // Wait
+    closeClampWait();               // Grab the top pixel
   }
 
   /************************************************************************
