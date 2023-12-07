@@ -136,9 +136,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       double currTimeMs = currentTime.milliseconds();
       // DRIVE CONTROLS MAP
       // :mechanum drive 
-      driverCmd_Right=gamepad1.right_stick_x;
-      driverCmd_Fwd=-gamepad1.right_stick_y;  // negative because stick_y is up=neg, we want up=pos
-      driverCmd_Rotate=gamepad1.left_stick_x;
+      driverCmd_Right=gamepad1.right_stick_x ^ 5/2;
+      driverCmd_Fwd=-gamepad1.right_stick_y ^ 5/2;  // negative because stick_y is up=neg, we want up=pos
+      driverCmd_Rotate=gamepad1.left_stick_x ^ 5/2;
       telemetry.addData("driverCmdFwd", driverCmd_Fwd);
       // :arm rotate (aka raise/lower) & arm extend
       driverCmd_ArmRaise = -gamepad2.left_stick_y;
