@@ -5,7 +5,7 @@ We wish everyone a great season, and hope we can be of assistance and inspiratio
 
 Code naming explanation
 Example: redBackPixel
-The _red_ refers to this programing being built for the red side. The _Back_ indicates it should be run from the back of the playing field (the side of the playing field with the backdrop/backstage). The _PIXEL_ says that the program places a pixel on the backdrop.
+The _red_ refers to this programing being built for the red side. The _Back_ indicates it should be run from the back of the playing field (the side of the playing field with the backdrop/backstage). The _Pixel_ says that the program places a pixel on the backdrop.
 *All programs place a pixel on the spike marks with vision, but only those in the backstage place on the backdrop as well. Those in from the front will deliver a pixel to the backstage area.
 
 Vision:
