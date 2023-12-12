@@ -1,5 +1,5 @@
-Welcome! We are Team13460for2023, an Iowa-based, First Tech Competition team. In this repository, we have all our actively used code, autonomous and driver controlled. 
-Everything is thoroughly commented and explained, and we plan to begin releasing official versions around the new year, as we finish up bug fixes and optimization. 
+Welcome! We are Team 13460, the Phantastic Pheonixes, an Iowa-based, First Tech Competition team. In this repository, we have all our actively used code for the 2023/2024 season, CenterStage.
+Everything should be thoroughly commented and explained, and we plan to begin releasing official versions around the new year, as we finish up bug fixes and optimization. 
 Feel free to use our programs as inspiration or building blocks for your programs. For more information on licensing and copyright, read our Apache 2.0 license.
 We wish everyone a great season, and hope we can be of assistance and inspiration to other teams.
 
