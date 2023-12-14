@@ -136,6 +136,19 @@ public class RedBackPixel extends LinearOpMode
         // called if camera can't be opened
       }
     });
+    
+    // Pre-load 2 Pixels
+    openClampLittle();        // open clamp slightly
+    sleep(300);
+    flipper.setPosition(0.24);   // 0.24: to_from_gnd
+    sleep(300);
+    flipper.setPosition(0.295);   // 0.24: to_from_gnd
+    sleep(300);
+    normalFlipper();            // square w/ ground
+    sleep(400);
+    closeClamp();
+    sleep(400);
+    armraise(12,0.3);             // Raise 20 deg for carrying pixels
 
     while (!opModeIsActive() & !isStopRequested())
     {
@@ -169,36 +182,34 @@ public class RedBackPixel extends LinearOpMode
          * LEFT: (RED BACK)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20, 0.5);             // Raise 20 deg for carrying pixels
-        sleep(100);                    // Give arm time to get off ground
-        drive(15,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(10, 0.47);               // extend arm 10" for reach
-        drive(0,0,-55,DRIVE_POWER);         // CCW 45 deg to face LEFT spike mark
-        drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
+        drive(21,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        drive(0,0,-75,DRIVE_POWER);         // CCW 45 deg to face LEFT spike mark
+        drive(4,0,0,DRIVE_POWER);
+        armextendwait(5, 0.47);               // extend arm 10" for reach
+        armraisewait(-7.5, 0.2);
         dropBottomPixel();
-        armextend(0,0.31);             // retract arm fully
-        drive(0, 0, (-35), DRIVE_POWER);      // CCW 43 to face away from backdrop
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+        armraise(15,0);
+        armextend(0, 0.4);          // Retract arm
+        drive(-4,0,0,DRIVE_POWER);
+        drive(0, 0, (-15), DRIVE_POWER);      // CCW 43 to face away from backdrop
+        armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
         drive(-25, 0, 0, DRIVE_POWER);       // BACK 25" toward backdrop
-        drive(0, 12, 0, DRIVE_POWER);         // Right 5" to left side of backdrop
+        drive(0, 10.5, 0, DRIVE_POWER);         // Right 5" to left side of backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
-        armraise(45, 0.09);        // slow down to avoid tipping over
+        armraisewait(30, 0.09);        // slow down to avoid tipping over
+
         drive(-5, 0, 0, 0.2);       // REV last 5" to board
         openClampWait();          // release pixel on board
         sleep(350);
         drive(3, 0, 0, DRIVE_POWER);  // Get off of board
-        groundTransitionFlipper();
-        armraise(-100, 0.3);        // bring the arm back down
+        normalFlipper();
+        armraise(-110, 0.4);        // bring the arm back down
+
         drive(0, -26, 0, DRIVE_POWER); // Drive left 26" to wall
         armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                     // ...leave up ~15 deg from driving to park pos
         drive(-10, 0, 0, DRIVE_POWER);  // Park over/behind line
         armraise(0, 0.159);     // finish lowering claw to ground
-        normalFlipper();            // square w/ ground
 
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
@@ -206,20 +217,16 @@ public class RedBackPixel extends LinearOpMode
          * MIDDLE: (RED BACK)
          *
          ************************************************************************/
-        normalFlipper();
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);
-        armextend(3.5,0.47);          // Extend arm 4" hopefully reaching pixel over spike
-        drive(23.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        drive(26.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        armextendwait(5,0.47);          // Extend arm 4" hopefully reaching pixel over spike
+        armraisewait(-7.5, 0.2);
         dropBottomPixel();
+        armraise(5, 0.1);
+        armextend(0, 0.4);          // Retract arm
      // After drop-off
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
         sleep(100);
-        armextend(0, 0.4);              // retract arm fully
         drive(0, 0, -90, DRIVE_POWER);      // CCW 83 to face away from backdrop    
         sleep(50);
         armraise(75, 0.3);                 // raise arm 120 deg (all the way back/up for placing pixel on board)
@@ -233,7 +240,7 @@ public class RedBackPixel extends LinearOpMode
         sleep(300);
         openClamp();                  // fully open grabber
         drive(2, 0, 0, DRIVE_POWER); // forward 2" to get off board
-        groundTransitionFlipper();  // get arm in position to clear axle
+        normalFlipper();  // get arm in position to clear axle
         armraise(-100, 0.31);        // bring the arm back down
         drive(0, -21, 0, DRIVE_POWER); // drive right 18" to wall
         armraise(-20.6, 0.31);      // lower arm back to ground to prevent slamming
@@ -247,18 +254,14 @@ public class RedBackPixel extends LinearOpMode
          * RIGHT: (RED BACK)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);
-        armextend(4,0.47);          // Extend arm 4" hopefully reaching pixel over spike
-        drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        drive(17.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         drive(0,0,35,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
         drive(1, 0, 0, 0.2);        // Fwd 1" - bump a little more toward the spike mark
+        armextendwait(5,0.47);          // Extend arm 4" hopefully reaching pixel over spike
+        armraisewait(-7.5, 0.2);
         dropBottomPixel();
-        armextend(0,0.31);                   // pull arm all the way in
+  armraise(5,0);
+        armextend(0,0.4);                   // pull arm all the way in
         drive(-3, 0, 0, DRIVE_POWER);       // back up 3"
         drive(0, 0, -125, DRIVE_POWER);      // CCW 125 deg to face away from backdrop
         armraise(75, 0.3);                   // raise arm 120 deg (all the way back/up for placing pixel on board)
@@ -272,7 +275,7 @@ public class RedBackPixel extends LinearOpMode
         sleep(300);
         openClamp();                   // Fully open grabber
         drive(2, 0, 0, DRIVE_POWER); // forward 2 to get away from backdrop
-        groundTransitionFlipperWait();  // get arm in position to clear axle
+        normalFlipperWait();  // get arm in position to clear axle
         armraise(-100, 0.31);        // bring the arm back down
         drive(0, -14, 0, DRIVE_POWER); // drive left 8" to wall
         armraise(-20, 0.221);      // lower arm further, leave up ~15 deg for driving
@@ -508,15 +511,17 @@ public class RedBackPixel extends LinearOpMode
    * FUNCTIONS:
    ************************************************************************/
   private void armraisewait(double raise_lower, double power) {
-    if (raise_lower == 0) {
-      raise_lower = 0;
-    }
+  
     if (power == 0) {
       power = 0.33;
     }
-    raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
-    raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
-    armraise.setTargetPosition((int) raise_lower);
+    if (raise_lower == 0) {
+      armraise.setTargetPosition(0);
+    } else {
+      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
+      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
+      armraise.setTargetPosition((int) raise_lower);
+    }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
     while (armraise.isBusy()) {
@@ -525,19 +530,22 @@ public class RedBackPixel extends LinearOpMode
     }
     //armraise.setPower(0);  // arm will fall if power is set to 0
   }
-
+  
   private void armraise(double raise_lower, double power) {
-    if (raise_lower == 0) {
-      raise_lower = 0;
-    }
+  
     if (power == 0) {
       power = 0.33;
     }
-    raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
-    raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
-    armraise.setTargetPosition((int) raise_lower);
+    if (raise_lower == 0) {
+      armraise.setTargetPosition(0);
+    } else {
+      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
+      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
+      armraise.setTargetPosition((int) raise_lower);
+    }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
+    //armraise.setPower(0);
   }
 
   /************************************************************************
@@ -545,16 +553,17 @@ public class RedBackPixel extends LinearOpMode
    * FUNCTIONS:
    ************************************************************************/
   private void armextendwait(double extend_retract, double power) {
-
-    if (extend_retract == 0) {
-      extend_retract = 0;
-    }
+    
     if (power == 0) {
       power = 0.33;
     }
-    extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert
-    extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
-    armextend.setTargetPosition((int) extend_retract);
+    if (extend_retract == 0) {
+      armextend.setTargetPosition(0);
+    } else {
+      extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
+      extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
+      armextend.setTargetPosition((int) extend_retract);
+    }
     armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armextend.setPower(Math.abs(power));
     while (armextend.isBusy()) {
@@ -563,23 +572,21 @@ public class RedBackPixel extends LinearOpMode
     }
     //armextend.setPower(0);
   }
-
+  
   private void armextend(double extend_retract, double power) {
-    if (extend_retract == 0) {
-      extend_retract = 0;
-    }
+
     if (power == 0) {
       power = 0.33;
     }
-    extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
-    extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
-    armextend.setTargetPosition((int) extend_retract);
+    if (extend_retract == 0) {
+      armextend.setTargetPosition(0);
+    } else {
+      extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
+      extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
+      armextend.setTargetPosition((int) extend_retract);
+    }
     armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armextend.setPower(Math.abs(power));
-    while (armextend.isBusy()) {
-      // Disable telemetry for competition as it slows the loop down
-      sleep(10);
-    }
     //armextend.setPower(0);
   }
 

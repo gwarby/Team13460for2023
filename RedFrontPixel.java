@@ -62,7 +62,7 @@ public class RedFrontPixel extends LinearOpMode
   double CLAW_FLIP_SERVO_TO_FROM_GROUND = 0.24;
   double CLAW_FLIP_SERVO_FLIPPED_POS = 0.93;
   int FLIPPER_SERVO_PAUSE_TIME_MS = 910;//1000;
-  int CALC_GRABBER_WAIT_MS = 1000;
+  int CALC_GRABBER_WAIT_MS = 1100;
   int CALC_FLIPPER_WAIT_MS = 1500;
   
   double DRIVE_POWER = 0.5;
@@ -97,6 +97,13 @@ public class RedFrontPixel extends LinearOpMode
     armraise.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     grabber = hardwareMap.get(Servo.class, "grabber");
     
+    ((DcMotorEx) frontleft).setTargetPositionTolerance(10);
+    ((DcMotorEx) rearleft).setTargetPositionTolerance(10);
+    ((DcMotorEx) frontright).setTargetPositionTolerance(10);
+    ((DcMotorEx) rearright).setTargetPositionTolerance(10);
+    ((DcMotorEx) armraise).setTargetPositionTolerance(9);
+    ((DcMotorEx) armextend).setTargetPositionTolerance(12);
+    
     int camMonViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
     webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), camMonViewId); 
 
@@ -110,6 +117,9 @@ public class RedFrontPixel extends LinearOpMode
 
     // optional: use GPU acceleration
     webcam.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+        
+    normalFlipper();
+    closeClampWait();
         
     webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
     {
@@ -141,6 +151,18 @@ public class RedFrontPixel extends LinearOpMode
         // called if camera can't be opened
       }
     });
+    
+    openClampLittle();        // open clamp slightly
+    sleep(300);
+    flipper.setPosition(0.24);   // 0.24: to_from_gnd
+    sleep(300);
+    flipper.setPosition(0.295);   // 0.24: to_from_gnd
+    sleep(300);
+    normalFlipper();            // square w/ ground
+    sleep(400);
+    closeClamp();
+    sleep(400);
+    armraise(12,0.3);             // Raise 20 deg for carrying pixels
 
     while (!opModeIsActive() & !isStopRequested())
     {
@@ -174,25 +196,33 @@ public class RedFrontPixel extends LinearOpMode
          * LEFT: (RED FRONT)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);                  // Give arm time to get off ground
-        drive(15, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
+        drive(17.5, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
+        armextendwait(5,0.47);          // Extend arm 4" reaching pixel over spike
+        armraisewait(-7.5, 0.2);
         dropBottomPixel();
+        armraise(5,0);
         armextend(0, 0.4);          // Retract arm
+        drive(0, 6, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 45, DRIVE_POWER); // Rotate 45 deg back to facing forward
-        drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
-        drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(60, 0, 0, DRIVE_POWER); // Forward 5'
-        groundTransitionFlipper();
-        armraise(0, 0.14);           // Reset arm rotate
+        drive(28, 0, 0, 0.65); // Forward 15" to middle of field
+        drive(0, 0, 90, 0.65); // Rotate 90 deg to face back
+        drive(74, 0, 0, 0.65); // Forward 5'
+        drive(0, 21, 0, 0.65);
+        drive(0, 0, 180, 0.65);
+        armraisewait(100,0.3);
+        reverseFlipper();
+        armraisewait(40,0.2);
+        drive(-6.5,0,0,DRIVE_POWER);
+        openClampWait();
+        drive(4.5,0,0,DRIVE_POWER);
         normalFlipper();            // square w/ ground
-        openClampWait();                  // Drop pixel (to score)
+        armraisewait(-110, 0.4);
+        armraise(-30, 0.2);
+        
+        drive(-3, 10, 0, DRIVE_POWER);
+        
+        // release motors?
 
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
@@ -200,26 +230,29 @@ public class RedFrontPixel extends LinearOpMode
          * MIDDLE: (RED FRONT)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);                  // Give arm time to get off ground
-        drive(24.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(4,0.47);          // Extend arm 4" reaching pixel over spike
-        drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
+        drive(25.0,-5,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        armextendwait(5,0.5);          // Extend arm 4" reaching pixel over spike
+        armraisewait(-7.5, 0.2);
         dropBottomPixel();
+        armraise(5, 0.1);
         armextend(0, 0.4);          // Retract arm
-        drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
-        drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
-        drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(67, 0, 0, DRIVE_POWER); // Forward 5' 7"
-        groundTransitionFlipper();
-        armraise(0, 0.14);           // Reset arm rotate
-        normalFlipper();            // square w/ ground
-        openClampWait();                  // Drop pixel (to score)
-
+        drive(0, -10, 0, DRIVE_POWER);
+        drive(23, 0, 0, DRIVE_POWER);
+        drive(0, 0, 89, DRIVE_POWER);
+        drive(91, 0, 0, 0.65);
+        drive(0, 23.5, 0, 0.65);
+        drive(0, 0, 180, 0.65);
+        armraisewait(100, 0.2);
+        reverseFlipper();
+        armraisewait(40,0.2);
+        drive(-5,0,0,DRIVE_POWER);
+        openClamp();
+        drive(3, 0, 0, DRIVE_POWER);
+        normalFlipper();
+        armraisewait(-110, 0.4);
+        armraise(-30,0.2);
+        drive(-3, 13, 0, DRIVE_POWER);
+        
       } else { // RIGHT code
         /************************************************************************
          *
@@ -227,28 +260,35 @@ public class RedFrontPixel extends LinearOpMode
          *
          ************************************************************************/
   
-        normalFlipper();            // square w/ ground
-        closeClampWait();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);                  // Give arm time to get off ground
-        drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
-        armextend(10.5,0.47);          // Extend arm 4" reaching pixel over spike
+        drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
+        drive(4, 0, 0, DRIVE_POWER);
+        armextendwait(5.0,0.47);          // Extend arm 4" reaching pixel over spike
+        armraisewait(-7.5, 0.2);
         dropBottomPixel();
-        armextend(-4, 0.4);          // Retract arm
-        drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
-        drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
+        armraise(5,0);
+        armextend(0, 0.4);          // Retract arm
+        DRIVE_POWER = 0.65;
+        drive(-2, -5, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
+        drive(0, 0, -50, DRIVE_POWER);
+        drive(25, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(67, 0, 0, DRIVE_POWER); // Forward 5' 7"
-        groundTransitionFlipper();
-        armextend(0, 0.3);            // Reset arm extend
-        armraise(0, 0.14);           // Reset arm rotate
+        drive(79, 0, 0, DRIVE_POWER); // Forward 5' 7"
+        drive(0, 33, 0, DRIVE_POWER);
+        drive(0, 0, 180, DRIVE_POWER);
+        armraisewait(100,0.3);
+        reverseFlipper();
+        armraisewait(40,0.2);
+        drive(-6.5,0,0,DRIVE_POWER);
+        openClampWait();
+        drive(4.5,0,0,DRIVE_POWER);
         normalFlipper();            // square w/ ground
-        openClampWait();                  // Drop pixel (to score)
+        armraisewait(-110, 0.4);
+        armraise(-30, 0.2);
+        
+        drive(-3, 22, 0, DRIVE_POWER);
       }
-      
+
       while (opModeIsActive()) {
         // Put loop blocks here.
 
@@ -290,7 +330,7 @@ public class RedFrontPixel extends LinearOpMode
     /************************************************************************
      * Attributes calibrated by the caller:
      ************************************************************************/
-    int ColorChannel = 2;  // channel 1: red,  channel 2: blue
+    int ColorChannel = 1;  // channel 1: red,  channel 2: blue
     double MinDeltaDetectionChroma = 12.0;
     int ScanLowestYBlock = 4;
     int ScanLeftmostXBlock = 4;
@@ -395,12 +435,12 @@ public class RedFrontPixel extends LinearOpMode
   /************************************************************************
     *  DROP BOTTOM PIXEL FUNCTION
     *     Used to improve readability/ simplify editing of pixel drop off procedure
-    **********************************************************************/
+  *************************************************************************/
   private void dropBottomPixel() {
-    normalFlipperWait();            // square w/ ground
-    openClampLittleWait();          // drop bottom stack
-    armraisewait(0.6, 0);           // Wait
-    sleep(50);                      // Wait
+    //normalFlipperWait();            // square w/ ground
+    openClampLittleWait();          // drop bototm stack
+    armraisewait(5.5, 0);           // Wait
+    //sleep(50);                      // Wait
     closeClampWait();               // Grab the top pixel
   }
 
