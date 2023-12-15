@@ -40,7 +40,7 @@ public class BlueFrontPixel extends LinearOpMode
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
-  private Servo grabber, flipper;
+  private Servo grabber, flipper, armlimiter;
   OpenCvWebcam webcam;
 
   double GRABBER_SERVO_OPENED_POS = 0.37;//0.45;
@@ -51,12 +51,16 @@ public class BlueFrontPixel extends LinearOpMode
   double ARM_RAISE_TICKS_PER_DEG = 7.595;
   double ARM_EXTEND_TICKS_PER_INCH = 120.0;
   
-  double CLAW_FLIP_SERVO_NORMAL_POS = 0.263;//0.27;
+  double CLAW_FLIP_SERVO_NORMAL_POS = 0.28; //0.263;//0.27;
   double CLAW_FLIP_SERVO_TO_FROM_GROUND = 0.24;
+  double CLAW_FLIP_SERVO_AVOID_ARM_LIMITER = 0.35;
   double CLAW_FLIP_SERVO_FLIPPED_POS = 0.93;
   int FLIPPER_SERVO_PAUSE_TIME_MS = 910;//1000;
   int CALC_GRABBER_WAIT_MS = 1100;
   int CALC_FLIPPER_WAIT_MS = 1500;
+  
+  double ARM_LIMITER_DEACTIVATED = 0.08;
+  double ARM_LIMITER_ACTIVATED = 0.48;
   
   double DRIVE_POWER = 0.5;
 
@@ -111,9 +115,6 @@ public class BlueFrontPixel extends LinearOpMode
     // optional: use GPU acceleration
     webcam.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
         
-    normalFlipper();
-    closeClampWait();
-        
     webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
     {
       @Override
@@ -145,17 +146,8 @@ public class BlueFrontPixel extends LinearOpMode
       }
     });
     
-    openClampLittle();        // open clamp slightly
-    sleep(300);
-    flipper.setPosition(0.24);   // 0.24: to_from_gnd
-    sleep(300);
-    flipper.setPosition(0.295);   // 0.24: to_from_gnd
-    sleep(300);
-    normalFlipper();            // square w/ ground
-    sleep(400);
-    closeClamp();
-    sleep(400);
-    armraise(12,0.3);             // Raise 20 deg for carrying pixels
+    // Pre-load 2 Pixels
+    preLoadPixels();
 
     while (!opModeIsActive() & !isStopRequested())
     {
@@ -192,12 +184,9 @@ public class BlueFrontPixel extends LinearOpMode
         drive(17, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         drive(0,0,-55,DRIVE_POWER);         // CCW 55 deg to face LEFT spike mark
         drive(5, 0, 0, DRIVE_POWER);        // drive forward to spike
-        armextendwait(5, 0.5);              // extend arm 5" while rotating
-        armraisewait(-7.5, 0.2);            // drop arm
-        dropBottomPixel();                // Dropt pixel
-        sleep(100);
-        armraise(5, 0.1);                   // lift up to grab top pixel
-        armextend(-5,0.31);                 // retract arm
+
+        dropBottomPixel();
+
         drive(-5, 0, 0, DRIVE_POWER);        // drive back 5"
         drive(0, 0, 55, DRIVE_POWER);      // CCW 55 to face forward
         drive(30.5, 0, 0, 0.65);       // Drive 35" forward to bridge
@@ -207,7 +196,7 @@ public class BlueFrontPixel extends LinearOpMode
         drive(0, 0, 180, 0.65);             // rotate to back side
         armraisewait(100, 0.2);             // raise to backdrop
         reverseFlipper();
-        armraisewait(40,0.2);               
+        armraisewait(30,0.2);               
         drive(-6, 0, 0, DRIVE_POWER);       // go backwards to put on pixel
         openClamp();
         drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
@@ -227,12 +216,9 @@ public class BlueFrontPixel extends LinearOpMode
          ************************************************************************/
         drive(20, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         drive(5, 0, 0, DRIVE_POWER);        // drive forward to spike
-        armextendwait(5, 0.5);              // extend arm 5" while rotating
-        armraisewait(-7.5, 0.2);            // drop arm
-        dropBottomPixel();                // Dropt pixel
-        sleep(100);
-        armraise(5, 0.1);                   // lift up to grab top pixel
-        armextend(-5,0.31);                 // retract arm
+
+        dropBottomPixel();
+
         drive(-5, 0, 0, DRIVE_POWER);        // drive back 5"
         drive(0, 13, 0, DRIVE_POWER);
         sleep(100);
@@ -245,7 +231,7 @@ public class BlueFrontPixel extends LinearOpMode
         drive(0, 0, 180, 0.65);             // rotate to back side
         armraisewait(100, 0.2);             // raise to backdrop
         reverseFlipper();
-        armraisewait(40,0.2);               
+        armraisewait(30,0.2);               
         drive(-6, 0, 0, DRIVE_POWER);       // go backwards to put on pixel
         openClamp();
         drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
@@ -263,12 +249,9 @@ public class BlueFrontPixel extends LinearOpMode
          ************************************************************************/
         drive(15, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         drive(0,0,35,DRIVE_POWER);         // CCW 35 deg to face LEFT spike mark
-        armextendwait(5, 0.5);              // extend arm 5" while rotating
-        armraisewait(-7.5, 0.2);
-        dropBottomPixel();                // Dropt pixel
-        sleep(100);
-        armraise(5, 0.1);
-        armextend(-5,0.31);                 // retract arm
+
+        dropBottomPixel();
+
         drive(0, 0, -35, DRIVE_POWER);      // CCW 35 to face forward
         drive(0, -6, 0, DRIVE_POWER);       // line up robot to move forward
         drive(33.5, 0, 0, 0.65);       // Drive 35" forward to bridge
@@ -278,7 +261,7 @@ public class BlueFrontPixel extends LinearOpMode
         drive(0, 0, 180, 0.65);           // turn around
         armraisewait(100, 0.2);           // lift arm to backdrop
         reverseFlipper();
-        armraisewait(40,0.2);             
+        armraisewait(30,0.2);             
         drive(-6, 0, 0, DRIVE_POWER);     // drive back to backdrop
         openClamp();
         drive(4.5, 0, 0, DRIVE_POWER);    // drive forward to let pixel drop
@@ -433,15 +416,47 @@ public class BlueFrontPixel extends LinearOpMode
   }
 
   /************************************************************************
+    *  PICKUP 2 PIXEL STACK ON INIT - USE ARM LIMITER AS REST
+    *     Used to improve readability/ simplify editing loading pixels on init
+    *     Uses "arm limiter", which is a lever that rock into place under the
+    *     rail of the arm.  This mechanism holds the arm at a very consistent
+    *     angle.  This makes dropping 2 pixels & picking back up ONLY the 
+    *     top pixel very reliable (especially compared to trusting the 
+    *     arm raising motor's encoder modes).
+    * 
+    *     This has been setup to work with an arm extension of 5".
+  *************************************************************************/
+  private void preLoadPixels() {
+    // ROBOT MOVES ON INIT: (sticker requirement eliminated for CenterStage season)
+    deactivateArmLimiter();     // this should be the starting position, but try anyway
+    normalFlipper();            // square w/ ground
+    sleep(300);
+    openClampLittle();          // open clamp slightly
+    sleep(400);                 // wait a beat for clamp to open
+    closeClamp();               // grasp the pixels
+    sleep(400);                 // wait a beat for pixels to be grabbed before lifting arm
+    armraisewait(24,0.3);       // Raise above arm limiter
+    avoidArmLimiterFlipper();   // rock flipper so angle bracket doesn't rest on arm limiter
+    sleep(600);
+    activateArmLimiter();       // move arm limiter in place to hold up in "perfect" position
+    sleep(550);
+    restOnArmLimiter();         // should result in arm ~10 deg?
+    normalFlipper();
+  }
+
+  /************************************************************************
     *  DROP BOTTOM PIXEL FUNCTION
     *     Used to improve readability/ simplify editing of pixel drop off procedure
   *************************************************************************/
   private void dropBottomPixel() {
-    //normalFlipperWait();            // square w/ ground
-    openClampLittleWait();          // drop bototm stack
-    armraisewait(5.5, 0);           // Wait
-    //sleep(50);                      // Wait
+    armextendwait(5,0.47);          // Extend arm 4" reaching pixel over spike
+    openClampLittleWait();          // drop bottom stack
+    sleep(300);
     closeClampWait();               // Grab the top pixel
+    sleep(250);
+    armextend(0, 0.5);         // retract arm
+    armraisewait(16,0.5);             // Raise 16 deg for carrying pixels
+    deactivateArmLimiter();
   }
 
   /************************************************************************
@@ -553,6 +568,15 @@ public class BlueFrontPixel extends LinearOpMode
     //armraise.setPower(0);
   }
 
+  private void restOnArmLimiter() {
+    armraise.setTargetPosition(80);  // ?
+    armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armraise.setPower(0.11);
+    sleep(1000);
+    armraise.setPower(0.0);
+    armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+  }
+
   /************************************************************************
    * ARM EXTEND / RETRACT
    * FUNCTIONS:
@@ -647,4 +671,12 @@ public class BlueFrontPixel extends LinearOpMode
     flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
     sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
   }
+  private void avoidArmLimiterFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_AVOID_ARM_LIMITER); }
+  /************************************************************************
+   * ARM LIMITER COMMAND
+   * FUNCTIONS:
+   *   double function, with & without wait, same as above
+   ************************************************************************/
+  private void activateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_ACTIVATED); }
+  private void deactivateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_DEACTIVATED); }
 }
