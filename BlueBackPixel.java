@@ -40,7 +40,7 @@ public class BlueBackPixel extends LinearOpMode
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
-  private Servo grabber, flipper;
+  private Servo grabber, flipper, armlimiter;
   OpenCvWebcam webcam;
 
   /************************************************************************
@@ -58,12 +58,16 @@ public class BlueBackPixel extends LinearOpMode
   double ARM_RAISE_TICKS_PER_DEG = 7.595;
   double ARM_EXTEND_TICKS_PER_INCH = 120.0;
   
-  double CLAW_FLIP_SERVO_NORMAL_POS = 0.263;//0.27;
+  double CLAW_FLIP_SERVO_NORMAL_POS = 0.28; //0.263;//0.27;
   double CLAW_FLIP_SERVO_TO_FROM_GROUND = 0.24;
+  double CLAW_FLIP_SERVO_AVOID_ARM_LIMITER = 0.35;
   double CLAW_FLIP_SERVO_FLIPPED_POS = 0.93;
   int FLIPPER_SERVO_PAUSE_TIME_MS = 910;//1000;
   int CALC_GRABBER_WAIT_MS = 1000;
   int CALC_FLIPPER_WAIT_MS = 1500;
+
+  double ARM_LIMITER_DEACTIVATED = 0.08;
+  double ARM_LIMITER_ACTIVATED = 0.48;
   
   double DRIVE_POWER = 0.5;
 
@@ -87,6 +91,7 @@ public class BlueBackPixel extends LinearOpMode
     armextend = hardwareMap.get(DcMotor.class, "armextend");
     grabber = hardwareMap.get(Servo.class, "grabber");
     flipper = hardwareMap.get(Servo.class, "flipper");
+    armlimiter = hardwareMap.get(Servo.class, "armlimiter");
     
     rearright.setDirection(DcMotorSimple.Direction.REVERSE);
     frontleft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -141,6 +146,9 @@ public class BlueBackPixel extends LinearOpMode
         // called if camera can't be opened
       }
     });
+    
+    // Pre-load 2 Pixels
+    preLoadPixels();
 
     while (!opModeIsActive() & !isStopRequested())
     {
@@ -174,21 +182,11 @@ public class BlueBackPixel extends LinearOpMode
          * LEFT: (BLUE BACK)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        //sleep(100);
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        //groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(12,0.3);             // Raise 20 deg for carrying pixels
-        sleep(200);                  // Give arm time to get off ground
-        drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
+        drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
-        armraise(-12,0.2);             // Raise 20 deg for carrying pixels
+
         dropBottomPixel();
-        armraise(20,0.5);             // Raise 20 deg for carrying pixels
-        sleep(350);
-        armextend(0, 0.5);         // retract arm
+
         drive(-2.5, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
         drive(0, 0, 45, DRIVE_POWER);      // CW 135 to face away from backdrop
@@ -196,11 +194,11 @@ public class BlueBackPixel extends LinearOpMode
         drive(0, 0, 90, DRIVE_POWER);      // CW 135 to face away from backdrop
         //drive(0, 0, 135, DRIVE_POWER);      // CW 135 to face away from backdrop
         sleep(100);
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+        armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
         drive(-22, -7, 0, DRIVE_POWER);       // BACK 24" toward backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         //drive(0, -5, 0, DRIVE_POWER);       // left 5" along backdrop
-        armraisewait(45, 0.09);        // raise arm last 45 deg
+        armraisewait(30, 0.09);        // raise arm last 45 deg
         drive(-4.3, 0, 0, 0.2);       // REV last 4" to board
         openClampWait();          // release pixel on board
         sleep(350);                // wait for pixel
@@ -222,26 +220,20 @@ public class BlueBackPixel extends LinearOpMode
          * MIDDLE: (BLUE BACK)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise  20 deg for carrying pixels
-        sleep(100);
-        drive(24.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(4,0.47);          // Extend arm 4" reaching pixel over spike
+        drive(27.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
-        dropBottomPixel();              // Drop bottom pixel
-        armextend(0, 0.5);            // retract arm
+
+        dropBottomPixel();
+
         drive(-4, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
         drive(0, 0, 108, DRIVE_POWER);      // CW 108 to face away from backdrop
         sleep(50);
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+        armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
         drive(-24, 0, 0, DRIVE_POWER);       // FWD 25.5" toward backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -9, 0, DRIVE_POWER);       // left 10" along backdrop
-        armraise(45, 0.127);        // slow down to avoid tipping over
+        armraise(30, 0.127);        // slow down to avoid tipping over
         drive(-2, 0, 0, 0.2);       // REV last 5" to board
         openClampWait();          // release pixel on board
         sleep(400);
@@ -261,41 +253,22 @@ public class BlueBackPixel extends LinearOpMode
          * RIGHT: (BLUE BACK)
          *
          ************************************************************************/
-        ((DcMotorEx) frontleft).setTargetPositionTolerance(12);
-        ((DcMotorEx) rearleft).setTargetPositionTolerance(12);
-        ((DcMotorEx) frontright).setTargetPositionTolerance(12);
-        ((DcMotorEx) rearright).setTargetPositionTolerance(12);
-        ((DcMotorEx) armraise).setTargetPositionTolerance(4);
-        ((DcMotorEx) armextend).setTargetPositionTolerance(12);
-
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0.5);             // Raise  20 deg for carrying pixels
-        sleep(100);                    // Give arm time to get off ground
-        drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(10.5,0.6);          // Extend arm 4" reaching pixel over spike
+        drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
-      // Drop-off
+        drive(5.5, 0, 0, DRIVE_POWER);
+
         dropBottomPixel();
-        ((DcMotorEx) armraise).setTargetPositionTolerance(12);
-        armextend(0,0.31);         // retract arm
-        
-        // WHAT IS HAPPENING TO POWER??
-      //  telemetry.addData(" DRIVE_POWER: ", DRIVE_POWER);
-       // telemetry.update();
-       // sleep(4000);
-        
+
+        drive(-5.5, 0, 0, DRIVE_POWER);
         drive(-2, 0, 0, DRIVE_POWER); // back up 2" to clear spike mark
         drive(0, 0, 40, DRIVE_POWER);      // CW 40 to face away from backdrop
         sleep(50);
         drive(-24, 0, 0, DRIVE_POWER);       // FWD 26" toward backdrop
-        armraise(75, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
+        armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
         //drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -16.5, 0, DRIVE_POWER);       // left 4" along backdrop
-        armraise(45, 0.127);        // slow down to avoid tipping over
+        armraise(30, 0.127);        // slow down to avoid tipping over
         drive(-4, 0, 0, 0.2);       // REV last 5" to board
         openClampLittleWait();          // release pixel on board
         sleep(200);
@@ -456,15 +429,47 @@ public class BlueBackPixel extends LinearOpMode
   }
 
   /************************************************************************
+    *  PICKUP 2 PIXEL STACK ON INIT - USE ARM LIMITER AS REST
+    *     Used to improve readability/ simplify editing loading pixels on init
+    *     Uses "arm limiter", which is a lever that rock into place under the
+    *     rail of the arm.  This mechanism holds the arm at a very consistent
+    *     angle.  This makes dropping 2 pixels & picking back up ONLY the 
+    *     top pixel very reliable (especially compared to trusting the 
+    *     arm raising motor's encoder modes).
+    * 
+    *     This has been setup to work with an arm extension of 5".
+  *************************************************************************/
+  private void preLoadPixels() {
+    // ROBOT MOVES ON INIT: (sticker requirement eliminated for CenterStage season)
+    deactivateArmLimiter();     // this should be the starting position, but try anyway
+    normalFlipper();            // square w/ ground
+    sleep(300);
+    openClampLittle();          // open clamp slightly
+    sleep(400);                 // wait a beat for clamp to open
+    closeClamp();               // grasp the pixels
+    sleep(400);                 // wait a beat for pixels to be grabbed before lifting arm
+    armraisewait(24,0.3);       // Raise above arm limiter
+    avoidArmLimiterFlipper();   // rock flipper so angle bracket doesn't rest on arm limiter
+    sleep(600);
+    activateArmLimiter();       // move arm limiter in place to hold up in "perfect" position
+    sleep(550);
+    restOnArmLimiter();         // should result in arm ~10 deg?
+    normalFlipper();
+  }
+
+  /************************************************************************
     *  DROP BOTTOM PIXEL FUNCTION
     *     Used to improve readability/ simplify editing of pixel drop off procedure
   *************************************************************************/
   private void dropBottomPixel() {
-    normalFlipperWait();            // square w/ ground
-    openClampLittleWait();          // drop bototm stack
-    armraisewait(0.6, 0);           // Wait
-    sleep(190);  //TODO  //sleep(50);                      // Wait
+    armextendwait(5,0.47);          // Extend arm 4" reaching pixel over spike
+    openClampLittleWait();          // drop bottom stack
+    sleep(300);
     closeClampWait();               // Grab the top pixel
+    sleep(250);
+    armextend(0, 0.5);         // retract arm
+    armraisewait(16,0.5);             // Raise 16 deg for carrying pixels
+    deactivateArmLimiter();
   }
 
   /************************************************************************
@@ -576,6 +581,15 @@ public class BlueBackPixel extends LinearOpMode
     //armraise.setPower(0);
   }
 
+  private void restOnArmLimiter() {
+    armraise.setTargetPosition(80);  // ?
+    armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armraise.setPower(0.11);
+    sleep(1000);
+    armraise.setPower(0.0);
+    armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+  }
+
   /************************************************************************
    * ARM EXTEND / RETRACT
    * FUNCTIONS:
@@ -670,4 +684,12 @@ public class BlueBackPixel extends LinearOpMode
     flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
     sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
   }
+  private void avoidArmLimiterFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_AVOID_ARM_LIMITER); }
+  /************************************************************************
+   * ARM LIMITER COMMAND
+   * FUNCTIONS:
+   *   double function, with & without wait, same as above
+   ************************************************************************/
+  private void activateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_ACTIVATED); }
+  private void deactivateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_DEACTIVATED); }
 }
