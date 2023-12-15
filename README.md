@@ -15,7 +15,7 @@ Current Work:
 Currently we are working on optimizing autonomous and driver controlled, and adding autonomous programs for all scenarios.
 
 Temporary bugs and fixes:
-1) I just experienced the Driver Station presenting a blank list of op modes. This one time it was fixed entirely with the DS by:
+1) If the Driver Station presenting a blank list of op modes, one time it was fixed entirely with the DS by:
 - Use the Android apps tab to shutdown the FTC Driver Station app
 - Use the pull down from the top of the Android screen to turn off DS wifi
 - Turn back on DS wifi
