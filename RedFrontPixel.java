@@ -40,7 +40,7 @@ public class RedFrontPixel extends LinearOpMode
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
-  private Servo grabber, flipper;
+  private Servo grabber, flipper, armlimiter;
   OpenCvWebcam webcam;
 
   /************************************************************************
@@ -58,12 +58,16 @@ public class RedFrontPixel extends LinearOpMode
   double ARM_RAISE_TICKS_PER_DEG = 7.595;
   double ARM_EXTEND_TICKS_PER_INCH = 120.0;
   
-  double CLAW_FLIP_SERVO_NORMAL_POS = 0.263;//0.27;
+  double CLAW_FLIP_SERVO_NORMAL_POS = 0.28; //0.263;//0.27;
   double CLAW_FLIP_SERVO_TO_FROM_GROUND = 0.24;
+  double CLAW_FLIP_SERVO_AVOID_ARM_LIMITER = 0.35;
   double CLAW_FLIP_SERVO_FLIPPED_POS = 0.93;
   int FLIPPER_SERVO_PAUSE_TIME_MS = 910;//1000;
-  int CALC_GRABBER_WAIT_MS = 1000;
+  int CALC_GRABBER_WAIT_MS = 1100;
   int CALC_FLIPPER_WAIT_MS = 1500;
+  
+  double ARM_LIMITER_DEACTIVATED = 0.08;
+  double ARM_LIMITER_ACTIVATED = 0.48;
   
   double DRIVE_POWER = 0.5;
 
@@ -87,6 +91,7 @@ public class RedFrontPixel extends LinearOpMode
     armextend = hardwareMap.get(DcMotor.class, "armextend");
     grabber = hardwareMap.get(Servo.class, "grabber");
     flipper = hardwareMap.get(Servo.class, "flipper");
+    armlimiter = hardwareMap.get(Servo.class, "armlimiter");
     
     rearright.setDirection(DcMotorSimple.Direction.REVERSE);
     frontleft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -96,6 +101,13 @@ public class RedFrontPixel extends LinearOpMode
     armextend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     armraise.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     grabber = hardwareMap.get(Servo.class, "grabber");
+    
+    ((DcMotorEx) frontleft).setTargetPositionTolerance(10);
+    ((DcMotorEx) rearleft).setTargetPositionTolerance(10);
+    ((DcMotorEx) frontright).setTargetPositionTolerance(10);
+    ((DcMotorEx) rearright).setTargetPositionTolerance(10);
+    ((DcMotorEx) armraise).setTargetPositionTolerance(9);
+    ((DcMotorEx) armextend).setTargetPositionTolerance(12);
     
     int camMonViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
     webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), camMonViewId); 
@@ -141,6 +153,9 @@ public class RedFrontPixel extends LinearOpMode
         // called if camera can't be opened
       }
     });
+    
+    // Pre-load 2 Pixels
+    preLoadPixels();
 
     while (!opModeIsActive() & !isStopRequested())
     {
@@ -174,25 +189,31 @@ public class RedFrontPixel extends LinearOpMode
          * LEFT: (RED FRONT)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);                  // Give arm time to get off ground
-        drive(15, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(5,0.47);          // Extend arm 4" reaching pixel over spike
+        drive(17.5, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
+
         dropBottomPixel();
-        armextend(0, 0.4);          // Retract arm
+
+        drive(0, 6, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 45, DRIVE_POWER); // Rotate 45 deg back to facing forward
-        drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
-        drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(60, 0, 0, DRIVE_POWER); // Forward 5'
-        groundTransitionFlipper();
-        armraise(0, 0.14);           // Reset arm rotate
+        drive(28, 0, 0, 0.65); // Forward 15" to middle of field
+        drive(0, 0, 90, 0.65); // Rotate 90 deg to face back
+        drive(74, 0, 0, 0.65); // Forward 5'
+        drive(0, 21, 0, 0.65);
+        drive(0, 0, 180, 0.65);
+        armraisewait(100,0.3);
+        reverseFlipper();
+        armraisewait(30,0.2);
+        drive(-6.5,0,0,DRIVE_POWER);
+        openClampWait();
+        drive(4.5,0,0,DRIVE_POWER);
         normalFlipper();            // square w/ ground
-        openClampWait();                  // Drop pixel (to score)
+        armraisewait(-110, 0.4);
+        armraise(-30, 0.2);
+        
+        drive(-3, 10, 0, DRIVE_POWER);
+        
+        // release motors?
 
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
@@ -200,26 +221,27 @@ public class RedFrontPixel extends LinearOpMode
          * MIDDLE: (RED FRONT)
          *
          ************************************************************************/
-        normalFlipper();            // square w/ ground
-        closeClamp();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);                  // Give arm time to get off ground
-        drive(24.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        armextend(4,0.47);          // Extend arm 4" reaching pixel over spike
-        drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
-        dropBottomPixel();
-        armextend(0, 0.4);          // Retract arm
-        drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
-        drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
-        drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(67, 0, 0, DRIVE_POWER); // Forward 5' 7"
-        groundTransitionFlipper();
-        armraise(0, 0.14);           // Reset arm rotate
-        normalFlipper();            // square w/ ground
-        openClampWait();                  // Drop pixel (to score)
+        drive(25.0,-5,0,DRIVE_POWER);        // Fwd 15" toward spike marks
 
+        dropBottomPixel();
+
+        drive(0, -10, 0, DRIVE_POWER);
+        drive(23, 0, 0, DRIVE_POWER);
+        drive(0, 0, 89, DRIVE_POWER);
+        drive(91, 0, 0, 0.65);
+        drive(0, 23.5, 0, 0.65);
+        drive(0, 0, 180, 0.65);
+        armraisewait(100, 0.2);
+        reverseFlipper();
+        armraisewait(30,0.2);
+        drive(-5,0,0,DRIVE_POWER);
+        openClamp();
+        drive(3, 0, 0, DRIVE_POWER);
+        normalFlipper();
+        armraisewait(-110, 0.4);
+        armraise(-30,0.2);
+        drive(-3, 13, 0, DRIVE_POWER);
+        
       } else { // RIGHT code
         /************************************************************************
          *
@@ -227,28 +249,33 @@ public class RedFrontPixel extends LinearOpMode
          *
          ************************************************************************/
   
-        normalFlipper();            // square w/ ground
-        closeClampWait();
-        drive(2.5, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        groundTransitionFlipper();  // <keep flipper from getting caught>
-        armraise(20,0);             // Raise 20 for carrying pixels
-        sleep(100);                  // Give arm time to get off ground
-        drive(15.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
-        armextend(10.5,0.47);          // Extend arm 4" reaching pixel over spike
+        drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
         drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
+        drive(4, 0, 0, DRIVE_POWER);
+
         dropBottomPixel();
-        armextend(-4, 0.4);          // Retract arm
-        drive(0, -7, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
-        drive(15, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
+
+        DRIVE_POWER = 0.65;
+        drive(-2, -5, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
+        drive(0, 0, -50, DRIVE_POWER);
+        drive(25, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
         drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
-        drive(67, 0, 0, DRIVE_POWER); // Forward 5' 7"
-        groundTransitionFlipper();
-        armextend(0, 0.3);            // Reset arm extend
-        armraise(0, 0.14);           // Reset arm rotate
+        drive(79, 0, 0, DRIVE_POWER); // Forward 5' 7"
+        drive(0, 33, 0, DRIVE_POWER);
+        drive(0, 0, 180, DRIVE_POWER);
+        armraisewait(100,0.3);
+        reverseFlipper();
+        armraisewait(30,0.2);
+        drive(-6.5,0,0,DRIVE_POWER);
+        openClampWait();
+        drive(4.5,0,0,DRIVE_POWER);
         normalFlipper();            // square w/ ground
-        openClampWait();                  // Drop pixel (to score)
+        armraisewait(-110, 0.4);
+        armraise(-30, 0.2);
+        
+        drive(-3, 22, 0, DRIVE_POWER);
       }
-      
+
       while (opModeIsActive()) {
         // Put loop blocks here.
 
@@ -290,7 +317,7 @@ public class RedFrontPixel extends LinearOpMode
     /************************************************************************
      * Attributes calibrated by the caller:
      ************************************************************************/
-    int ColorChannel = 2;  // channel 1: red,  channel 2: blue
+    int ColorChannel = 1;  // channel 1: red,  channel 2: blue
     double MinDeltaDetectionChroma = 12.0;
     int ScanLowestYBlock = 4;
     int ScanLeftmostXBlock = 4;
@@ -393,15 +420,47 @@ public class RedFrontPixel extends LinearOpMode
   }
 
   /************************************************************************
+    *  PICKUP 2 PIXEL STACK ON INIT - USE ARM LIMITER AS REST
+    *     Used to improve readability/ simplify editing loading pixels on init
+    *     Uses "arm limiter", which is a lever that rock into place under the
+    *     rail of the arm.  This mechanism holds the arm at a very consistent
+    *     angle.  This makes dropping 2 pixels & picking back up ONLY the 
+    *     top pixel very reliable (especially compared to trusting the 
+    *     arm raising motor's encoder modes).
+    * 
+    *     This has been setup to work with an arm extension of 5".
+  *************************************************************************/
+  private void preLoadPixels() {
+    // ROBOT MOVES ON INIT: (sticker requirement eliminated for CenterStage season)
+    deactivateArmLimiter();     // this should be the starting position, but try anyway
+    normalFlipper();            // square w/ ground
+    sleep(300);
+    openClampLittle();          // open clamp slightly
+    sleep(400);                 // wait a beat for clamp to open
+    closeClamp();               // grasp the pixels
+    sleep(400);                 // wait a beat for pixels to be grabbed before lifting arm
+    armraisewait(24,0.3);       // Raise above arm limiter
+    avoidArmLimiterFlipper();   // rock flipper so angle bracket doesn't rest on arm limiter
+    sleep(600);
+    activateArmLimiter();       // move arm limiter in place to hold up in "perfect" position
+    sleep(550);
+    restOnArmLimiter();         // should result in arm ~10 deg?
+    normalFlipper();
+  }
+
+  /************************************************************************
     *  DROP BOTTOM PIXEL FUNCTION
     *     Used to improve readability/ simplify editing of pixel drop off procedure
-    **********************************************************************/
+  *************************************************************************/
   private void dropBottomPixel() {
-    normalFlipperWait();            // square w/ ground
+    armextendwait(5,0.47);          // Extend arm 4" reaching pixel over spike
     openClampLittleWait();          // drop bottom stack
-    armraisewait(0.6, 0);           // Wait
-    sleep(50);                      // Wait
+    sleep(300);
     closeClampWait();               // Grab the top pixel
+    sleep(250);
+    armextend(0, 0.5);         // retract arm
+    armraisewait(16,0.5);             // Raise 16 deg for carrying pixels
+    deactivateArmLimiter();
   }
 
   /************************************************************************
@@ -513,6 +572,15 @@ public class RedFrontPixel extends LinearOpMode
     //armraise.setPower(0);
   }
 
+  private void restOnArmLimiter() {
+    armraise.setTargetPosition(80);  // ?
+    armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armraise.setPower(0.11);
+    sleep(1000);
+    armraise.setPower(0.0);
+    armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+  }
+
   /************************************************************************
    * ARM EXTEND / RETRACT
    * FUNCTIONS:
@@ -607,4 +675,12 @@ public class RedFrontPixel extends LinearOpMode
     flipper.setPosition(CLAW_FLIP_SERVO_TO_FROM_GROUND);
     sleep((int) (distance * CALC_FLIPPER_WAIT_MS + 5));
   }
+  private void avoidArmLimiterFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_AVOID_ARM_LIMITER); }
+  /************************************************************************
+   * ARM LIMITER COMMAND
+   * FUNCTIONS:
+   *   double function, with & without wait, same as above
+   ************************************************************************/
+  private void activateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_ACTIVATED); }
+  private void deactivateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_DEACTIVATED); }
 }

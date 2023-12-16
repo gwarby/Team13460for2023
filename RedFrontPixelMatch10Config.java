@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Size;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -35,14 +35,21 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 
-@Autonomous(name = "BlueFrontPixel")
-public class BlueFrontPixel extends LinearOpMode 
+@Autonomous(name = "RedFrontPixelMatch10Config")
+public class RedFrontPixelMatch10Config extends LinearOpMode 
 {
   // Declare the variables for our hardware, they will be mapped later
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
   private Servo grabber, flipper, armlimiter;
   OpenCvWebcam webcam;
 
+  /************************************************************************
+   * CALIBRATION CONSTANTS:
+   *   Use for common servo positions, motor tick scaling, motor limits,
+   *   default times, default powers.
+   *   This allows the code to be adjusted only in this section, if
+   *   a servo is mounted in a different orientation, for example.
+   ************************************************************************/
   double GRABBER_SERVO_OPENED_POS = 0.37;//0.45;
   double GRABBER_SERVO_CLOSED_POS = 0.163;//0.12;
   double GRABBER_SERVO_OPEN_A_LITTLE_POS = 0.206;//0.22;
@@ -59,7 +66,7 @@ public class BlueFrontPixel extends LinearOpMode
   int CALC_GRABBER_WAIT_MS = 1100;
   int CALC_FLIPPER_WAIT_MS = 1500;
   
-  double ARM_LIMITER_DEACTIVATED = 0.07;
+  double ARM_LIMITER_DEACTIVATED = 0.08;
   double ARM_LIMITER_ACTIVATED = 0.48;
   
   double DRIVE_POWER = 0.5;
@@ -93,6 +100,7 @@ public class BlueFrontPixel extends LinearOpMode
     armextend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     armextend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     armraise.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    grabber = hardwareMap.get(Servo.class, "grabber");
     
     ((DcMotorEx) frontleft).setTargetPositionTolerance(10);
     ((DcMotorEx) rearleft).setTargetPositionTolerance(10);
@@ -124,7 +132,7 @@ public class BlueFrontPixel extends LinearOpMode
         // note: must use resolution supported by cam
         webcam.startStreaming(544, 288, OpenCvCameraRotation.UPRIGHT);  //320x240  //432x240   //640x480
 
-        findPropPL.ColorChannel = 2;  // channel 1: red,  channel 2: blue
+        findPropPL.ColorChannel = 1;  // channel 1: red,  channel 2: blue
         findPropPL.MinDeltaDetectionChroma = 25;
         findPropPL.ScanLowestYBlock = 4;
         findPropPL.ScanLeftmostXBlock = 4;  // originally 4,
@@ -135,7 +143,7 @@ public class BlueFrontPixel extends LinearOpMode
                                             // adjust for left/right edge tile starting position once camera is locked in
                                             // try 6, 7 or 8 for right tile starting positions?
                                             // left tile edge starting: BlueBack & RedFront
-                                            // right tile edge starting: BlueFront & BLUEFRONT
+                                            // right tile edge starting: BlueFront & RedBack
         findPropPL.EnableDetection = true;
       }
 
@@ -178,103 +186,99 @@ public class BlueFrontPixel extends LinearOpMode
       if (findPropPL.propLocation == "LEFT"){
         /************************************************************************
          *
-         * LEFT: (BLUE FRONT)
+         * LEFT: (RED FRONT)
          *
          ************************************************************************/
-        drive(18, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        drive(0,0,-55,DRIVE_POWER);         // CCW 55 deg to face LEFT spike mark
-        drive(7.5, 0, 0, DRIVE_POWER);        // drive forward to spike
+        drive(17.5, 0, 0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
 
         dropBottomPixel();
 
-        drive(-7.5, 0, 0, DRIVE_POWER);        // drive back 5"
-        drive(0, 0, 55, DRIVE_POWER);      // CCW 55 to face forward
-        drive(29.5, 0, 0, 0.65);       // Drive 35" forward to bridge
-        drive(0, 0, -90, 0.65);      // Rotate CCW 90 dg to face back wall
-        drive(75, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
-        drive(0, -32.2, 0, DRIVE_POWER);    // line up with left side
-        drive(0, 0, 180, 0.65);             // rotate to back side
-        armraisewait(100, 0.2);             // raise to backdrop
+        drive(0, 6, 0, DRIVE_POWER); // Forward 15" to middle of field
+        drive(0, 0, 45, DRIVE_POWER); // Rotate 45 deg back to facing forward
+        drive(28, 0, 0, 0.65); // Forward 15" to middle of field
+        drive(0, 0, 90, 0.65); // Rotate 90 deg to face back
+        sleep(3500);
+        drive(74, 0, 0, 0.65); // Forward 5'
+        drive(0, 21, 0, 0.65);
+        drive(0, 0, 180, 0.65);
+        armraisewait(100,0.3);
         reverseFlipper();
-        armraisewait(30,0.2);               
-        drive(-6, 0, 0, DRIVE_POWER);       // go backwards to put on pixel
-        openClamp();
-        drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
-        normalFlipper();
-        armraisewait(-110, 0.4);            // bring arm back down
-        armraise(-30,0.2);
+        armraisewait(30,0.2);
+        drive(-6.5,0,0,DRIVE_POWER);
+        openClampWait();
+        drive(4.5,0,0,DRIVE_POWER);
+        normalFlipper();            // square w/ ground
+        armraisewait(-110, 0.4);
+        armraise(-30, 0.2);
         
-        drive(-3, -19, 0, DRIVE_POWER);     // drive to park
-        drive(-5, 0, 0, DRIVE_POWER);     // drive to park
+        drive(-3, 10, 0, DRIVE_POWER);
         
-        // release motors
+        // release motors?
 
       } else if (findPropPL.propLocation == "MIDDLE") { // If pixel is in MIDDLE
         /************************************************************************
          *
-         * MIDDLE: (BLUE FRONT)
+         * MIDDLE: (RED FRONT)
          *
          ************************************************************************/
-        drive(20, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        drive(5, 0, 0, DRIVE_POWER);        // drive forward to spike
+        drive(25.0,-5,0,DRIVE_POWER);        // Fwd 15" toward spike marks
 
         dropBottomPixel();
 
-        drive(-5, 0, 0, DRIVE_POWER);        // drive back 5"
-        drive(0, 13, 0, DRIVE_POWER);
-        sleep(100);
-        
-        drive(31, 0, 0, DRIVE_POWER);       // drive to bridge
-        sleep(100);
-        drive(0, 0, -90, 0.65);      // Rotate CCW 90 dg to face back wall
-        drive(88, 0, 0, 0.65);       // Drive forward 83" to parking zone, with second pixel
-        drive(0, -28, 0, DRIVE_POWER);    // line up with middle
-        drive(0, 0, 180, 0.65);             // rotate to back side
-        armraisewait(100, 0.2);             // raise to backdrop
+        drive(0, -10, 0, DRIVE_POWER);
+        drive(23, 0, 0, DRIVE_POWER);
+        drive(0, 0, 89, DRIVE_POWER);
+        sleep(3500);
+        drive(91, 0, 0, 0.65);
+        drive(0, 23.5, 0, 0.65);
+        drive(0, 0, 180, 0.65);
+        armraisewait(100, 0.2);
         reverseFlipper();
-        armraisewait(30,0.2);               
-        drive(-6, 0, 0, DRIVE_POWER);       // go backwards to put on pixel
+        armraisewait(30,0.2);
+        drive(-5,0,0,DRIVE_POWER);
         openClamp();
-        drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
+        drive(3, 0, 0, DRIVE_POWER);
         normalFlipper();
-        armraisewait(-110, 0.4);            // bring arm back down
+        armraisewait(-110, 0.4);
         armraise(-30,0.2);
+        drive(-3, 13, 0, DRIVE_POWER);
         
-        drive(-3, -16, 0, DRIVE_POWER);     // drive to park
-        drive(-7, 0, 0, DRIVE_POWER);     // drive to park
-
       } else { // RIGHT code
         /************************************************************************
          *
-         * RIGHT: (BLUE FRONT)
+         * RIGHT: (RED FRONT)
          *
          ************************************************************************/
-        drive(18, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
-        drive(0,0,35,DRIVE_POWER);         // CCW 35 deg to face LEFT spike mark
+  
+        drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
+        drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
+        drive(4, 0, 0, DRIVE_POWER);
 
         dropBottomPixel();
 
-        drive(0, 0, -35, DRIVE_POWER);      // CCW 35 to face forward
-        drive(0, -5.5, 0, DRIVE_POWER);       // line up robot to move forward
-        drive(30.5, 0, 0, 0.65);       // Drive 35" forward to bridge
-        drive(0, 0, -92, 0.65);      // Rotate CCW 90 dg to face back wall
-        drive(75, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
-        drive(0, -16, 0, DRIVE_POWER);    // line up to right side
-        drive(0, 0, 180, 0.65);           // turn around
-        armraisewait(100, 0.2);           // lift arm to backdrop
+        DRIVE_POWER = 0.65;
+        drive(-2, -5, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
+        drive(0, 0, -50, DRIVE_POWER);
+        drive(25, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
+        drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
+        sleep(3500);
+        drive(79, 0, 0, DRIVE_POWER); // Forward 5' 7"
+        drive(0, 33, 0, DRIVE_POWER);
+        drive(0, 0, 180, DRIVE_POWER);
+        armraisewait(100,0.3);
         reverseFlipper();
-        armraisewait(30,0.2);             
-        drive(-2.5, 0, 0, DRIVE_POWER);     // drive back to backdrop
-        sleep(100);
-        openClamp();
-        drive(4.5, 0, 0, DRIVE_POWER);    // drive forward to let pixel drop
-        normalFlipper();
-        armraisewait(-110, 0.4);          // bring arm back down
-        armraise(-30,0.2);                
+        armraisewait(30,0.2);
+        drive(-6.5,0,0,DRIVE_POWER);
+        openClampWait();
+        drive(4.5,0,0,DRIVE_POWER);
+        normalFlipper();            // square w/ ground
+        armraisewait(-110, 0.4);
+        armraise(-30, 0.2);
         
-        drive(-5, -10, 0, DRIVE_POWER);   // park
+        drive(-3, 22, 0, DRIVE_POWER);
       }
-      
+
       while (opModeIsActive()) {
         // Put loop blocks here.
 
