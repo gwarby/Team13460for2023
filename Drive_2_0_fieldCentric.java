@@ -24,10 +24,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   double MAX_ARM_RAISE_POWER = 0.45;
   double MAX_ARM_LOWER_POWER = 0.16;
   int MAX_ARM_RAISE_TICKS = 1200;
-  int MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP = 150;
   int MIN_ARM_RAISE_TICKS = 20;
   double STICK_DEADZONE = 0.011;
-  double GRAB_TOP_PIXEL_TICKS = 4;
 
   double MAX_ARM_EXTEND_POWER = 0.45;
   double MAX_ARM_RETRACT_POWER = 0.45;
@@ -41,8 +39,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   int GRABBER_TIME_DEBOUNCE_MS = 350;
   double GRABBER_SERVO_OPENED_POS = 0.35;
   double GRABBER_SERVO_CLOSED_POS = 0.16;
-  double GRABBER_SERVO_OPENED_A_LITTLE_POS = .206;
-  double GRABBER_BOTTOM_PIXEL_DEBOUNCE_MS = 350;
 
   double DRONE_SERVO_LOAD_POS = 0.6;
   double DRONE_SERVO_LAUNCH_POS = 0.3;
@@ -77,6 +73,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     DcMotor lifter = hardwareMap.get(DcMotor.class, "lifter");
     // Servo for launching drone
     Servo droneLauncher = hardwareMap.get(Servo.class, "dronelauncher");
+    // Arm Limiter Servo
+    Servo armlimiter = hardwareMap.get(Servo.class, "armlimiter");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
     frontright.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -102,16 +100,16 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     boolean driverCmd_GrabberToggle, driverCmd_ClawFlipToggle;
     double driverCmd_RaiseLifterHooks, driverCmd_LowerLifterHooks;
     boolean driverCmd_AutoHoldLifterHooks;
-    boolean driverCmd_ArmToGround, driverCmd_GrabTopPixel, driverCmd_ArmToHolding, driverCmd_DropBottomPixel;
+    boolean driverCmd_ArmToLowest, driverCmd_GrabTopPixel;
     boolean driverCmd_LaunchDrone, driverCmd_LoadDrone;
     // Variables for current positions, headings, etc.
-    int armExtendPositionTicks;
+    int armExtendPositionTicks = armextend.getCurrentPosition();
     int armRaisePositionTicks;
     
     // Variables for control targets - positions, speeds, headings, etc.
     double robotCmd_Fwd, robotCmd_Right, robotCmd_Rotate;
     boolean isArmHolding = false;  // needs to maintain state, so must be outside loop
-    int armRaiseTargetPosition = 0;
+    int armRaiseTargetPosition = armExtendPositionTicks;
     boolean isArmExtendHolding = false;
     int armExtendTargetPosition = 0;
 
@@ -120,10 +118,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
     boolean isGrabberInClosedPosition = true; // true is closed
     int lastTimeGrabberToggledMs = 0;
-    int lastTimeBottomPixelMs = 0;
     
     boolean lifterUp = false; // false is down
     int lastTimeLifted = 0; // used to unbounce lifter command
+    boolean droneLaunched = false;
     
     int loopsExecuted = 0;
     double prevTimeMs = 0.0;
@@ -132,6 +130,27 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
     // Pull droneLauncher servo back to load drone
     droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
+    
+    grabber.setPosition(.16);
+    armraise.setTargetPosition(200);  // ?
+    armextend.setTargetPosition(250);
+    flipper.setPosition(.35);
+    armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armraise.setPower(0.2);
+    armextend.setPower(0.15);
+    sleep(500);
+    armlimiter.setPosition(0.48);
+    sleep(1500);
+    armraise.setPower(0.0);
+    armextend.setPower(0.0);
+    armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    armextend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    flipper.setPosition(.28);
+    
+    telemetry.addLine("Ready for start");
+    telemetry.update();
+    
     waitForStart();
     // AFTER START, BEFORE LOOP:
     // TODO: minor arm move: raise, extend, lower but keep slightly off ground
@@ -139,16 +158,15 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       double currTimeMs = currentTime.milliseconds();
       // DRIVE CONTROLS MAP
       // :mechanum drive 
-      driverCmd_Right=gamepad1.right_stick_x ^ 5/2;
-      driverCmd_Fwd=-gamepad1.right_stick_y ^ 5/2;  // negative because stick_y is up=neg, we want up=pos
-      driverCmd_Rotate=gamepad1.left_stick_x ^ 5/2;
+      driverCmd_Right=gamepad1.right_stick_x;
+      driverCmd_Fwd=-gamepad1.right_stick_y;  // negative because stick_y is up=neg, we want up=pos
+      driverCmd_Rotate=gamepad1.left_stick_x;
       telemetry.addData("driverCmdFwd", driverCmd_Fwd);
       // :arm rotate (aka raise/lower) & arm extend
       driverCmd_ArmRaise = -gamepad2.left_stick_y;
       driverCmd_ArmExtend = -gamepad2.right_stick_y;
-      driverCmd_ArmToGround = gamepad2.dpad_down;
+      driverCmd_ArmToLowest = gamepad2.dpad_down;
       driverCmd_GrabTopPixel = gamepad2.dpad_left || gamepad2.dpad_right;
-      driverCmd_ArmToHolding = gamepad2.dpad_up;
       // :claw grab & flip 
       driverCmd_GrabberToggle = gamepad2.a;
       driverCmd_ClawFlipToggle = gamepad2.right_bumper;
@@ -156,7 +174,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       driverCmd_RaiseLifterHooks = gamepad2.right_trigger;
       driverCmd_LowerLifterHooks = gamepad2.left_trigger;
       driverCmd_AutoHoldLifterHooks = gamepad2.dpad_down;
-      driverCmd_DropBottomPixel = gamepad2.left_bumper;
       
       driverCmd_LaunchDrone = gamepad1.y && gamepad2.y;
       driverCmd_LoadDrone = gamepad1.x && gamepad2.x;
@@ -207,7 +224,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
       boolean isArmTooLow = armRaisePositionTicks < MIN_ARM_RAISE_TICKS;
       boolean isArmTooHigh = armRaisePositionTicks > MAX_ARM_RAISE_TICKS;
-      boolean isArmNearLowLimit = armRaisePositionTicks < (MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
       boolean isArmNearHighLimit = armRaisePositionTicks > (MAX_ARM_RAISE_TICKS - 25);
       
       // boolean isArmHolding = false;  // needs to maintain state, so must be outside loop
@@ -220,7 +236,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
           armRaiseTargetPosition = armRaisePositionTicks;
           if (isArmTooLow) {
-            armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
+            armRaiseTargetPosition = 82;
           } else if (isArmTooHigh) {
             armRaiseTargetPosition = MAX_ARM_RAISE_TICKS;
           }
@@ -244,8 +260,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
       } else {  // isArmCmdDown
         isArmHolding = false;
-        if (isArmTooLow || isArmNearLowLimit) {
-        armraise.setTargetPosition(MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP);
+        if (isArmTooLow) {
+        armraise.setTargetPosition(82);
         armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armraise.setPower(0.265);
         } else {
@@ -254,24 +270,13 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
       }
       
-      // run arm to set positions using buttons
-      // a -> ground, b -> second stacked pixel, y -> holding
-      // x grabs/ lets go of pixel (still)
-      if (driverCmd_ArmToGround) { // send the arm all the way to the ground
-        isArmHolding = true;
-        armRaiseTargetPosition = 0;
-      } else if (driverCmd_GrabTopPixel) { // grab top pixel in stack of two
-        isArmHolding = true;
-        armRaiseTargetPosition = (int) GRAB_TOP_PIXEL_TICKS;
-      } else if (driverCmd_ArmToHolding) { // Put arm back to holding position
-        isArmHolding = true;
-        armRaiseTargetPosition = MIN_ARM_RAISE_TICKS_WHEN_NOT_PICKING_UP;
-      }
-      
+
 
       // Extend Arm code
-      armExtendPositionTicks = armextend.getCurrentPosition(); // set to current position of rotate motor
-      telemetry.addData("Arm Extend Pos:", armExtendPositionTicks);
+
+      //driverCmd_ArmExtend = -gamepad2.right_stick_y;
+      //driverCmd_ArmToLowest = gamepad2.dpad_down;
+      //driverCmd_GrabTopPixel = gamepad2.dpad_left || gamepad2.dpad_right;
 
       boolean isArmCmdExtendNone = Math.abs(driverCmd_ArmExtend) <= STICK_DEADZONE;
       boolean isArmCmdExtend = driverCmd_ArmExtend > STICK_DEADZONE;
@@ -281,9 +286,30 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       boolean isArmTooExtended = armExtendPositionTicks > MAX_ARM_EXTEND_TICKS;
       boolean isArmNearRetractLimit = armExtendPositionTicks < (MIN_ARM_EXTEND_TICKS_WHEN_NOT_PICKING_UP + 25);
       boolean isArmNearExtendLimit = armExtendPositionTicks > (MAX_ARM_EXTEND_TICKS - 25);
+      //driverCmd_ArmExtend = -gamepad2.right_stick_y;
+      //driverCmd_ArmToLowest = gamepad2.dpad_down;
+      //driverCmd_GrabTopPixel = gamepad2.dpad_left || gamepad2.dpad_right;
       
       // boolean isArmHolding = false;  // needs to maintain state, so must be outside loop
 
+      // run arm to set positions using buttons
+      // a -> ground, b -> second stacked pixel, y -> holding
+      // x grabs/ lets go of pixel (still)
+      if (driverCmd_ArmToLowest) { // send the arm all the way to the ground
+        armExtendTargetPosition = 675;
+        armextend.setTargetPosition(armExtendTargetPosition);
+        armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armextend.setPower(0.265);
+        telemetry.addLine("Sending arm to lowest");
+      } 
+      if (driverCmd_GrabTopPixel) { // grab top pixel in stack of two
+        armExtendTargetPosition = 455;
+        armextend.setTargetPosition(armExtendTargetPosition);
+        armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armextend.setPower(0.265);
+        telemetry.addLine("Sending arm to grab top pixel");
+      } 
+      
       if (isArmCmdExtendNone) {  // hold within limits
         telemetry.addData("extend:","holding");
         if (!isArmExtendHolding) {  // entering hold state
@@ -292,7 +318,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           //   causing the hold to drift due to gravity & bouncing
           isArmExtendHolding = true;
 
-          armExtendTargetPosition = armExtendPositionTicks;
+          //armExtendTargetPosition = armExtendPositionTicks;
           if (isArmTooRetracted) {
             armExtendTargetPosition = MIN_ARM_EXTEND_TICKS_WHEN_NOT_PICKING_UP;
           }
@@ -319,7 +345,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           armextend.setPower(driverCmd_ArmExtend * MAX_ARM_EXTEND_POWER);
         }
       }
-      else {  // isArmCmdRetract
+      else if (isArmCmdRetract) {  // isArmCmdRetract
         telemetry.addData("extend:","retracting");
         isArmExtendHolding = false;
         if (isArmTooRetracted || isArmNearRetractLimit) {
@@ -332,6 +358,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           armextend.setPower(driverCmd_ArmExtend * MAX_ARM_RETRACT_POWER);
         }
       }
+      telemetry.addData("Arm Extend Pos:", armExtendPositionTicks);
 
       
       // Claw Flip / Rotater:
@@ -365,18 +392,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
         lastTimeGrabberToggledMs = (int) currentTime.milliseconds();  // refresh 'lastTime', regardless of which direction we went
       }
-
-      // drop bottom pixel code
-      boolean isBottomPixelDebounceTimeElapse = ((int) currentTime.milliseconds() - lastTimeBottomPixelMs)
-                                                                                > GRABBER_BOTTOM_PIXEL_DEBOUNCE_MS;
-
-      if (driverCmd_DropBottomPixel ) {
-        flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
-        grabber.setPosition(GRABBER_SERVO_OPEN_A_LITTE_POS);
-        sleep(100);
-        grabber.setPosition(GRABBER_SERVO_OPENED_POS);
-        lastTimeBottomPIxelMs = currentTime.milliseconds();
-      }
       
       // LIFTER (aka robot HANGING)
       lifter.setPower(driverCmd_RaiseLifterHooks - driverCmd_LowerLifterHooks);
@@ -389,13 +404,32 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       //}
 
       // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
-      if (driverCmd_LaunchDrone && (currTimeMs/1000) > 90 ) {
-        droneLauncher.setPosition(DRONE_SERVO_LAUNCH_POS);
+      if (currTimeMs/1000 > 90) {
+        telemetry.addLine("--------------------");
+        if (driverCmd_LaunchDrone) {
+          droneLaunched = true;
+          droneLauncher.setPosition(DRONE_SERVO_LAUNCH_POS);
+          telemetry.addLine("Launching drone...");
+        } else {
+          if (!droneLaunched) {
+            telemetry.addLine("Ready to launch drone");
+          } else {
+            telemetry.addLine("Drone away");
+          }
+        }
+        telemetry.addLine("---------------------");
+      } else {
+        telemetry.addData("Time until ready to launch", (int) 90 - (currTimeMs/1000));
       }
       
       if (driverCmd_LoadDrone) {
         droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
       }
+      
+      telemetry.addData("DriverCmd_ToLowest", driverCmd_ArmToLowest);
+      telemetry.addData("DriverCmd_GrabTopPixel", driverCmd_GrabTopPixel);
+      telemetry.addData("armraise target position", armraise.getTargetPosition());
+      telemetry.addData("armextend target position", armextend.getTargetPosition());
 
       loopsExecuted += 1;
       telemetry.addData("loops:", loopsExecuted);
