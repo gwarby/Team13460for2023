@@ -183,13 +183,13 @@ public class BlueBackPixel extends LinearOpMode
          *
          ************************************************************************/
         drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
-        drive(0,0,-45,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
+        drive(0,0,-50,DRIVE_POWER);         // CCW -45 deg to face LEFT spike mark
 
         dropBottomPixel();
 
         drive(-2.5, 0, 0, 0.2);       // back up: don't run over the pixel we just placed,
                                     // ...but also don't go back to far into frames
-        drive(0, 0, 45, DRIVE_POWER);      // CW 135 to face away from backdrop
+        drive(0, 0, 50, DRIVE_POWER);      // CW 135 to face away from backdrop
         drive(-2, -2, 0, DRIVE_POWER);
         drive(0, 0, 90, DRIVE_POWER);      // CW 135 to face away from backdrop
         //drive(0, 0, 135, DRIVE_POWER);      // CW 135 to face away from backdrop
@@ -199,7 +199,7 @@ public class BlueBackPixel extends LinearOpMode
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         //drive(0, -5, 0, DRIVE_POWER);       // left 5" along backdrop
         armraisewait(30, 0.09);        // raise arm last 45 deg
-        drive(-4.3, 0, 0, 0.2);       // REV last 4" to board
+        drive(-5.2, 0, 0, 0.2);       // REV last 4" to board
         openClampWait();          // release pixel on board
         sleep(350);                // wait for pixel
         openClampLittle();        // open clamp slightly
@@ -220,7 +220,7 @@ public class BlueBackPixel extends LinearOpMode
          * MIDDLE: (BLUE BACK)
          *
          ************************************************************************/
-        drive(27.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        drive(25.0,0,0,DRIVE_POWER);        // Fwd 15" toward spike marks
         drive(0,0,-18,DRIVE_POWER);         // CCW 5 deg to be slightly offset from center of MIDDLE spike mark
 
         dropBottomPixel();
@@ -234,7 +234,8 @@ public class BlueBackPixel extends LinearOpMode
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -9, 0, DRIVE_POWER);       // left 10" along backdrop
         armraise(30, 0.127);        // slow down to avoid tipping over
-        drive(-2, 0, 0, 0.2);       // REV last 5" to board
+        drive(-5, 0, 0, 0.2);       // REV last 5" to board
+        sleep(300);
         openClampWait();          // release pixel on board
         sleep(400);
         drive(2, 0, 0, DRIVE_POWER); // drive forward 2" to get off wall
@@ -269,10 +270,10 @@ public class BlueBackPixel extends LinearOpMode
         reverseFlipper();           // put flipper in rev pos for placing pixel on board
         drive(0, -16.5, 0, DRIVE_POWER);       // left 4" along backdrop
         armraise(30, 0.127);        // slow down to avoid tipping over
-        drive(-4, 0, 0, 0.2);       // REV last 5" to board
+        drive(-3.8, 0, 0, 0.2);       // REV last 5" to board
         openClampLittleWait();          // release pixel on board
         sleep(200);
-        drive(2 , 0, 0, 0.2);       // forward 2" from board
+        drive(2 , 0, 0, 0.25);       // forward 2" from board
         armraise(-100, 0.41);        // bring the arm back down
         drive(0, 36, 0, DRIVE_POWER); // drive right 24" to wall
         groundTransitionFlipperWait();  // get arm in position to clear axle

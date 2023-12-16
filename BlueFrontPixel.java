@@ -59,7 +59,7 @@ public class BlueFrontPixel extends LinearOpMode
   int CALC_GRABBER_WAIT_MS = 1100;
   int CALC_FLIPPER_WAIT_MS = 1500;
   
-  double ARM_LIMITER_DEACTIVATED = 0.08;
+  double ARM_LIMITER_DEACTIVATED = 0.07;
   double ARM_LIMITER_ACTIVATED = 0.48;
   
   double DRIVE_POWER = 0.5;
@@ -84,6 +84,7 @@ public class BlueFrontPixel extends LinearOpMode
     armextend = hardwareMap.get(DcMotor.class, "armextend");
     grabber = hardwareMap.get(Servo.class, "grabber");
     flipper = hardwareMap.get(Servo.class, "flipper");
+    armlimiter = hardwareMap.get(Servo.class, "armlimiter");
     
     rearright.setDirection(DcMotorSimple.Direction.REVERSE);
     frontleft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -92,7 +93,6 @@ public class BlueFrontPixel extends LinearOpMode
     armextend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     armextend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     armraise.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    grabber = hardwareMap.get(Servo.class, "grabber");
     
     ((DcMotorEx) frontleft).setTargetPositionTolerance(10);
     ((DcMotorEx) rearleft).setTargetPositionTolerance(10);
@@ -181,18 +181,18 @@ public class BlueFrontPixel extends LinearOpMode
          * LEFT: (BLUE FRONT)
          *
          ************************************************************************/
-        drive(17, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
+        drive(18, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         drive(0,0,-55,DRIVE_POWER);         // CCW 55 deg to face LEFT spike mark
-        drive(5, 0, 0, DRIVE_POWER);        // drive forward to spike
+        drive(7.5, 0, 0, DRIVE_POWER);        // drive forward to spike
 
         dropBottomPixel();
 
-        drive(-5, 0, 0, DRIVE_POWER);        // drive back 5"
+        drive(-7.5, 0, 0, DRIVE_POWER);        // drive back 5"
         drive(0, 0, 55, DRIVE_POWER);      // CCW 55 to face forward
-        drive(30.5, 0, 0, 0.65);       // Drive 35" forward to bridge
+        drive(29.5, 0, 0, 0.65);       // Drive 35" forward to bridge
         drive(0, 0, -90, 0.65);      // Rotate CCW 90 dg to face back wall
         drive(75, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
-        drive(0, -29.2, 0, DRIVE_POWER);    // line up with left side
+        drive(0, -32.2, 0, DRIVE_POWER);    // line up with left side
         drive(0, 0, 180, 0.65);             // rotate to back side
         armraisewait(100, 0.2);             // raise to backdrop
         reverseFlipper();
@@ -204,7 +204,8 @@ public class BlueFrontPixel extends LinearOpMode
         armraisewait(-110, 0.4);            // bring arm back down
         armraise(-30,0.2);
         
-        drive(-3, -10, 0, DRIVE_POWER);     // drive to park
+        drive(-3, -19, 0, DRIVE_POWER);     // drive to park
+        drive(-5, 0, 0, DRIVE_POWER);     // drive to park
         
         // release motors
 
@@ -227,7 +228,7 @@ public class BlueFrontPixel extends LinearOpMode
         sleep(100);
         drive(0, 0, -90, 0.65);      // Rotate CCW 90 dg to face back wall
         drive(88, 0, 0, 0.65);       // Drive forward 83" to parking zone, with second pixel
-        drive(0, -22, 0, DRIVE_POWER);    // line up with middle
+        drive(0, -28, 0, DRIVE_POWER);    // line up with middle
         drive(0, 0, 180, 0.65);             // rotate to back side
         armraisewait(100, 0.2);             // raise to backdrop
         reverseFlipper();
@@ -239,7 +240,8 @@ public class BlueFrontPixel extends LinearOpMode
         armraisewait(-110, 0.4);            // bring arm back down
         armraise(-30,0.2);
         
-        drive(-3, -10, 0, DRIVE_POWER);     // drive to park
+        drive(-3, -16, 0, DRIVE_POWER);     // drive to park
+        drive(-7, 0, 0, DRIVE_POWER);     // drive to park
 
       } else { // RIGHT code
         /************************************************************************
@@ -247,29 +249,30 @@ public class BlueFrontPixel extends LinearOpMode
          * RIGHT: (BLUE FRONT)
          *
          ************************************************************************/
-        drive(15, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
+        drive(18, 0, 0, DRIVE_POWER);        // Fwd 4" to get motors off wall
         drive(0,0,35,DRIVE_POWER);         // CCW 35 deg to face LEFT spike mark
 
         dropBottomPixel();
 
         drive(0, 0, -35, DRIVE_POWER);      // CCW 35 to face forward
-        drive(0, -6, 0, DRIVE_POWER);       // line up robot to move forward
-        drive(33.5, 0, 0, 0.65);       // Drive 35" forward to bridge
-        drive(0, 0, -90, 0.65);      // Rotate CCW 90 dg to face back wall
+        drive(0, -5.5, 0, DRIVE_POWER);       // line up robot to move forward
+        drive(30.5, 0, 0, 0.65);       // Drive 35" forward to bridge
+        drive(0, 0, -92, 0.65);      // Rotate CCW 90 dg to face back wall
         drive(75, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
         drive(0, -16, 0, DRIVE_POWER);    // line up to right side
         drive(0, 0, 180, 0.65);           // turn around
         armraisewait(100, 0.2);           // lift arm to backdrop
         reverseFlipper();
         armraisewait(30,0.2);             
-        drive(-6, 0, 0, DRIVE_POWER);     // drive back to backdrop
+        drive(-2.5, 0, 0, DRIVE_POWER);     // drive back to backdrop
+        sleep(100);
         openClamp();
         drive(4.5, 0, 0, DRIVE_POWER);    // drive forward to let pixel drop
         normalFlipper();
         armraisewait(-110, 0.4);          // bring arm back down
         armraise(-30,0.2);                
         
-        drive(-3, -10, 0, DRIVE_POWER);   // park
+        drive(-5, -10, 0, DRIVE_POWER);   // park
       }
       
       while (opModeIsActive()) {
