@@ -43,7 +43,6 @@ public class BlueBackPixel extends LinearOpMode
     }
 
     lib.FindPropSetEnableDetection(false);
-
     // wait for user to press start on Driver Station
     waitForStart();
 
@@ -71,7 +70,7 @@ public class BlueBackPixel extends LinearOpMode
         lib.drive(0, 0, 90, DRIVE_POWER);      // CW 135 to face away from backdrop
         sleep(100);
         lib.armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
-        lib.drive(-22, -7, 0, DRIVE_POWER);       // BACK 24" toward backdrop
+        lib.drive(-22, -5, 0, DRIVE_POWER);       // BACK 24" toward backdrop
         lib.reverseFlipper();           // put flipper in rev pos for placing pixel on board
         lib.armraisewait(30, 0.09);        // raise arm last 45 deg
         lib.drive(-5.2, 0, 0, 0.2);       // REV last 4" to board
@@ -143,19 +142,20 @@ public class BlueBackPixel extends LinearOpMode
         lib.armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
         //drive(0, 0, 180, DRIVE_POWER);      // CW 180 deg to back into backdrop
         lib.reverseFlipper();           // put flipper in rev pos for placing pixel on board
-        lib.drive(0, -16.5, 0, DRIVE_POWER);       // left 4" along backdrop
+        lib.drive(0, -18, 0, DRIVE_POWER);       // left 4" along backdrop
         lib.armraise(30, 0.127);        // slow down to avoid tipping over
-        lib.drive(-3.8, 0, 0, 0.2);       // REV last 5" to board
-        lib.openClampLittleWait();          // release pixel on board
-        sleep(200);
+        lib.drive(-3.2, 0, 0, 0.2);       // REV last 5" to board
+        lib.openClampWait();          // release pixel on board
+        sleep(400);
         lib.drive(2 , 0, 0, 0.25);       // forward 2" from board
         lib.armraise(-100, 0.41);        // bring the arm back down
         lib.drive(0, 36, 0, DRIVE_POWER); // drive right 24" to wall
         lib.groundTransitionFlipperWait();  // get arm in position to clear axle
         lib.armraise(-20.6, 0.221);      // lower arm back to ground to prevent slamming between programs
                                     // ...leave up ~15 deg from driving to park pos
+        lib.closeClamp();
         lib.armextend(0, 0.4);
-        lib.drive(-13, 0, 0, DRIVE_POWER); // drive back 5" behind/over line
+        lib.drive(-13, 0, 10, DRIVE_POWER); // drive back 5" behind/over line
         lib.openClamp();
         lib.armraisewait(0, 0.159);     // finish lowering claw to ground
         lib.normalFlipperWait();            // square w/ ground

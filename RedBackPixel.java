@@ -67,12 +67,12 @@ public class RedBackPixel extends LinearOpMode
         lib.drive(-4,0,0,DRIVE_POWER);        // back slightly away
         lib.drive(0, 0, (-15), DRIVE_POWER);  // CCW to face away from backdrop
         lib.armraise(100, 0.3);               // raise arm (quickly / most of way for placing pixel on board)
-        lib.drive(-25, 0, 0, DRIVE_POWER);    // BACK toward backdrop
+        lib.drive(-22.5, 0, 0, DRIVE_POWER);    // BACK toward backdrop
         lib.drive(0, 10.5, 0, DRIVE_POWER);   // Right to left side of backdrop
         lib.reverseFlipper();                 // put flipper in rev pos for placing pixel on board
         lib.armraisewait(30, 0.09);           // slow down to avoid tipping over
 
-        lib.drive(-5, 0, 0, 0.2);             // REV last 5" to board
+        lib.drive(-2.5, 0, 0, 0.2);             // REV last 5" to board
         lib.openClampWait();                  // release pixel on board
         sleep(350);
         lib.drive(3, 0, 0, DRIVE_POWER);      // Get off of board
