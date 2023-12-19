@@ -11,13 +11,9 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-//import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-//import org.firstinspires.ftc.robotcore.external.JavaUtil;
-
-public class AutoCommon {
-  // Callbacks (interfaces to functions that only a proper LinearOpMode can call)
-  IFtcOpmodeSleep ftcSleep;
+public class AutoCommon extends LinearOpMode {
   // private members
   HardwareMap hardwareMap;
   OpenCvWebcam webcam;
@@ -57,28 +53,16 @@ public class AutoCommon {
   int FindPropMaxX() { return findPropPL.max_x; }
   int FindPropMaxY() { return findPropPL.max_y; }
 
-  // The calling opmode needs to pass us the HardwareMap since this class
-  // isn't an opmode - it is a common library - but only opmodes have
-  // HardwareMap objects automatically given to them
-  //
-  // it is important that the lib doesn't simply Thread.sleep(), because that
-  // will potentially ignore driver hub commands like STOP.
-  // Passing a function to another class, which it will presumably call later,
-  // is sometimes referred to as a 'Callback'.  You will also find related topics
-  // like delegates in C# & Lambda functions in several languages.
-  // This is an advanced programming concept.  If it leaves you confused,
-  // don't feel at all bad.  Just trust that the sleep function(s) passed in the
-  // automonous opcodes is the LinearOpMode.sleep() function, and there isn't a nice way for 
-  // classes that aren't LinearOpModes (like this AutoCommon library) to
-  // call the LinearOpMode.sleep() function without this hoopla.
-  public AutoCommon(HardwareMap hwMap, IFtcOpmodeSleep sleepCallback, FindPropVisInitData visInit) {
+  // This class isn't an opmode that should be run on the robot
+  // but it extends (inherits from) LinearOpMode so it can access
+  // hardwareMap & sleep()
+  public AutoCommon(HardwareMap hwMap, FindPropVisInitData visInit) {
     /************************************************************************
      *   -map hardware specific to our robot
      *   -config hardware settings (like reversed motor directions)
      *   -config camera & OpenCV pipeline used for prop location detection
      ************************************************************************/
     hardwareMap = hwMap;
-    ftcSleep = sleepCallback;
     frontleft = hardwareMap.get(DcMotor.class, "frontleft");
     rearleft = hardwareMap.get(DcMotor.class, "rearleft");
     frontright = hardwareMap.get(DcMotor.class, "frontright");
@@ -143,9 +127,11 @@ public class AutoCommon {
     });
   }
   
-  private void sleep(int time_ms) { 
-    ftcSleep.FtcSleepFnc(time_ms);
-  }
+  //private void sleep(int ms) { LinearOpMode.sleep(ms); }
+  
+  // This is a library class, not a proper opMode, but we need access to sleep, so we extend linearOpMode, and as such, must implement runOpMode()
+  @Override
+  public void runOpMode() { } 
   
     /************************************************************************
     *  PICKUP 2 PIXEL STACK ON INIT - USE ARM LIMITER AS REST

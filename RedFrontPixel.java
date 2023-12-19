@@ -21,11 +21,8 @@ public class RedFrontPixel extends LinearOpMode
     visInitData.ScanLeftmostXBlock = 4;
     visInitData.MidRightXBoundary = 9;
     
-    // The `new IFtcOpmodeSleep()` part of this constructor is giving the AutoCommon lib a way to call `LinearOpMode.sleep()`
-    // See AutoCommon.java comments for more information
     AutoCommon lib = new AutoCommon(
       hardwareMap,
-      new IFtcOpmodeSleep() { @Override public void FtcSleepFnc(int ms) { sleep(ms); } },
       visInitData);
 
     // Pre-load 2 Pixels
