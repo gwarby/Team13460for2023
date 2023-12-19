@@ -1,23 +1,6 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-//import com.qualcomm.robotcore.hardware.DcMotor;
-//import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
-
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name = "RedBackPixel")
 public class RedBackPixel extends LinearOpMode 
@@ -38,11 +21,8 @@ public class RedBackPixel extends LinearOpMode
     visInitData.ScanLeftmostXBlock = 4;
     visInitData.MidRightXBoundary = 9;
     
-    // The `new IFtcOpmodeSleep()` part of this constructor is giving the AutoCommon lib a way to call `LinearOpMode.sleep()`
-    // See AutoCommon.java comments for more information
     AutoCommon lib = new AutoCommon(
       hardwareMap,
-      new IFtcOpmodeSleep() { @Override public void FtcSleepFnc(int ms) { sleep(ms); } },
       visInitData);
 
     // Pre-load 2 Pixels
