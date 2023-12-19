@@ -24,7 +24,7 @@ public class AutoCommon extends LinearOpMode {
 
   // Constants used to calibrate robot-specific unit conversion, limits, etc.  
   private final double GRABBER_SERVO_OPENED_POS = 0.37;//0.45;
-  private final double GRABBER_SERVO_CLOSED_POS = 0.163;//0.12;
+  private final double GRABBER_SERVO_CLOSED_POS = 0.155;//0.12;
   private final double GRABBER_SERVO_OPEN_A_LITTLE_POS = 0.206;//0.22;
   private final int GRABBER_SERVO_PAUSE_TIME_MS = 355;//450;
   
