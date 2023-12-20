@@ -31,8 +31,8 @@ public class BlueRedObjectDetectBlocks extends BlocksOpModeCompanion {
 
     @ExportToBlocks (
         parameterLabels = {},
-        comment = "Returns 0-16 value indicating how far left-to-right in the camera frame the most red/blue section was detected in",
-        tooltip = "Returns 0-16 value indicating how far left-to-right in the camera frame the most red/blue section was detected in"
+        comment = "Returns approximate X pixel location indicating how far left-to-right in the camera frame the most red/blue section was detected in",
+        tooltip = "Returns approximate X pixel location indicating how far left-to-right in the camera frame the most red/blue section was detected in"
     )
     public static int GetPropXLocation () {
         if (visLib != null) {
