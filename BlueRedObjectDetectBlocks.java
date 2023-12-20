@@ -35,9 +35,9 @@ public class BlueRedObjectDetectBlocks extends BlocksOpModeCompanion {
         tooltip = "Returns approximate X pixel location indicating how far left-to-right in the camera frame the most red/blue section was detected in"
     )
     public static int GetPropXLocation () {
-        if (visLib != null) {
-            return visLib.GetPropXLocation();
-        }
-        return -1;
+        if (visLib == null)
+            return -1;
+
+        return visLib.GetPropXLocation();
     }
 }
