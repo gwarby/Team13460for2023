@@ -12,6 +12,8 @@ The _red_ refers to this programing being built for the red side. The _Back_ ind
 ## Vision:
 We don't use the inbuilt FTC TFOD, we instead use OpenCV. This instead checks for pixels with high red/blue values in the frame, so instead of looking for an object, we're looking for color. We create little overlapping squares on the video feed and check which has the highest red/blue value, to see where our custom element is. Since it's made in one solid color, it shows up strongly. Unfortunately, our camera is only wide enough to see two of the positions accurately, so if nowhere in the frame has a strong enough blue/red value, we assume the element is in the unseen position.
 
+Checkout our branch https://github.com/gwarby/Team13460for2023/tree/NEVER_MERGE/vis_java_block_opencv_example for example vision code that is less specific to our robot & ready to work with blocks.
+
 ## Current Work:
 Currently we are working on optimizing autonomous and driver controlled, and adding autonomous programs for all scenarios.
 
