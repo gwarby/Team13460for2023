@@ -429,6 +429,20 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         // detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z 
       }
       
+      telemetry.addData("DriverCmd_ToLowest", driverCmd_ArmToLowest);
+      telemetry.addData("DriverCmd_GrabTopPixel", driverCmd_GrabTopPixel);
+      telemetry.addData("armraise target position", armraise.getTargetPosition());
+      telemetry.addData("armextend target position", armextend.getTargetPosition());
+
+      loopsExecuted ++;
+      telemetry.addData("loops:", loopsExecuted);
+      telemetry.addData("time delta (ms):", currTimeMs - prevTimeMs);
+      telemetry.addData("time:", currTimeMs / 1000.0);
+      prevTimeMs = currTimeMs;
+      telemetry.update();
+    }  // END OF WHILE LOOP
+  }  // END OF RUN OPMODE FUNCTION
+      
       private void initAprilTag() {
 
         // Create the AprilTag processor.
@@ -456,19 +470,5 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         //visionPortal.setProcessorEnabled(aprilTag, true);
 
       }   // end method initAprilTag()
-      
-      telemetry.addData("DriverCmd_ToLowest", driverCmd_ArmToLowest);
-      telemetry.addData("DriverCmd_GrabTopPixel", driverCmd_GrabTopPixel);
-      telemetry.addData("armraise target position", armraise.getTargetPosition());
-      telemetry.addData("armextend target position", armextend.getTargetPosition());
-
-      loopsExecuted ++;
-      telemetry.addData("loops:", loopsExecuted);
-      telemetry.addData("time delta (ms):", currTimeMs - prevTimeMs);
-      telemetry.addData("time:", currTimeMs / 1000.0);
-      prevTimeMs = currTimeMs;
-      telemetry.update();
-    }  // END OF WHILE LOOP
-  }  // END OF RUN OPMODE FUNCTION
 }  // END OF CLASS DEF
 
