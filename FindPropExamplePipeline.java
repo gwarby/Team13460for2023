@@ -100,8 +100,8 @@ public class FindPropExamplePipeline extends OpenCvPipeline
     max_x = 0;
     max_y = 0;
     max_chroma = 0.0; 
-    for (int i = ScanLeftmostXBlock; i < (SAMPLE_X_SZ-1); ++i) {
-      for (int j = 0; j <= ScanLowestYBlock; ++j) { //for (int j = 0; j < (SAMPLE_Y_SZ-1); ++j) {
+    for (int i = 0; i < (SAMPLE_X_SZ-1); ++i) {
+      for (int j = 0; j < (SAMPLE_Y_SZ-1); ++j) {
         if (sampleChromas[i][j] > max_chroma) {
           max_chroma = sampleChromas[i][j];
           max_x = i;

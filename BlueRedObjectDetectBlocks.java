@@ -4,16 +4,16 @@ import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion;
 import org.firstinspires.ftc.robotcore.external.ExportToBlocks;
 
 public class BlueRedObjectDetectBlocks extends BlocksOpModeCompanion {
-    static AutoCommon visLib = null;
+    static ExampleVisLib visLib = null;
 
     @ExportToBlocks (
         parameterLabels = {"colorCh, 1:red 2:blue"},
-        tooltip = "Use OpenCV Pipeline to scan for the location of a 'very' blue or red block"
+        tooltip = "Use OpenCV Pipeline to scan for relative X location of a 'very' blue or red block"
     )
     public static void InitPropDetection(int colorChannel) {
         FindPropVisInitData visInitData = new FindPropVisInitData();
         visInitData.ColorChannel = colorChannel;
-        visLib = new AutoCommon(
+        visLib = new ExampleVisLib(
             hardwareMap,
             visInitData);
     }
@@ -30,14 +30,14 @@ public class BlueRedObjectDetectBlocks extends BlocksOpModeCompanion {
     }
 
     @ExportToBlocks (
-        parameterLabels = {"ColorChannel"},
-        comment = "Returns LEFT, MIDDLE or RIGHT String values",
-        tooltip = "Returns LEFT, MIDDLE or RIGHT String values"
+        parameterLabels = {},
+        comment = "Returns 0-16 value indicating how far left-to-right in the camera frame the most red/blue section was detected in",
+        tooltip = "Returns 0-16 value indicating how far left-to-right in the camera frame the most red/blue section was detected in"
     )
-    public static String PropLocation () {
+    public static int GetPropXLocation () {
         if (visLib != null) {
-            return visLib.FindPropLocation();
+            return visLib.GetPropXLocation();
         }
-        return "ERROR: Prop detection not initialized or otherwise null object";
+        return -1;
     }
 }
