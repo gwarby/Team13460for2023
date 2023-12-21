@@ -43,7 +43,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   
   int GRABBER_TIME_DEBOUNCE_MS = 350;
   double GRABBER_SERVO_OPENED_POS = 0.35;
-  double GRABBER_SERVO_CLOSED_POS = 0.16;
+  double GRABBER_SERVO_CLOSED_POS = 0.155;
 
   double DRONE_SERVO_LOAD_POS = 0.6;
   double DRONE_SERVO_LAUNCH_POS = 0.3;
