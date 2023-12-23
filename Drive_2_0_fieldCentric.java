@@ -12,6 +12,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 // @Disabled
 
@@ -46,6 +51,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   //   An ElapsedTime'r for operations that should wait without pausing the loop
   private ElapsedTime currentTime = new ElapsedTime();
   
+  // For April Tags
+  private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+  private AprilTagProcessor aprilTag;
+  private VisionPortal visionPortal;
 
   /**`
    * This function is executed when this OpMode is selected from the Driver Station.
@@ -53,7 +62,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   @Override
   public void runOpMode() {
     // INIT:
-    
     // :find our HW in the hardwareMap:
     //   IMU:
     IMU imu = hardwareMap.get(IMU.class, "imu");  // Retrieve the IMU from the hardware map
@@ -71,6 +79,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     Servo grabber = hardwareMap.get(Servo.class, "grabber");
     //   Motor for end game lifting of the robot
     DcMotor lifter = hardwareMap.get(DcMotor.class, "lifter");
+    // Motor for launching drone
+    DcMotor launchMotor = hardwareMap.get(DcMotor.class, "launchMotor");
     // Servo for launching drone
     Servo droneLauncher = hardwareMap.get(Servo.class, "dronelauncher");
     // Arm Limiter Servo
@@ -226,7 +236,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       boolean isArmTooHigh = armRaisePositionTicks > MAX_ARM_RAISE_TICKS;
       boolean isArmNearHighLimit = armRaisePositionTicks > (MAX_ARM_RAISE_TICKS - 25);
       
-      // boolean isArmHolding = false;  // needs to maintain state, so must be outside loop
       if (isArmCmdNone) {  // hold within limits
         if (!isArmHolding) {  // entering hold state
           //   without this block, we keep updating the
@@ -274,10 +283,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
       // Extend Arm code
 
-      //driverCmd_ArmExtend = -gamepad2.right_stick_y;
-      //driverCmd_ArmToLowest = gamepad2.dpad_down;
-      //driverCmd_GrabTopPixel = gamepad2.dpad_left || gamepad2.dpad_right;
-
       boolean isArmCmdExtendNone = Math.abs(driverCmd_ArmExtend) <= STICK_DEADZONE;
       boolean isArmCmdExtend = driverCmd_ArmExtend > STICK_DEADZONE;
       boolean isArmCmdRetract = driverCmd_ArmExtend < -STICK_DEADZONE;
@@ -286,15 +291,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       boolean isArmTooExtended = armExtendPositionTicks > MAX_ARM_EXTEND_TICKS;
       boolean isArmNearRetractLimit = armExtendPositionTicks < (MIN_ARM_EXTEND_TICKS_WHEN_NOT_PICKING_UP + 25);
       boolean isArmNearExtendLimit = armExtendPositionTicks > (MAX_ARM_EXTEND_TICKS - 25);
-      //driverCmd_ArmExtend = -gamepad2.right_stick_y;
-      //driverCmd_ArmToLowest = gamepad2.dpad_down;
-      //driverCmd_GrabTopPixel = gamepad2.dpad_left || gamepad2.dpad_right;
-      
-      // boolean isArmHolding = false;  // needs to maintain state, so must be outside loop
 
       // run arm to set positions using buttons
-      // a -> ground, b -> second stacked pixel, y -> holding
-      // x grabs/ lets go of pixel (still)
+      // dPadDown -> ground, dPadLeft/right -> second stacked pixel
+      // a grabs/ lets go of pixel
       if (driverCmd_ArmToLowest) { // send the arm all the way to the ground
         armExtendTargetPosition = 675;
         armextend.setTargetPosition(armExtendTargetPosition);
@@ -397,19 +397,21 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       lifter.setPower(driverCmd_RaiseLifterHooks - driverCmd_LowerLifterHooks);
       telemetry.addData("lifter pos:", lifter.getCurrentPosition());
 
-      //if (gamepad2.dpad_down) { // reset lifter to 0 (not always necessary)
-      //  lifter.setTargetPosition(0);
-      //  lifter.setPower(1);
-      //  lifterUp = false;
-      //}
-
       // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
-      if (currTimeMs/1000 > 90) {
+      
+      if (driverCmd_LoadDrone) {
+        droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
+      }
+      // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
+      
+      if (true) {
         telemetry.addLine("--------------------");
-        if (driverCmd_LaunchDrone) {
+        if (driverCmd_LaunchDrone /*&& !droneLaunched*/) {
           droneLaunched = true;
-          droneLauncher.setPosition(DRONE_SERVO_LAUNCH_POS);
+          launchMotor.setPower(1);
           telemetry.addLine("Launching drone...");
+          sleep(2000);
+          launchMotor.setPower(0);
         } else {
           if (!droneLaunched) {
             telemetry.addLine("Ready to launch drone");
@@ -419,11 +421,12 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         }
         telemetry.addLine("---------------------");
       } else {
-        telemetry.addData("Time until ready to launch", (int) 90 - (currTimeMs/1000));
+        telemetry.addData("Time until ready to launch", ((int) 90 - (currTimeMs/1000)));
       }
       
-      if (driverCmd_LoadDrone) {
-        droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
+      if (false) { // Get april tags
+        initAprilTag();
+        // detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z 
       }
       
       telemetry.addData("DriverCmd_ToLowest", driverCmd_ArmToLowest);
@@ -431,7 +434,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       telemetry.addData("armraise target position", armraise.getTargetPosition());
       telemetry.addData("armextend target position", armextend.getTargetPosition());
 
-      loopsExecuted += 1;
+      loopsExecuted ++;
       telemetry.addData("loops:", loopsExecuted);
       telemetry.addData("time delta (ms):", currTimeMs - prevTimeMs);
       telemetry.addData("time:", currTimeMs / 1000.0);
@@ -439,5 +442,33 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       telemetry.update();
     }  // END OF WHILE LOOP
   }  // END OF RUN OPMODE FUNCTION
+      
+      private void initAprilTag() {
+
+        // Create the AprilTag processor.
+        aprilTag = new AprilTagProcessor.Builder()
+
+            .build();
+
+        // Create the vision portal by using a builder.
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+
+        // Set the camera (webcam vs. built-in RC phone camera).
+        if (USE_WEBCAM) {
+            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam"));
+        } else {
+            builder.setCamera(BuiltinCameraDirection.BACK);
+        }
+
+        // Set and enable the processor.
+        builder.addProcessor(aprilTag);
+
+        // Build the Vision Portal, using the above settings.
+        visionPortal = builder.build();
+
+        // Disable or re-enable the aprilTag processor at any time.
+        //visionPortal.setProcessorEnabled(aprilTag, true);
+
+      }   // end method initAprilTag()
 }  // END OF CLASS DEF
 
