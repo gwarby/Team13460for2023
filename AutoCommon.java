@@ -1,6 +1,10 @@
 // Get package/imports
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import java.util.List;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,6 +24,9 @@ public class AutoCommon extends LinearOpMode {
   HardwareMap hardwareMap;
   OpenCvWebcam webcam;
   FindPropPipeline findPropPL;
+  // additional AprilTag vision objects
+  private AprilTagProcessor aprilTag;
+  private VisionPortal visionPortal;
 
   // Declare motors/servos
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
@@ -49,6 +56,11 @@ public class AutoCommon extends LinearOpMode {
   
   // pass thru functions for prop detection pipeline
   void FindPropSetEnableDetection(boolean state) { findPropPL.EnableDetection = state; }
+  void EndPropDetection() {
+    findPropPL.EnableDetection = false;
+    webcam.stopStreaming();
+    webcam.closeCameraDevice();
+  }
   String FindPropLocation() { return findPropPL.propLocation; }
   double FindPropMaxDeltaChroma() { return findPropPL.max_delta_chroma; }
   double FindPropMaxChroma() { return findPropPL.max_chroma; }
@@ -404,5 +416,75 @@ public class AutoCommon extends LinearOpMode {
    ************************************************************************/
   public void activateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_ACTIVATED); }
   public void deactivateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_DEACTIVATED); }
+  
+  /************************************************************************
+   * APRIL TAG VISION FUNCTIONS
+   *
+   *
+   ************************************************************************/
+   
+  /**
+   * Initialize the AprilTag processor.
+   */
+  public void initAprilTag() {
+  
+      // Create the AprilTag processor.
+      AprilTagProcessor.Builder atpBuilder = new AprilTagProcessor.Builder();
+      // lots of options could be overriden here, such as:
+      // aprilTag.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+      aprilTag = atpBuilder.build();
+
+      // Adjust Image Decimation to trade-off detection-range for detection-rate.
+      // eg: Some typical detection data using a Logitech C920 WebCam
+      // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
+      // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
+      // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
+      // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
+      // Note: Decimation can be changed on-the-fly to adapt during a match.
+      //aprilTag.setDecimation(3);
+  
+      // Create the vision portal by using a builder.
+      VisionPortal.Builder builder = new VisionPortal.Builder();
+      builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam2"));
+
+      // Choose a camera resolution. Not all cameras support all resolutions.
+      //builder.setCameraResolution(new Size(544, 288));
+  
+      // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
+      builder.enableLiveView(false);  // this will be used in the middle of our opmodes, so preview won't be possible anyway
+  
+      // Set the stream format; MJPEG uses less bandwidth than default YUY2.
+      //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+  
+      // Set and enable the processor.
+      builder.addProcessor(aprilTag);
+  
+      // Build the Vision Portal, using the above settings.
+      visionPortal = builder.build();
+  
+      // Disable or re-enable the aprilTag processor at any time.
+      //visionPortal.setProcessorEnabled(aprilTag, true);
+  
+  }   // end method initAprilTag()
+
+  /**
+   * Add telemetry about AprilTag detections.
+   */
+  public AprilTagDetection getAprilTagDetection(int requestId) {
+
+      List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+
+      // Step through the list of detections and look for the requested id
+      for (AprilTagDetection detection : currentDetections) {
+        if (detection.id == requestId) {
+          return detection;
+        }
+      }   // end for() loop
+        
+      return null;
+      //telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+      //telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+      //telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+  }   // end method telemetryAprilTag()
 
 }
