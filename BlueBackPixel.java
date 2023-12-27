@@ -84,8 +84,8 @@ public class BlueBackPixel extends LinearOpMode
         lib.armraisewait(30, 0.09);        // raise arm last 45 deg
 
         AprilTagDetection tagInfo = lib.getAprilTag_BlueLeft();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6.0 + yAdjustment, xAdjustment, 0, 0.2);       // REV last 4" to board
         lib.openClampWait();          // release pixel on board
@@ -124,8 +124,8 @@ public class BlueBackPixel extends LinearOpMode
         lib.armraise(30, 0.127);        // slow down to avoid tipping over
 
         AprilTagDetection tagInfo = lib.getAprilTag_BlueMiddle();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);       // REV last 5" to board
         sleep(300);
@@ -165,8 +165,8 @@ public class BlueBackPixel extends LinearOpMode
         lib.armraise(30, 0.127);        // slow down to avoid tipping over
 
         AprilTagDetection tagInfo = lib.getAprilTag_BlueRight();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
         
         lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);       // REV last 5" to board
         lib.openClampWait();          // release pixel on board

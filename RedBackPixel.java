@@ -77,8 +77,8 @@ public class RedBackPixel extends LinearOpMode
         lib.armraisewait(30, 0.09);           // slow down to avoid tipping over
 
         AprilTagDetection tagInfo = lib.getAprilTag_RedLeft();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);             // REV last 5" to board
         lib.openClampWait();                  // release pixel on board
@@ -116,8 +116,8 @@ public class RedBackPixel extends LinearOpMode
         lib.armraisewait(30, 0.127);            // slowly finish putting arm back
 
         AprilTagDetection tagInfo = lib.getAprilTag_RedMiddle();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);               // REV last 5" to board
         // Place pixel on backdrop
@@ -154,8 +154,8 @@ public class RedBackPixel extends LinearOpMode
         lib.armraise(30, 0.127);              // slow down to avoid tipping over
 
         AprilTagDetection tagInfo = lib.getAprilTag_RedRight();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);           // REV last 5" to board
       // Place pixel on backdrop

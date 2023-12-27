@@ -81,8 +81,8 @@ public class BlueFrontPixel extends LinearOpMode
         lib.armraisewait(30,0.2);               
 
         AprilTagDetection tagInfo = lib.getAprilTag_BlueLeft();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
@@ -122,8 +122,8 @@ public class BlueFrontPixel extends LinearOpMode
         lib.armraisewait(30,0.2);               
 
         AprilTagDetection tagInfo = lib.getAprilTag_BlueMiddle();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
@@ -158,8 +158,8 @@ public class BlueFrontPixel extends LinearOpMode
         lib.armraisewait(30,0.2);             
 
         AprilTagDetection tagInfo = lib.getAprilTag_BlueRight();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);     // drive back to backdrop
         lib.openClamp();

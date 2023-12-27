@@ -79,8 +79,8 @@ public class RedFrontPixel extends LinearOpMode
         lib.armraisewait(30,0.2);
 
         AprilTagDetection tagInfo = lib.getAprilTag_RedLeft();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6.0 + yAdjustment,xAdjustment,0,DRIVE_POWER);
         lib.openClampWait();
@@ -114,8 +114,8 @@ public class RedFrontPixel extends LinearOpMode
         lib.armraisewait(30,0.2);
 
         AprilTagDetection tagInfo = lib.getAprilTag_RedMiddle();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6 + yAdjustment,xAdjustment,0,DRIVE_POWER);
         lib.openClamp();
@@ -151,8 +151,8 @@ public class RedFrontPixel extends LinearOpMode
         lib.armraisewait(30,0.2);
 
         AprilTagDetection tagInfo = lib.getAprilTag_RedRight();
-        yAdjustment = getYAdjustmentForTag(tagInfo);
-        xAdjustment = getXAdjustmentForTag(tagInfo);
+        yAdjustment = lib.getYAdjustmentForTag(tagInfo);
+        xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
         lib.drive(-6.0 + yAdjustment,xAdjustment,0,DRIVE_POWER);
         lib.openClampWait();
