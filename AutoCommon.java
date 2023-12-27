@@ -184,7 +184,7 @@ public class AutoCommon extends LinearOpMode {
    * COMMON DRIVE FUNCTION:
    *   Used to simplify autonomous programming with simple & readable cmds
    ************************************************************************/
-  public void drive(double fwd_bck, double right_left, double cw_ccw, double power) 
+  public void drive(double fwd_bck, double right_left, double cw_ccw, double power) {
     // Declare variables to be used later
     double frontLeftDistance;
     double rearLeftDistance;
