@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "BlueBackPixel")
@@ -14,6 +16,8 @@ public class BlueBackPixel extends LinearOpMode
   @Override
   public void runOpMode() 
   {
+    ElapsedTime programTime = new ElapsedTime();
+
     // See FindPropVisInitData.java for calibration guide
     FindPropVisInitData visInitData = new FindPropVisInitData();
     visInitData.ColorChannel = 2;               // channel 1: red, channel 2: blue
@@ -43,8 +47,11 @@ public class BlueBackPixel extends LinearOpMode
     }
 
     lib.FindPropSetEnableDetection(false);
+    lib.initAprilTag();
+    
     // wait for user to press start on Driver Station
     waitForStart();
+    programTime.reset();
 
     if (opModeIsActive()) {
       /************************************************************************
@@ -68,12 +75,35 @@ public class BlueBackPixel extends LinearOpMode
         lib.drive(0, 0, 50, DRIVE_POWER);      // CW 135 to face away from backdrop
         lib.drive(-2, -2, 0, DRIVE_POWER);
         lib.drive(0, 0, 90, DRIVE_POWER);      // CW 135 to face away from backdrop
-        sleep(100);
+        
         lib.armraise(100, 0.3);         // raise arm 120 deg (all the way back/up for placing pixel on board)
         lib.drive(-22, -5, 0, DRIVE_POWER);       // BACK 24" toward backdrop
         lib.reverseFlipper();           // put flipper in rev pos for placing pixel on board
         lib.armraisewait(30, 0.09);        // raise arm last 45 deg
-        lib.drive(-5.2, 0, 0, 0.2);       // REV last 4" to board
+
+        double xAdjustment = 0;
+        double yAdjustment = 0;
+
+        int loop = 0;
+        while(programTime.seconds() < 25.0) { //loop < 1000000) {  //!foundtag1) {
+          AprilTagDetection det1 = lib.getAprilTagDetection(1);
+          AprilTagDetection det2 = lib.getAprilTagDetection(2);
+          AprilTagDetection det3 = lib.getAprilTagDetection(3);
+          if (det1 != null) {
+          telemetry.addData("det1.x:", det1.ftcPose.x);
+          telemetry.addData("det1.y:", det1.ftcPose.y);
+          
+          xAdjustment = 0.75 - det1.ftcPose.x;
+          yAdjustment = 13.5 - det1.ftcPose.y;
+          }
+          if (det3 != null) {
+          telemetry.addData("det3.x:", det3.ftcPose.x);
+          telemetry.addData("det3.y:", det3.ftcPose.y);
+          }
+          telemetry.update();  
+        }
+        
+        lib.drive(-5.2 + yAdjustment, xAdjustment, 0, 0.2);       // REV last 4" to board
         lib.openClampWait();          // release pixel on board
         sleep(350);                // wait for pixel
         lib.openClampLittle();        // open clamp slightly
