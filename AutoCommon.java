@@ -1,3 +1,4 @@
+// Get package/imports
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -13,12 +14,14 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+// Begin code
 public class AutoCommon extends LinearOpMode {
   // private members
   HardwareMap hardwareMap;
   OpenCvWebcam webcam;
   FindPropPipeline findPropPL;
 
+  // Declare motors/servos
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
   private Servo grabber, flipper, armlimiter;
 
@@ -182,6 +185,7 @@ public class AutoCommon extends LinearOpMode {
    *   Used to simplify autonomous programming with simple & readable cmds
    ************************************************************************/
   public void drive(double fwd_bck, double right_left, double cw_ccw, double power) {
+    // Declare variables to be used later
     double frontLeftDistance;
     double rearLeftDistance;
     double frontRightDistance;
@@ -192,6 +196,7 @@ public class AutoCommon extends LinearOpMode {
     double rearLeftPower;
     double rearRightPower;
 
+    // Reset encoders
     frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rearleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -205,39 +210,47 @@ public class AutoCommon extends LinearOpMode {
     if (cw_ccw == 0) {
       cw_ccw = 0;
     }
+    // If power of 0 is input, set to default of 0.7
     if (power == 0) {
       power = 0.7;
     }
+    // Multiply inputs (inches) by conversion factor (inches to ticks) to get rough target position (ticks)
     fwd_bck = fwd_bck * 54.35714;
     right_left = right_left * 57.04;
     cw_ccw = cw_ccw * 12.85;
+    // Calculate motor distances by adding/subtracting different inputs
     frontLeftDistance = -fwd_bck + right_left -cw_ccw;
     frontRightDistance = -fwd_bck + right_left + cw_ccw;
     rearLeftDistance = -fwd_bck -right_left -cw_ccw;
     rearRightDistance = -fwd_bck - right_left + cw_ccw;
+    // Find the max distance a motor is going
     maxDistance = JavaUtil.maxOfList(JavaUtil.createListWith(frontLeftDistance, frontRightDistance, rearLeftDistance, rearRightDistance));
+    // Set the power proportionate to the distance the motor has to travel relative to the others
+    // This will ensure all wheels arrive at their target position at/near the same time, avoiding draggin
     frontLeftPower = frontLeftDistance / maxDistance;
     frontRightPower = frontRightDistance / maxDistance;
     rearLeftPower = rearLeftDistance / maxDistance;
     rearRightPower = rearRightDistance / maxDistance;
+    // Set target position to the previously calculated distance
     frontleft.setTargetPosition((int) frontLeftDistance);
     frontright.setTargetPosition((int) frontRightDistance);
     rearleft.setTargetPosition((int) rearLeftDistance);
     rearright.setTargetPosition((int) rearRightDistance);
+    // Set the motors to run to position
     frontleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rearleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rearright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    // Set motor power to the given power multiplied by the proportional power calculated above
     frontleft.setPower(Math.abs(frontLeftPower * power));
     frontright.setPower(Math.abs(frontRightPower * power));
     rearleft.setPower(Math.abs(rearLeftPower * power));
     rearright.setPower(Math.abs(rearRightPower * power));
+    // Sleep until motor position is reached
     while (frontleft.isBusy() || frontright.isBusy() || rearleft.isBusy() || rearright.isBusy()) {
-      // Disable telemetry for competition as it slows the loop down
-      if (true) {
-        sleep(10);
-      }
+      sleep(10);
     }
+    // Set motor power to zero
     frontleft.setPower(0);
     frontright.setPower(0);
     rearleft.setPower(0);
@@ -248,45 +261,42 @@ public class AutoCommon extends LinearOpMode {
    * ARM RAISE / LOWER
    * FUNCTIONS:
    ************************************************************************/
-  public void armraisewait(double raise_lower, double power) {
-  
-    if (power == 0) {
+  public void armraisewait(double raise_lower, double power) {  // Raise the arm, hold in function until position is reached
+    if (power == 0) {  // If inputted power is 0, set power to default of 0.33
       power = 0.33;
     }
-    if (raise_lower == 0) {
+    if (raise_lower == 0) {  // If inputted change is 0, set target position to 0 (reset)
       armraise.setTargetPosition(0);
-    } else {
-      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
-      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
-      armraise.setTargetPosition((int) raise_lower);
+    } else {                 // Change arm position (in degrees) by input (negative or positive)
+      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert degrees to ticks
+      raise_lower = ((int) (raise_lower) + armraise.getCurrentPosition());  // Set variable to current position plus change
+      armraise.setTargetPosition(raise_lower);  // Set target position to variable
     }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
-    while (armraise.isBusy()) {
-      // Disable telemetry for competition as it slows the loop down
+    while (armraise.isBusy()) {  // Wait in function while arm is busy
       sleep(10);
     }
-    //armraise.setPower(0);  // arm will fall if power is set to 0
+    // Cannot set arm power to 0 or arm will fall
   }
   
-  public void armraise(double raise_lower, double power) {
-  
-    if (power == 0) {
+  public void armraise(double raise_lower, double power) {  // Raise the arm, but move on after setting target position
+    if (power == 0) {  // If inputted power is 0, set power to default of 0.33
       power = 0.33;
     }
-    if (raise_lower == 0) {
+    if (raise_lower == 0) {  // If inputted change is 0, set target position to 0 (reset)
       armraise.setTargetPosition(0);
-    } else {
-      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert 
-      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());
-      armraise.setTargetPosition((int) raise_lower);
+    } else {                // Change arm position (in degrees) by input (negative or positive)
+      raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert degrees to ticks
+      raise_lower = (double) ((int)(raise_lower) + armraise.getCurrentPosition());  // Set variable to current position plus change
+      armraise.setTargetPosition((int) raise_lower);  // Set target position to variable
     }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
-    //armraise.setPower(0);
+    // Cannot set arm power to 0 or arm will fall
   }
 
-  public void restOnArmLimiter() {
+  public void restOnArmLimiter() {  // Function to rest arm on mechanical limiter
     armraise.setTargetPosition(80);  // ?
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(0.11);
@@ -299,29 +309,26 @@ public class AutoCommon extends LinearOpMode {
    * ARM EXTEND / RETRACT
    * FUNCTIONS:
    ************************************************************************/
-  public void armextendwait(double extend_retract, double power) {
-    
-    if (power == 0) {
+  public void armextendwait(double extend_retract, double power) {  // Extend the arm, hold in function until position is reached
+    if (power == 0) {  // If inputted power is 0, set power to default of 0.33
       power = 0.33;
     }
-    if (extend_retract == 0) {
+    if (extend_retract == 0) {  // If inputted change is 0, set target position to 0 (reset)
       armextend.setTargetPosition(0);
-    } else {
-      extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert 
-      extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());
+    } else {                // Change arm position (in inches) by input (negative or positive)
+      extend_retract = extend_retract * ARM_EXTEND_TICKS_PER_INCH;  // convert inches to ticks
+      extend_retract = (double) ((int)(extend_retract) + armextend.getCurrentPosition());  // Set variable to current position plus change
       armextend.setTargetPosition((int) extend_retract);
     }
     armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armextend.setPower(Math.abs(power));
-    while (armextend.isBusy()) {
-      // Disable telemetry for competition as it slows the loop down
+    while (armextend.isBusy()) {  // Wait in function while arm is busy
       sleep(10);
     }
-    //armextend.setPower(0);
+    // Cannot set arm power to 0 or extension will slide freely
   }
   
   public void armextend(double extend_retract, double power) {
-
     if (power == 0) {
       power = 0.33;
     }

@@ -43,7 +43,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   
   int GRABBER_TIME_DEBOUNCE_MS = 350;
   double GRABBER_SERVO_OPENED_POS = 0.35;
-  double GRABBER_SERVO_CLOSED_POS = 0.16;
+  double GRABBER_SERVO_CLOSED_POS = 0.155;
 
   double DRONE_SERVO_LOAD_POS = 0.6;
   double DRONE_SERVO_LAUNCH_POS = 0.3;
@@ -96,7 +96,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     armextend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     lifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     // :set initial motor run modes, if not set in the loop
-    armextend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    armextend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     lifter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     // :config any additional motor parameters
@@ -113,15 +113,15 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     boolean driverCmd_ArmToLowest, driverCmd_GrabTopPixel;
     boolean driverCmd_LaunchDrone, driverCmd_LoadDrone;
     // Variables for current positions, headings, etc.
-    int armExtendPositionTicks = armextend.getCurrentPosition();
+    int armExtendPositionTicks;
     int armRaisePositionTicks;
     
     // Variables for control targets - positions, speeds, headings, etc.
     double robotCmd_Fwd, robotCmd_Right, robotCmd_Rotate;
     boolean isArmHolding = false;  // needs to maintain state, so must be outside loop
-    int armRaiseTargetPosition = armExtendPositionTicks;
+    int armRaiseTargetPosition = 0;  // will set to limit when holding state is entered
     boolean isArmExtendHolding = false;
-    int armExtendTargetPosition = 0;
+    int armExtendTargetPosition = 0;  // will set to limit when holding state is entered
 
     boolean isClawInFlippedPosition = false; // false is normal position
     int lastTimeFlippedMs = 0; // used to unbounce flipper command
@@ -151,7 +151,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     armextend.setPower(0.15);
     sleep(500);
     armlimiter.setPosition(0.48);
-    sleep(1500);
+    sleep(800);
     armraise.setPower(0.0);
     armextend.setPower(0.0);
     armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -283,6 +283,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
       // Extend Arm code
 
+      armExtendPositionTicks = armextend.getCurrentPosition();
       boolean isArmCmdExtendNone = Math.abs(driverCmd_ArmExtend) <= STICK_DEADZONE;
       boolean isArmCmdExtend = driverCmd_ArmExtend > STICK_DEADZONE;
       boolean isArmCmdRetract = driverCmd_ArmExtend < -STICK_DEADZONE;
@@ -318,12 +319,14 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           //   causing the hold to drift due to gravity & bouncing
           isArmExtendHolding = true;
 
-          //armExtendTargetPosition = armExtendPositionTicks;
           if (isArmTooRetracted) {
             armExtendTargetPosition = MIN_ARM_EXTEND_TICKS_WHEN_NOT_PICKING_UP;
           }
           else if (isArmTooExtended) {
             armExtendTargetPosition = MAX_ARM_EXTEND_TICKS;
+          }
+          else {
+            armExtendTargetPosition = armExtendPositionTicks; // as we enter Holding state, set Target to Current position this one time
           }
         }
         else {
