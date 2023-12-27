@@ -467,24 +467,77 @@ public class AutoCommon extends LinearOpMode {
   
   }   // end method initAprilTag()
 
-  /**
-   * Add telemetry about AprilTag detections.
-   */
+  /*********************************************************************
+   * getAprilTagDetection(tagID)
+   *  - returns null if the tagID is not detected
+   *  - returns an AprilTagDetection object if the tagID is detected,
+   *  - AprilTagDetection contains:
+   *    XYZ (inch): detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z
+   *    .ftcPose.y: dist 'forward' from camera to parallel plane of tag
+   *    .ftcPose.x: distance 'right' from line straight out from camera to the tag
+   *    .ftcPose.z: distance up from line straight out of camera to the tag
+   *    (i.e. x,y,z are how far out, right, & up the camera would need to 
+   *     move to reach the tag.)
+   *    PRY (deg): detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw
+   *    RBE (inch, deg, deg): detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation
+   * 
+   *    NOTE: The y distance was some inches offset from our tape
+   *          measure measurements, so it should not be trusted as
+   *          an absolute value, but it seemed to be RELATIVELY
+   *          accurate from scenario to scenario.  We recorded the
+   *          y measurement in a run where we observed our original
+   *          auto code dropped the backdrop pixel about 1" away from 
+   *          the backdrop.  This .ftcPose.y happened to be ~15.5".
+   *          We decided if the AprilTag pose data was reliable, this
+   *          meant our desired .ftcPose.y at this point of the program
+   *          was actually 14.5" (the 15.5" reported minus 1" closer).
+   *          On subsequent runs, we took the difference of the 
+   *          .ftcPose.y report and 14.5 to adjust our last drive()
+   *          up to the backdrop.
+   *          The math in our code looks a bit backward because our
+   *          robot backs into the board, and is using a backwards
+   *          facing camera to observe the AprilTag.  So our adjustment
+   *          calculation subtracts the .ftcPose.y from 14.5 (instead of
+   *          the other way around), and then adds this value to the 
+   *          negative drive forward command (which causes the robot to
+   *          backup into the backdrop).
+   *          
+   *********************************************************************/
   public AprilTagDetection getAprilTagDetection(int requestId) {
+    List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
-      List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+    for (AprilTagDetection detection : currentDetections) {  // Step through the list of detections and look for the requested id
+      if (detection.id == requestId) {
+        return detection;
+      }
+    }   // end for() loop
+    
+    return null;  // the requested tag wasn't found
+  }
+  // CENTERSTAGE & the current FTC SDK are setup with tag IDs on the backdrops as follows
+  public AprilTagDetection getAprilTag_BlueLeft() { return getAprilTagDetection(1); }
+  public AprilTagDetection getAprilTag_BlueMiddle() { return getAprilTagDetection(2); }
+  public AprilTagDetection getAprilTag_BlueRight() { return getAprilTagDetection(3); }
+  public AprilTagDetection getAprilTag_RedLeft() { return getAprilTagDetection(4); }
+  public AprilTagDetection getAprilTag_RedMiddle() { return getAprilTagDetection(5); }
+  public AprilTagDetection getAprilTag_RedRight() { return getAprilTagDetection(6); }
 
-      // Step through the list of detections and look for the requested id
-      for (AprilTagDetection detection : currentDetections) {
-        if (detection.id == requestId) {
-          return detection;
-        }
-      }   // end for() loop
-        
-      return null;
-      //telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-      //telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-      //telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-  }   // end method telemetryAprilTag()
-
+  // this math/logic can be hard to follow because our robot is backwards at this point
+  // so these functions return negative values when we need to get closer and further
+  // to the right when looking at the board (as they will be used as drive_forward &
+  // drive_right command values, causing the robot to move back & left).
+  double getYAdjustmentForTag(AprilTagDetection det) {
+    if (det == null) {
+      return 0.0;
+    }
+    return 14.5 - det.ftcPose.y;  // assumes: the farther away we are, the more negative this drive_forward adjustment should be
+                                  // assumes: an additional/subsequent -6" drive command will accompany
+  }
+  double getXAdjustmentForTag(AprilTagDetection det) {
+    if (det == null) {
+      return 0.0;
+    }
+    return 0.75 - det.ftcPose.x;  // assumes: the more to camera's right the tag is, the more negative this drive_right adjust should be
+                                  // assumes: no additional/subsequent right/left drive command is pending
+  }
 }
