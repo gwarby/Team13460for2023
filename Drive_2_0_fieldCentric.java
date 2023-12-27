@@ -265,7 +265,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           armraise.setPower(0.265);
         } else {
           armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-          armraise.setPower(driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+          if (armRaisePositionTicks > 683.55) {
+            armraise.setPower(0.33 * driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+          } else {
+            armraise.setPower(driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+          }
         }
       } else {  // isArmCmdDown
         isArmHolding = false;
