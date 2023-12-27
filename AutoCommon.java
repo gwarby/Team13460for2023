@@ -269,8 +269,8 @@ public class AutoCommon extends LinearOpMode {
       armraise.setTargetPosition(0);
     } else {                 // Change arm position (in degrees) by input (negative or positive)
       raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert degrees to ticks
-      raise_lower = ((int) (raise_lower) + armraise.getCurrentPosition());  // Set variable to current position plus change
-      armraise.setTargetPosition(raise_lower);  // Set target position to variable
+      raise_lower = (double) ((int) (raise_lower) + armraise.getCurrentPosition());  // Set variable to current position plus change
+      armraise.setTargetPosition((int) raise_lower);  // Set target position to variable
     }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
