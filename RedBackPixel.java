@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Autonomous(name = "RedBackPixel")
 public class RedBackPixel extends LinearOpMode 
@@ -13,6 +14,8 @@ public class RedBackPixel extends LinearOpMode
   @Override
   public void runOpMode() 
   {
+    double xAdjustment = 0, yAdjustment = 0;  // default to no adjustments in case our tag isn't detected
+
     // See FindPropVisInitData.java for calibration guide
     FindPropVisInitData visInitData = new FindPropVisInitData();
     visInitData.ColorChannel = 1;               // channel 1: red, channel 2: blue
@@ -42,6 +45,7 @@ public class RedBackPixel extends LinearOpMode
     }
 
     lib.FindPropSetEnableDetection(false);
+    lib.initAprilTag();
 
     // wait for user to press start on Driver Station
     waitForStart();
@@ -67,12 +71,16 @@ public class RedBackPixel extends LinearOpMode
         lib.drive(-4,0,0,DRIVE_POWER);        // back slightly away
         lib.drive(0, 0, (-15), DRIVE_POWER);  // CCW to face away from backdrop
         lib.armraise(100, 0.3);               // raise arm (quickly / most of way for placing pixel on board)
-        lib.drive(-22.5, 0, 0, DRIVE_POWER);    // BACK toward backdrop
+        lib.drive(-19, 0, 0, DRIVE_POWER);    // BACK toward backdrop
         lib.drive(0, 10.5, 0, DRIVE_POWER);   // Right to left side of backdrop
         lib.reverseFlipper();                 // put flipper in rev pos for placing pixel on board
         lib.armraisewait(30, 0.09);           // slow down to avoid tipping over
 
-        lib.drive(-2.5, 0, 0, 0.2);             // REV last 5" to board
+        AprilTagDetection tagInfo = lib.getAprilTag_RedLeft();
+        yAdjustment = getYAdjustmentForTag(tagInfo);
+        xAdjustment = getXAdjustmentForTag(tagInfo);
+
+        lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);             // REV last 5" to board
         lib.openClampWait();                  // release pixel on board
         sleep(350);
         lib.drive(3, 0, 0, DRIVE_POWER);      // Get off of board
@@ -102,11 +110,16 @@ public class RedBackPixel extends LinearOpMode
         lib.drive(0, 0, -90, DRIVE_POWER);      // CCW 83 to face away from backdrop    
         sleep(50);
         lib.armraise(100, 0.3);                 // raise arm 120 deg (all the way back/up for placing pixel on board)
-        lib.drive(-21.5, 0, 0, DRIVE_POWER);    // BACK 25.5" toward backdrop
+        lib.drive(-20.5, 0, 0, DRIVE_POWER);    // BACK 25.5" toward backdrop
         lib.reverseFlipper();                   // put flipper in rev pos for placing pixel on board
         lib.drive(0, 4, 0, DRIVE_POWER);        // right 4" along backdrop to left pos
         lib.armraisewait(30, 0.127);            // slowly finish putting arm back
-        lib.drive(-5, 0, 0, 0.2);               // REV last 5" to board
+
+        AprilTagDetection tagInfo = lib.getAprilTag_RedMiddle();
+        yAdjustment = getYAdjustmentForTag(tagInfo);
+        xAdjustment = getXAdjustmentForTag(tagInfo);
+
+        lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);               // REV last 5" to board
         // Place pixel on backdrop
         lib.openClampLittleWait();              // release pixel on board
         sleep(300);
@@ -135,11 +148,16 @@ public class RedBackPixel extends LinearOpMode
         lib.drive(-3, 0, 0, DRIVE_POWER);     // back up 3"
         lib.drive(0, 0, -125, DRIVE_POWER);   // CCW 125 deg to face away from backdrop
         lib.armraise(100, 0.3);               // raise arm 120 deg (all the way back/up for placing pixel on board)
-        lib.drive(-25, 0, 0, DRIVE_POWER);    // Back 30" toward backdrop
+        lib.drive(-23.5, 0, 0, DRIVE_POWER);    // Back 30" toward backdrop
         lib.reverseFlipper();                 // put flipper in rev pos for placing pixel on board
         lib.drive(0, 2, 0, DRIVE_POWER);      // Slide right 1"
         lib.armraise(30, 0.127);              // slow down to avoid tipping over
-        lib.drive(-4.5, 0, 0, 0.2);           // REV last 5" to board
+
+        AprilTagDetection tagInfo = lib.getAprilTag_RedRight();
+        yAdjustment = getYAdjustmentForTag(tagInfo);
+        xAdjustment = getXAdjustmentForTag(tagInfo);
+
+        lib.drive(-6 + yAdjustment, xAdjustment, 0, 0.2);           // REV last 5" to board
       // Place pixel on backdrop
         lib.openClampLittleWait();            // release pixel on board
         sleep(300);

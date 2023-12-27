@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Autonomous(name = "BlueFrontPixel")
 public class BlueFrontPixel extends LinearOpMode 
@@ -14,6 +15,8 @@ public class BlueFrontPixel extends LinearOpMode
   @Override
   public void runOpMode() 
   {
+    double xAdjustment = 0, yAdjustment = 0;  // default to no adjustments in case our tag isn't detected
+
     // See FindPropVisInitData.java for calibration guide
     FindPropVisInitData visInitData = new FindPropVisInitData();
     visInitData.ColorChannel = 2;               // channel 1: red, channel 2: blue
@@ -43,6 +46,7 @@ public class BlueFrontPixel extends LinearOpMode
     }
 
     lib.FindPropSetEnableDetection(false);
+    lib.initAprilTag();
 
     // wait for user to press start on Driver Station
     waitForStart();
@@ -75,7 +79,12 @@ public class BlueFrontPixel extends LinearOpMode
         lib.armraisewait(100, 0.2);             // raise to backdrop
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);               
-        lib.drive(-6, 0, 0, DRIVE_POWER);       // go backwards to put on pixel
+
+        AprilTagDetection tagInfo = lib.getAprilTag_BlueLeft();
+        yAdjustment = getYAdjustmentForTag(tagInfo);
+        xAdjustment = getXAdjustmentForTag(tagInfo);
+
+        lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
         lib.drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
         lib.normalFlipper();
@@ -111,7 +120,12 @@ public class BlueFrontPixel extends LinearOpMode
         lib.armraisewait(100, 0.2);             // raise to backdrop
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);               
-        lib.drive(-6, 0, 0, DRIVE_POWER);       // go backwards to put on pixel
+
+        AprilTagDetection tagInfo = lib.getAprilTag_BlueMiddle();
+        yAdjustment = getYAdjustmentForTag(tagInfo);
+        xAdjustment = getXAdjustmentForTag(tagInfo);
+
+        lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
         lib.drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
         lib.normalFlipper();
@@ -136,14 +150,18 @@ public class BlueFrontPixel extends LinearOpMode
         lib.drive(0, -5.5, 0, DRIVE_POWER);       // line up robot to move forward
         lib.drive(30.5, 0, 0, 0.65);       // Drive 35" forward to bridge
         lib.drive(0, 0, -92, 0.65);      // Rotate CCW 90 dg to face back wall
-        lib.drive(75, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
+        lib.drive(71.5, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
         lib.drive(0, -16, 0, DRIVE_POWER);    // line up to right side
         lib.drive(0, 0, 180, 0.65);           // turn around
         lib.armraisewait(100, 0.2);           // lift arm to backdrop
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);             
-        lib.drive(-2.5, 0, 0, DRIVE_POWER);     // drive back to backdrop
-        sleep(100);
+
+        AprilTagDetection tagInfo = lib.getAprilTag_BlueRight();
+        yAdjustment = getYAdjustmentForTag(tagInfo);
+        xAdjustment = getXAdjustmentForTag(tagInfo);
+
+        lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);     // drive back to backdrop
         lib.openClamp();
         lib.drive(4.5, 0, 0, DRIVE_POWER);    // drive forward to let pixel drop
         lib.normalFlipper();
