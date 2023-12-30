@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import java.util.List;
 
 // @Disabled
 
@@ -24,7 +27,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class Drive_2_0_fieldCentric extends LinearOpMode {
 
   // CONSTANTS USED TO ADJUST PROGRAM:
-  double MAX_DRIVE_MOTOR_POWER = 0.75;  // up to 1.0
+  double MAX_DRIVE_MOTOR_POWER = 1.0;  // up to 1.0
   boolean IS_FIELD_CENTRIC = false;
   double MAX_ARM_RAISE_POWER = 0.45;
   double MAX_ARM_LOWER_POWER = 0.16;
@@ -56,11 +59,20 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   private AprilTagProcessor aprilTag;
   private VisionPortal visionPortal;
 
+  private AutoCommon lib;
   /**`
    * This function is executed when this OpMode is selected from the Driver Station.
    */
   @Override
   public void runOpMode() {
+    
+    FindPropVisInitData visInitData = new FindPropVisInitData();
+      lib = new AutoCommon(
+      hardwareMap,
+      visInitData);
+    
+    lib.initAprilTag();
+
     // INIT:
     // :find our HW in the hardwareMap:
     //   IMU:
@@ -85,10 +97,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     Servo droneLauncher = hardwareMap.get(Servo.class, "dronelauncher");
     // Arm Limiter Servo
     Servo armlimiter = hardwareMap.get(Servo.class, "armlimiter");
+    // Voltage sensor: 
+    VoltageSensor ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
-    frontright.setDirection(DcMotorSimple.Direction.REVERSE);
-    rearleft.setDirection(DcMotorSimple.Direction.REVERSE);
+    // AutoCommon init sets the drive motor directions
     lifter.setDirection(DcMotorSimple.Direction.REVERSE);
     armraise.setDirection(DcMotorSimple.Direction.REVERSE);
     // :reset motor encoder positions to zero
@@ -103,6 +116,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     armextend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     armraise.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     lifter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    launchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     
     // Variables for driver commands
     double driverCmd_Fwd, driverCmd_Right, driverCmd_Rotate;
@@ -168,9 +182,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       double currTimeMs = currentTime.milliseconds();
       // DRIVE CONTROLS MAP
       // :mechanum drive 
-      driverCmd_Right=gamepad1.right_stick_x;
-      driverCmd_Fwd=-gamepad1.right_stick_y;  // negative because stick_y is up=neg, we want up=pos
-      driverCmd_Rotate=gamepad1.left_stick_x;
+      driverCmd_Right=Math.pow(gamepad1.right_stick_x, 3);
+      driverCmd_Fwd=-Math.pow(gamepad1.right_stick_y, 3);  // negative because stick_y is up=neg, we want up=pos
+      driverCmd_Rotate=Math.pow(gamepad1.left_stick_x, 3);
       telemetry.addData("driverCmdFwd", driverCmd_Fwd);
       // :arm rotate (aka raise/lower) & arm extend
       driverCmd_ArmRaise = -gamepad2.left_stick_y;
@@ -212,10 +226,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       // This ensures all the powers maintain the same ratio,
       // but only if at least one is out of the range [-MAX_DRIVE_MOTOR_POWER, MAX_DRIVE_MOTOR_POWER]
       double denominator = Math.max(Math.abs(robotCmd_Fwd) + Math.abs(robotCmd_Right) + Math.abs(robotCmd_Rotate), 1.0);
-      double frontLeftPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd - robotCmd_Right + robotCmd_Rotate) / denominator;
-      double frontRightPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd - robotCmd_Right - robotCmd_Rotate) / denominator;
-      double backLeftPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd + robotCmd_Right + robotCmd_Rotate) / denominator;
-      double backRightPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd + robotCmd_Right - robotCmd_Rotate) / denominator;
+      double frontLeftPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd + robotCmd_Right - robotCmd_Rotate) / denominator;
+      double frontRightPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd + robotCmd_Right + robotCmd_Rotate) / denominator;
+      double backLeftPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd - robotCmd_Right - robotCmd_Rotate) / denominator;
+      double backRightPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd - robotCmd_Right + robotCmd_Rotate) / denominator;
       // Set motor powers
       frontleft.setPower(frontLeftPower);
       frontright.setPower(frontRightPower);
@@ -413,11 +427,46 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       
       if (true) {
         telemetry.addLine("--------------------");
-        if (driverCmd_LaunchDrone /*&& !droneLaunched*/) {
+        if (driverCmd_LaunchDrone && !droneLaunched) {
           droneLaunched = true;
-          launchMotor.setPower(1);
           telemetry.addLine("Launching drone...");
-          sleep(2000);
+          AprilTagDetection look43 = lib.getAprilTagDetection(3);
+          AprilTagDetection look44 = lib.getAprilTagDetection(4);
+          if (look43 != null) {
+            telemetry.addLine("found tag 3...");
+            telemetry.update();
+            double yDistance = look43.ftcPose.y;
+            lib.drive(12 - yDistance, 0, 0, 0);
+            //double zRotation = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            //lib.drive(0, 0, 90 + zRotation, 0);
+          } else if (look44 != null) {
+            telemetry.addLine("found tag 4...");
+            telemetry.update();
+            //sleep(2500);
+            double yDistance = look44.ftcPose.y;
+            lib.drive(12 - yDistance, 0, 0, 0);
+            //double imuYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            //if (imuYaw != 0.0) {
+            //  lib.drive(0, 0, imuYaw - 90, 0);
+            //}
+          } else {
+            telemetry.addLine("no tags found...");
+            telemetry.addLine("Hopefully you lined it up right");
+            telemetry.update();
+            //sleep(2500);
+          }
+          double batt = 13.123;
+          double adjVel = 2450.123;
+          batt = ControlHub_VoltageSensor.getVoltage();
+          double baseVelocity = 2450;
+          adjVel = (12.9 / batt + 1.0) / 2.0 * baseVelocity;
+          
+          ((DcMotorEx)launchMotor).setVelocity(adjVel);   // 2450   2300   3500
+          sleep(200);   // 270
+          //droneVelAct = ((DcMotorEx)launchMotor).getVelocity();  // .getVelocity(AngleUnit.DEGREES);
+          ((DcMotorEx)launchMotor).setVelocity(0);
+
+          telemetry.update();
           launchMotor.setPower(0);
         } else {
           if (!droneLaunched) {
@@ -431,11 +480,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         telemetry.addData("Time until ready to launch", ((int) 90 - (currTimeMs/1000)));
       }
       
-      if (false) { // Get april tags
-        initAprilTag();
-        // detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z 
-      }
-      
+
       telemetry.addData("DriverCmd_ToLowest", driverCmd_ArmToLowest);
       telemetry.addData("DriverCmd_GrabTopPixel", driverCmd_GrabTopPixel);
       telemetry.addData("armraise target position", armraise.getTargetPosition());
@@ -449,33 +494,5 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       telemetry.update();
     }  // END OF WHILE LOOP
   }  // END OF RUN OPMODE FUNCTION
-      
-      private void initAprilTag() {
-
-        // Create the AprilTag processor.
-        aprilTag = new AprilTagProcessor.Builder()
-
-            .build();
-
-        // Create the vision portal by using a builder.
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-
-        // Set the camera (webcam vs. built-in RC phone camera).
-        if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam"));
-        } else {
-            builder.setCamera(BuiltinCameraDirection.BACK);
-        }
-
-        // Set and enable the processor.
-        builder.addProcessor(aprilTag);
-
-        // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
-
-        // Disable or re-enable the aprilTag processor at any time.
-        //visionPortal.setProcessorEnabled(aprilTag, true);
-
-      }   // end method initAprilTag()
 }  // END OF CLASS DEF
 

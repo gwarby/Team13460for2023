@@ -1,18 +1,25 @@
 // Get package/imports
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import java.util.List;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.openftc.easyopencv.OpenCvWebcam;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 // Begin code
 public class AutoCommon extends LinearOpMode {
@@ -20,6 +27,11 @@ public class AutoCommon extends LinearOpMode {
   HardwareMap hardwareMap;
   OpenCvWebcam webcam;
   FindPropPipeline findPropPL;
+  // additional AprilTag vision objects
+  private AprilTagProcessor aprilTag;
+  private VisionPortal visionPortal;
+  
+  private IMU imu;
 
   // Declare motors/servos
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
@@ -49,12 +61,18 @@ public class AutoCommon extends LinearOpMode {
   
   // pass thru functions for prop detection pipeline
   void FindPropSetEnableDetection(boolean state) { findPropPL.EnableDetection = state; }
+  void EndPropDetection() {
+    findPropPL.EnableDetection = false;
+    webcam.stopStreaming();
+    webcam.closeCameraDevice();
+  }
   String FindPropLocation() { return findPropPL.propLocation; }
   double FindPropMaxDeltaChroma() { return findPropPL.max_delta_chroma; }
   double FindPropMaxChroma() { return findPropPL.max_chroma; }
   double FindPropMinChroma() { return findPropPL.min_chroma; }
   int FindPropMaxX() { return findPropPL.max_x; }
   int FindPropMaxY() { return findPropPL.max_y; }
+  
 
   // This class isn't an opmode that should be run on the robot
   // but it extends (inherits from) LinearOpMode so it can access
@@ -75,6 +93,9 @@ public class AutoCommon extends LinearOpMode {
     grabber = hardwareMap.get(Servo.class, "grabber");
     flipper = hardwareMap.get(Servo.class, "flipper");
     armlimiter = hardwareMap.get(Servo.class, "armlimiter");
+    
+    imu = hardwareMap.get(IMU.class, "imu");  // Retrieve the IMU from the hardware map
+    imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
     
     rearright.setDirection(DcMotorSimple.Direction.REVERSE);
     frontleft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -269,8 +290,8 @@ public class AutoCommon extends LinearOpMode {
       armraise.setTargetPosition(0);
     } else {                 // Change arm position (in degrees) by input (negative or positive)
       raise_lower = raise_lower * ARM_RAISE_TICKS_PER_DEG;  // convert degrees to ticks
-      raise_lower = ((int) (raise_lower) + armraise.getCurrentPosition());  // Set variable to current position plus change
-      armraise.setTargetPosition(raise_lower);  // Set target position to variable
+      raise_lower = (double) ((int) (raise_lower) + armraise.getCurrentPosition());  // Set variable to current position plus change
+      armraise.setTargetPosition((int) raise_lower);  // Set target position to variable
     }
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(Math.abs(power));
@@ -404,5 +425,130 @@ public class AutoCommon extends LinearOpMode {
    ************************************************************************/
   public void activateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_ACTIVATED); }
   public void deactivateArmLimiter() { armlimiter.setPosition(ARM_LIMITER_DEACTIVATED); }
+  
+  /************************************************************************
+   * APRIL TAG VISION FUNCTIONS
+   *
+   *
+   ************************************************************************/
+   
+  /**
+   * Initialize the AprilTag processor.
+   */
+  public void initAprilTag() {
+  
+      // Create the AprilTag processor.
+      AprilTagProcessor.Builder atpBuilder = new AprilTagProcessor.Builder();
+      // lots of options could be overriden here, such as:
+      // aprilTag.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+      aprilTag = atpBuilder.build();
 
+      // Adjust Image Decimation to trade-off detection-range for detection-rate.
+      // eg: Some typical detection data using a Logitech C920 WebCam
+      // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
+      // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
+      // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
+      // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
+      // Note: Decimation can be changed on-the-fly to adapt during a match.
+      //aprilTag.setDecimation(3);
+  
+      // Create the vision portal by using a builder.
+      VisionPortal.Builder builder = new VisionPortal.Builder();
+      builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam2"));
+
+      // Choose a camera resolution. Not all cameras support all resolutions.
+      //builder.setCameraResolution(new Size(544, 288));
+  
+      // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
+      builder.enableLiveView(false);  // this will be used in the middle of our opmodes, so preview won't be possible anyway
+  
+      // Set the stream format; MJPEG uses less bandwidth than default YUY2.
+      //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+  
+      // Set and enable the processor.
+      builder.addProcessor(aprilTag);
+  
+      // Build the Vision Portal, using the above settings.
+      visionPortal = builder.build();
+  
+      // Disable or re-enable the aprilTag processor at any time.
+      //visionPortal.setProcessorEnabled(aprilTag, true);
+  
+  }   // end method initAprilTag()
+
+  /*********************************************************************
+   * getAprilTagDetection(tagID)
+   *  - returns null if the tagID is not detected
+   *  - returns an AprilTagDetection object if the tagID is detected,
+   *  - AprilTagDetection contains:
+   *    XYZ (inch): detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z
+   *    .ftcPose.y: dist 'forward' from camera to parallel plane of tag
+   *    .ftcPose.x: distance 'right' from line straight out from camera to the tag
+   *    .ftcPose.z: distance up from line straight out of camera to the tag
+   *    (i.e. x,y,z are how far out, right, & up the camera would need to 
+   *     move to reach the tag.)
+   *    PRY (deg): detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw
+   *    RBE (inch, deg, deg): detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation
+   * 
+   *    NOTE: The y distance was some inches offset from our tape
+   *          measure measurements, so it should not be trusted as
+   *          an absolute value, but it seemed to be RELATIVELY
+   *          accurate from scenario to scenario.  We recorded the
+   *          y measurement in a run where we observed our original
+   *          auto code dropped the backdrop pixel about 1" away from 
+   *          the backdrop.  This .ftcPose.y happened to be ~15.5".
+   *          We decided if the AprilTag pose data was reliable, this
+   *          meant our desired .ftcPose.y at this point of the program
+   *          was actually 14.5" (the 15.5" reported minus 1" closer).
+   *          On subsequent runs, we took the difference of the 
+   *          .ftcPose.y report and 14.5 to adjust our last drive()
+   *          up to the backdrop.
+   *          The math in our code looks a bit backward because our
+   *          robot backs into the board, and is using a backwards
+   *          facing camera to observe the AprilTag.  So our adjustment
+   *          calculation subtracts the .ftcPose.y from 14.5 (instead of
+   *          the other way around), and then adds this value to the 
+   *          negative drive forward command (which causes the robot to
+   *          backup into the backdrop).
+   *          
+   *********************************************************************/
+  public AprilTagDetection getAprilTagDetection(int requestId) {
+    List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+
+    for (AprilTagDetection detection : currentDetections) {  // Step through the list of detections and look for the requested id
+      if (detection.id == requestId) {
+        return detection;
+      }
+    }   // end for() loop
+    
+    return null;  // the requested tag wasn't found
+  }
+  // CENTERSTAGE & the current FTC SDK are setup with tag IDs on the backdrops as follows
+  public AprilTagDetection getAprilTag_BlueLeft() { return getAprilTagDetection(1); }
+  public AprilTagDetection getAprilTag_BlueMiddle() { return getAprilTagDetection(2); }
+  public AprilTagDetection getAprilTag_BlueRight() { return getAprilTagDetection(3); }
+  public AprilTagDetection getAprilTag_RedLeft() { return getAprilTagDetection(4); }
+  public AprilTagDetection getAprilTag_RedMiddle() { return getAprilTagDetection(5); }
+  public AprilTagDetection getAprilTag_RedRight() { return getAprilTagDetection(6); }
+
+  // this math/logic can be hard to follow because our robot is backwards at this point
+  // so these functions return negative values when we need to get closer and further
+  // to the right when looking at the board (as they will be used as drive_forward &
+  // drive_right command values, causing the robot to move back & left).
+  double getYAdjustmentForTag(AprilTagDetection det) {
+    if (det == null) {
+      return 0.0;
+    }
+    return 14.5 - det.ftcPose.y;  // assumes: the farther away we are, the more negative this drive_forward adjustment should be
+                                  // assumes: an additional/subsequent -6" drive command will accompany
+  }
+  double getXAdjustmentForTag(AprilTagDetection det) {
+    if (det == null) {
+      return 0.0;
+    }
+    return 0.75 - det.ftcPose.x;  // assumes: the more to camera's right the tag is, the more negative this drive_right adjust should be
+                                  // assumes: no additional/subsequent right/left drive command is pending
+  }
+  
+  double getImuYaw() { return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES); }
 }
