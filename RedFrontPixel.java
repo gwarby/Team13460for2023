@@ -41,12 +41,12 @@ public class RedFrontPixel extends LinearOpMode
       telemetry.addData(" -MIN_CHROMA: ", lib.FindPropMinChroma());
       telemetry.addData(" -MAX_X: ", lib.FindPropMaxX());
       telemetry.addData(" -MAX_Y: ", lib.FindPropMaxY());
+      telemetry.addData("Yaw", lib.getImuYaw());
       telemetry.update();
     }
 
     lib.FindPropSetEnableDetection(false);
     lib.initAprilTag();
-
     // wait for user to press start on Driver Station
     waitForStart();
 
@@ -70,8 +70,13 @@ public class RedFrontPixel extends LinearOpMode
         lib.drive(0, 6, 0, DRIVE_POWER); // Forward 15" to middle of field
         lib.drive(0, 0, 45, DRIVE_POWER); // Rotate 45 deg back to facing forward
         lib.drive(28, 0, 0, 0.65); // Forward 15" to middle of field
-        lib.drive(0, 0, 90, 0.65); // Rotate 90 deg to face back
-        lib.drive(74.5, 0, 0, 0.65); // Forward 5'
+        double imuRotation = lib.getImuYaw();
+        if (imuRotation != 0) {
+          lib.drive(0, 0, (90 + imuRotation), 0.65);      // Rotate CCW 90 dg to face back wall
+        } else {
+          lib.drive(0, 0, 90, 0);
+        }
+        lib.drive(74.5, 0, 0, 0.9); // Forward 5'
         lib.drive(0, 21, 0, 0.65);
         lib.drive(0, 0, 180, 0.65); // turn around to back into backdrop
         lib.armraisewait(100,0.3);
@@ -105,7 +110,12 @@ public class RedFrontPixel extends LinearOpMode
 
         lib.drive(0, -10, 0, DRIVE_POWER);
         lib.drive(23, 0, 0, DRIVE_POWER);
-        lib.drive(0, 0, 89, DRIVE_POWER);
+        double imuRotation = lib.getImuYaw();
+        if (imuRotation != 0) {
+          lib.drive(0, 0, (90 + imuRotation), 0.65);      // Rotate CCW 90 dg to face back wall
+        } else {
+          lib.drive(0, 0, 90, 0);
+        }
         lib.drive(90, 0, 0, 0.65);
         lib.drive(0, 23.5, 0, 0.65);
         lib.drive(0, 0, 180, 0.65);  //turn around to back into backdrop
@@ -142,7 +152,12 @@ public class RedFrontPixel extends LinearOpMode
         lib.drive(-2, -5, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
         lib.drive(0, 0, -50, DRIVE_POWER);
         lib.drive(25, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
-        lib.drive(0, 0, 90, DRIVE_POWER); // Rotate 90 deg to face back
+        double imuRotation = lib.getImuYaw();
+        if (imuRotation != 0) {
+          lib.drive(0, 0, (90 + imuRotation), 0.65);      // Rotate CCW 90 dg to face back wall
+        } else {
+          lib.drive(0, 0, 90, 0);
+        }
         lib.drive(79.5, 0, 0, DRIVE_POWER); // Forward 5' 7"
         lib.drive(0, 33, 0, DRIVE_POWER);
         lib.drive(0, 0, 180, DRIVE_POWER);  //turn around to back into backdrop
