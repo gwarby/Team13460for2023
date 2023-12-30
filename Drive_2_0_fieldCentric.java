@@ -24,7 +24,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class Drive_2_0_fieldCentric extends LinearOpMode {
 
   // CONSTANTS USED TO ADJUST PROGRAM:
-  double MAX_DRIVE_MOTOR_POWER = 0.75;  // up to 1.0
+  double MAX_DRIVE_MOTOR_POWER = 1.0;  // up to 1.0
   boolean IS_FIELD_CENTRIC = false;
   double MAX_ARM_RAISE_POWER = 0.45;
   double MAX_ARM_LOWER_POWER = 0.16;
@@ -168,9 +168,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       double currTimeMs = currentTime.milliseconds();
       // DRIVE CONTROLS MAP
       // :mechanum drive 
-      driverCmd_Right=gamepad1.right_stick_x;
-      driverCmd_Fwd=-gamepad1.right_stick_y;  // negative because stick_y is up=neg, we want up=pos
-      driverCmd_Rotate=gamepad1.left_stick_x;
+      driverCmd_Right=Math.pow(gamepad1.right_stick_x, 3);
+      driverCmd_Fwd=-Math.pow(gamepad1.right_stick_y, 3);  // negative because stick_y is up=neg, we want up=pos
+      driverCmd_Rotate=Math.pow(gamepad1.left_stick_x, 3);
       telemetry.addData("driverCmdFwd", driverCmd_Fwd);
       // :arm rotate (aka raise/lower) & arm extend
       driverCmd_ArmRaise = -gamepad2.left_stick_y;
