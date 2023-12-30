@@ -1,6 +1,7 @@
 // Get package/imports
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -11,12 +12,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.openftc.easyopencv.OpenCvWebcam;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 // Begin code
 public class AutoCommon extends LinearOpMode {
@@ -27,6 +30,8 @@ public class AutoCommon extends LinearOpMode {
   // additional AprilTag vision objects
   private AprilTagProcessor aprilTag;
   private VisionPortal visionPortal;
+  
+  private IMU imu;
 
   // Declare motors/servos
   private DcMotor frontleft, rearleft, frontright, rearright, armextend, armraise;
@@ -67,6 +72,7 @@ public class AutoCommon extends LinearOpMode {
   double FindPropMinChroma() { return findPropPL.min_chroma; }
   int FindPropMaxX() { return findPropPL.max_x; }
   int FindPropMaxY() { return findPropPL.max_y; }
+  
 
   // This class isn't an opmode that should be run on the robot
   // but it extends (inherits from) LinearOpMode so it can access
@@ -87,6 +93,9 @@ public class AutoCommon extends LinearOpMode {
     grabber = hardwareMap.get(Servo.class, "grabber");
     flipper = hardwareMap.get(Servo.class, "flipper");
     armlimiter = hardwareMap.get(Servo.class, "armlimiter");
+    
+    imu = hardwareMap.get(IMU.class, "imu");  // Retrieve the IMU from the hardware map
+    imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
     
     rearright.setDirection(DcMotorSimple.Direction.REVERSE);
     frontleft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -540,4 +549,6 @@ public class AutoCommon extends LinearOpMode {
     return 0.75 - det.ftcPose.x;  // assumes: the more to camera's right the tag is, the more negative this drive_right adjust should be
                                   // assumes: no additional/subsequent right/left drive command is pending
   }
+  
+  double getImuYaw() { return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES); }
 }
