@@ -56,11 +56,20 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   private AprilTagProcessor aprilTag;
   private VisionPortal visionPortal;
 
+  private AutoCommon lib;
   /**`
    * This function is executed when this OpMode is selected from the Driver Station.
    */
   @Override
   public void runOpMode() {
+    
+    FindPropVisInitData visInitData = new FindPropVisInitData();
+      lib = new AutoCommon(
+      hardwareMap,
+      visInitData);
+    
+    lib.initAprilTag();
+
     // INIT:
     // :find our HW in the hardwareMap:
     //   IMU:
@@ -87,8 +96,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     Servo armlimiter = hardwareMap.get(Servo.class, "armlimiter");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
-    frontright.setDirection(DcMotorSimple.Direction.REVERSE);
-    rearleft.setDirection(DcMotorSimple.Direction.REVERSE);
+    // AutoCommon init sets the drive motor directions
     lifter.setDirection(DcMotorSimple.Direction.REVERSE);
     armraise.setDirection(DcMotorSimple.Direction.REVERSE);
     // :reset motor encoder positions to zero
@@ -212,10 +220,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       // This ensures all the powers maintain the same ratio,
       // but only if at least one is out of the range [-MAX_DRIVE_MOTOR_POWER, MAX_DRIVE_MOTOR_POWER]
       double denominator = Math.max(Math.abs(robotCmd_Fwd) + Math.abs(robotCmd_Right) + Math.abs(robotCmd_Rotate), 1.0);
-      double frontLeftPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd - robotCmd_Right + robotCmd_Rotate) / denominator;
-      double frontRightPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd - robotCmd_Right - robotCmd_Rotate) / denominator;
-      double backLeftPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd + robotCmd_Right + robotCmd_Rotate) / denominator;
-      double backRightPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd + robotCmd_Right - robotCmd_Rotate) / denominator;
+      double frontLeftPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd + robotCmd_Right - robotCmd_Rotate) / denominator;
+      double frontRightPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd + robotCmd_Right + robotCmd_Rotate) / denominator;
+      double backLeftPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd - robotCmd_Right - robotCmd_Rotate) / denominator;
+      double backRightPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd - robotCmd_Right + robotCmd_Rotate) / denominator;
       // Set motor powers
       frontleft.setPower(frontLeftPower);
       frontright.setPower(frontRightPower);
