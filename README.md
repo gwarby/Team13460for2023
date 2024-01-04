@@ -7,7 +7,7 @@ We wish everyone a great season, and hope we can be of assistance and inspiratio
 ## Code naming explanation
 Example: redBackPixel
 The _red_ refers to this programing being built for the red side. The _Back_ indicates it should be run from the back of the playing field (the side of the playing field with the backdrop/backstage). The _Pixel_ says that the program places a pixel on the backdrop.
-*All programs place a pixel on the spike marks with vision, but only those in the backstage place on the backdrop as well. Those in from the front will deliver a pixel to the backstage area.
+*All autonomous programs deliver a pixel to the correct spike mark and park, but only those labeled with _Pixel_ will deliver to the backdrop, all others will deliver to backstage.
 
 ## Vision:
 We don't use the inbuilt FTC TFOD, we instead use OpenCV. This instead checks for pixels with high red/blue values in the frame, so instead of looking for an object, we're looking for color. We create little overlapping squares on the video feed and check which has the highest red/blue value, to see where our custom element is. Since it's made in one solid color, it shows up strongly. Unfortunately, our camera is only wide enough to see two of the positions accurately, so if nowhere in the frame has a strong enough blue/red value, we assume the element is in the unseen position.
