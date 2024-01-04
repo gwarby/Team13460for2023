@@ -15,7 +15,7 @@ We don't use the inbuilt FTC TFOD, we instead use OpenCV. This instead checks fo
 Checkout our branch https://github.com/gwarby/Team13460for2023/tree/NEVER_MERGE/vis_java_block_opencv_example for example vision code that is less specific to our robot & ready to work with blocks.
 
 ## Current Work:
-Currently we are working on optimizing autonomous and driver controlled, and adding autonomous programs for all scenarios.
+We are finishing working on IMU and April Tags to account for error and ensure consistent accuracy during autonomous. For driver-controlled, we are tuning drone launch. This includes setting motor power based on battery outputs (to account for different speeds at different battery voltages), and using April Tags to move to an exact distance from the wall every time, minimizing error. (1/4/24)
 
 ## Temporary bugs and fixes:
 1. If the Driver Station presenting a blank list of op modes, one time it was fixed entirely with the DS by:
