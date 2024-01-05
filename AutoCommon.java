@@ -191,7 +191,7 @@ public class AutoCommon extends LinearOpMode {
     *     Used to improve readability/ simplify editing of pixel drop off procedure
   *************************************************************************/
   public void dropBottomPixel() {
-    armextendwait(5,0.47);          // Extend arm 4" reaching pixel over spike
+    armextendwait(4.5,0.47);          // Extend arm 4" reaching pixel over spike
     openClampLittleWait();          // drop bottom stack
     sleep(300);
     closeClampWait();               // Grab the top pixel
@@ -399,7 +399,9 @@ public class AutoCommon extends LinearOpMode {
    * FUNCTIONS:
    *   double function, with & without wait, same as above
    ************************************************************************/
-  public void reverseFlipper() { flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS); }
+  public void reverseFlipper() { 
+    flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS); 
+    }
   public void reverseFlipperWait() {
     double distance = Math.abs(flipper.getPosition() - CLAW_FLIP_SERVO_FLIPPED_POS);
     flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);

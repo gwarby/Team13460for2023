@@ -76,9 +76,14 @@ public class RedFrontPixel extends LinearOpMode
         } else {
           lib.drive(0, 0, 90, 0);
         }
-        lib.drive(74.5, 0, 0, 0.9); // Forward 5'
-        lib.drive(0, 21, 0, 0.65);
-        lib.drive(0, 0, 180, 0.65); // turn around to back into backdrop
+        lib.drive(69, 0, 0, 0.9); // Forward 5'
+        lib.drive(0, 24, 0, 0.65);
+        imuRotation = lib.getImuYaw();
+        if (imuRotation != 0.0) {
+          lib.drive(0, 0, (imuRotation - 90), 0.65);             // rotate to back side
+        } else {
+          lib.drive(0, 0, -180, 0.65);
+        }
         lib.armraisewait(100,0.3);
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);
@@ -87,14 +92,15 @@ public class RedFrontPixel extends LinearOpMode
         yAdjustment = lib.getYAdjustmentForTag(tagInfo);
         xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
-        lib.drive(-6.0 + yAdjustment,xAdjustment,0,DRIVE_POWER);
+        lib.drive(-6.0 + yAdjustment,-4.3 + xAdjustment,0,DRIVE_POWER);
         lib.openClampWait();
+        sleep(100);
         lib.drive(4.5,0,0,DRIVE_POWER);
         lib.normalFlipper();            // square w/ ground
         lib.armraisewait(-110, 0.4);
         lib.armraise(-30, 0.2);
         
-        lib.drive(-3, 10, 0, DRIVE_POWER);
+        lib.drive(-7, 10, 0, DRIVE_POWER);
         
         // release motors?
 
@@ -104,7 +110,7 @@ public class RedFrontPixel extends LinearOpMode
          * MIDDLE: (RED FRONT)
          *
          ************************************************************************/
-        lib.drive(25.0,-5,0,DRIVE_POWER);        // Fwd 15" toward spike marks
+        lib.drive(25.5,-5,0,DRIVE_POWER);        // Fwd 15" toward spike marks
 
         lib.dropBottomPixel();
 
@@ -116,9 +122,14 @@ public class RedFrontPixel extends LinearOpMode
         } else {
           lib.drive(0, 0, 90, 0);
         }
-        lib.drive(90, 0, 0, 0.65);
-        lib.drive(0, 23.5, 0, 0.65);
-        lib.drive(0, 0, 180, 0.65);  //turn around to back into backdrop
+        lib.drive(85, 0, 0, 0.65);
+        lib.drive(0, 23, 0, 0.65);
+        imuRotation = lib.getImuYaw();
+        if (imuRotation != 0.0) {
+          lib.drive(0, 0, (imuRotation - 90), 0.65);             // rotate to back side
+        } else {
+          lib.drive(0, 0, -180, 0.65);
+        }
         lib.armraisewait(100, 0.2);
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);
@@ -127,8 +138,8 @@ public class RedFrontPixel extends LinearOpMode
         yAdjustment = lib.getYAdjustmentForTag(tagInfo);
         xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
-        lib.drive(-6 + yAdjustment,xAdjustment,0,DRIVE_POWER);
-        lib.openClamp();
+        lib.drive(-6 + yAdjustment,-4 + xAdjustment,0,DRIVE_POWER);
+        lib.openClampWait();
         lib.drive(3, 0, 0, DRIVE_POWER);
         lib.normalFlipper();
         lib.armraisewait(-110, 0.4);
@@ -144,12 +155,12 @@ public class RedFrontPixel extends LinearOpMode
   
         lib.drive(17.5,0,0,DRIVE_POWER);        // Fwd 15" toward spike 
         lib.drive(0,0,50,DRIVE_POWER);         // CW 45 deg to face RIGHT spike mark
-        lib.drive(4, 0, 0, DRIVE_POWER);
+        lib.drive(5.5, 0, 0, DRIVE_POWER);
 
         lib.dropBottomPixel();
 
         DRIVE_POWER = 0.65;
-        lib.drive(-2, -5, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
+        lib.drive(-2, -7.5, 0, DRIVE_POWER); // Slide left 7" to go around pixel/marker
         lib.drive(0, 0, -50, DRIVE_POWER);
         lib.drive(25, 0, 0, DRIVE_POWER); // Forward 15" to middle of field
         double imuRotation = lib.getImuYaw();
@@ -158,9 +169,14 @@ public class RedFrontPixel extends LinearOpMode
         } else {
           lib.drive(0, 0, 90, 0);
         }
-        lib.drive(79.5, 0, 0, DRIVE_POWER); // Forward 5' 7"
-        lib.drive(0, 33, 0, DRIVE_POWER);
-        lib.drive(0, 0, 180, DRIVE_POWER);  //turn around to back into backdrop
+        lib.drive(70, 0, 0, DRIVE_POWER); // Forward 5' 7"
+        lib.drive(0, 34, 0, DRIVE_POWER);
+        imuRotation = lib.getImuYaw();
+        if (imuRotation != 0.0) {
+          lib.drive(0, 0, (imuRotation - 90), 0.65);             // rotate to back side
+        } else {
+          lib.drive(0, 0, -180, 0.65);
+        }
         lib.armraisewait(100,0.3);
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);
@@ -169,14 +185,14 @@ public class RedFrontPixel extends LinearOpMode
         yAdjustment = lib.getYAdjustmentForTag(tagInfo);
         xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
-        lib.drive(-6.0 + yAdjustment,xAdjustment,0,DRIVE_POWER);
+        lib.drive(-6.0 + yAdjustment,0.5 + xAdjustment,0,0.5);
         lib.openClampWait();
         lib.drive(4.5,0,0,DRIVE_POWER);
         lib.normalFlipper();            // square w/ ground
         lib.armraisewait(-110, 0.4);
         lib.armraise(-30, 0.2);
         
-        lib.drive(-3, 22, 0, DRIVE_POWER);
+        lib.drive(-5, 22, 0, DRIVE_POWER);
       }
 
       telemetry.addLine("Opmode COMPLETE");

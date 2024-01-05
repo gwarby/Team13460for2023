@@ -101,7 +101,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     VoltageSensor ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
     
     // :set motor directions so that pos/neg tick encoder positions make sense
-    // AutoCommon init sets the drive motor directions
+    //frontright.setDirection(DcMotorSimple.Direction.REVERSE);
+    //rearleft.setDirection(DcMotorSimple.Direction.REVERSE);
     lifter.setDirection(DcMotorSimple.Direction.REVERSE);
     armraise.setDirection(DcMotorSimple.Direction.REVERSE);
     // :reset motor encoder positions to zero
@@ -126,6 +127,8 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     boolean driverCmd_AutoHoldLifterHooks;
     boolean driverCmd_ArmToLowest, driverCmd_GrabTopPixel;
     boolean driverCmd_LaunchDrone, driverCmd_LoadDrone;
+    
+    boolean driverCmd_OverrideArmLim = false;
     // Variables for current positions, headings, etc.
     int armExtendPositionTicks;
     int armRaisePositionTicks;
@@ -200,7 +203,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       driverCmd_AutoHoldLifterHooks = gamepad2.dpad_down;
       
       driverCmd_LaunchDrone = gamepad1.y && gamepad2.y;
-      driverCmd_LoadDrone = gamepad1.x && gamepad2.x;
+      //driverCmd_LoadDrone = gamepad1.x && gamepad2.x;
+      
+      driverCmd_OverrideArmLim = gamepad1.x;
 
 
       // CONTROL CODE
@@ -226,10 +231,23 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       // This ensures all the powers maintain the same ratio,
       // but only if at least one is out of the range [-MAX_DRIVE_MOTOR_POWER, MAX_DRIVE_MOTOR_POWER]
       double denominator = Math.max(Math.abs(robotCmd_Fwd) + Math.abs(robotCmd_Right) + Math.abs(robotCmd_Rotate), 1.0);
+      //double frontLeftPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd - robotCmd_Right + robotCmd_Rotate) / denominator;
+      //double frontRightPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd - robotCmd_Right - robotCmd_Rotate) / denominator;
+      //double backLeftPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd + robotCmd_Right + robotCmd_Rotate) / denominator;
+      //double backRightPower = MAX_DRIVE_MOTOR_POWER * (robotCmd_Fwd + robotCmd_Right - robotCmd_Rotate) / denominator;
+      
       double frontLeftPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd + robotCmd_Right - robotCmd_Rotate) / denominator;
       double frontRightPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd + robotCmd_Right + robotCmd_Rotate) / denominator;
       double backLeftPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd - robotCmd_Right - robotCmd_Rotate) / denominator;
       double backRightPower = MAX_DRIVE_MOTOR_POWER * (-robotCmd_Fwd - robotCmd_Right + robotCmd_Rotate) / denominator;
+      
+      // Calculate motor distances by adding/subtracting different inputs
+      //frontLeftDistance = -fwd_bck + right_left -cw_ccw;
+      //frontRightDistance = -fwd_bck + right_left + cw_ccw;
+      //rearLeftDistance = -fwd_bck -right_left -cw_ccw;
+      //rearRightDistance = -fwd_bck - right_left + cw_ccw;
+
+      
       // Set motor powers
       frontleft.setPower(frontLeftPower);
       frontright.setPower(frontRightPower);
@@ -271,9 +289,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
           armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
           armraise.setPower(0.265);
         }
-      } else if (isArmCmdUp) {
+      } else if (!driverCmd_OverrideArmLim && isArmCmdUp) {
         isArmHolding = false;
-        if (isArmTooHigh || isArmNearHighLimit) {
+        if ((isArmTooHigh || isArmNearHighLimit)) {
           armraise.setTargetPosition(MAX_ARM_RAISE_TICKS);
           armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
           armraise.setPower(0.265);
@@ -285,7 +303,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             armraise.setPower(driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
           }
         }
-      } else {  // isArmCmdDown
+      } else if (!driverCmd_OverrideArmLim) {  // isArmCmdDown
         isArmHolding = false;
         if (isArmTooLow) {
         armraise.setTargetPosition(82);
@@ -385,17 +403,34 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       // Claw Flip / Rotater:
       boolean isFlipDebounceTimeElapsed = ((int) currentTime.milliseconds() - lastTimeFlippedMs) 
                                           > FLIP_TIME_DEBOUNCE_MS;
-
+      /*
       if (driverCmd_ClawFlipToggle && isFlipDebounceTimeElapsed) {
         if (isClawInFlippedPosition) { // set to default position
           isClawInFlippedPosition = false;
-          flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
+          //flipper.setPosition(CLAW_FLIP_SERVO_NORMAL_POS);
+          lib.normalFlipper();
         } 
         else { // rotate to 180 degrees
           isClawInFlippedPosition = true;
-          flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
+          //flipper.setPosition(CLAW_FLIP_SERVO_FLIPPED_POS);
+          lib.reverseFlipper();
         }
         lastTimeFlippedMs = (int) currentTime.milliseconds();  // refresh 'lastTime', regardless of which direction we went
+      }
+      */
+      
+      if (driverCmd_ClawFlipToggle && isFlipDebounceTimeElapsed) {
+        if (isClawInFlippedPosition) {
+          isClawInFlippedPosition = false;
+        } else {
+          isClawInFlippedPosition = true;
+        }
+      }
+      
+      if (isClawInFlippedPosition) {
+        lib.reverseFlipper();
+      } else {
+        lib.normalFlipper();
       }
 
       // grabber servo code
@@ -420,9 +455,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
       // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
       
-      if (driverCmd_LoadDrone) {
-        droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
-      }
+      //if (driverCmd_LoadDrone) {
+      //  droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
+      //}
       // Drone launch control: both driver 1 and 2 must push Dpad up, and must be 90 sec into match
       
       if (true) {
@@ -480,11 +515,17 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
         telemetry.addData("Time until ready to launch", ((int) 90 - (currTimeMs/1000)));
       }
       
+      if (driverCmd_OverrideArmLim) {
+        armraise.setPower(gamepad2.left_stick_y * -0.4);
+        armraise.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        telemetry.addLine("Overriding arm");
+      }
 
       telemetry.addData("DriverCmd_ToLowest", driverCmd_ArmToLowest);
       telemetry.addData("DriverCmd_GrabTopPixel", driverCmd_GrabTopPixel);
       telemetry.addData("armraise target position", armraise.getTargetPosition());
       telemetry.addData("armextend target position", armextend.getTargetPosition());
+      telemetry.addData("Override commanded", driverCmd_OverrideArmLim);
 
       loopsExecuted ++;
       telemetry.addData("loops:", loopsExecuted);
