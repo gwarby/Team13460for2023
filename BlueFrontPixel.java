@@ -81,7 +81,12 @@ public class BlueFrontPixel extends LinearOpMode
         }
         lib.drive(75, 0, 0, 0.75);      // Drive forward 6' 4" to parking zone, with second pixel
         lib.drive(0, -32.2, 0, 0.75);    // line up with left side
-        lib.drive(0, 0, 180, 0.65);             // rotate to back side
+        imuRotation = lib.getImuYaw();
+        if (imuRotation != 0.0) {
+          lib.drive(0, 0, (imuRotation + 90), 0.65);             // rotate to back side
+        } else {
+          lib.drive(0, 0, 180, 0.65);
+        }
         lib.armraisewait(100, 0.2);             // raise to backdrop
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);               
@@ -118,7 +123,6 @@ public class BlueFrontPixel extends LinearOpMode
         sleep(100);
         
         lib.drive(31, 0, 0, DRIVE_POWER);       // drive to bridge
-        sleep(10000);
         double imuRotation = lib.getImuYaw();
         if (imuRotation != 0) {
           lib.drive(0, 0, -(90 - imuRotation), 0.65);      // Rotate CCW 90 dg to face back wall
@@ -127,7 +131,12 @@ public class BlueFrontPixel extends LinearOpMode
         }
         lib.drive(88, 0, 0, 0.9);       // Drive forward 83" to parking zone, with second pixel
         lib.drive(0, -28, 0, DRIVE_POWER);    // line up with middle
-        lib.drive(0, 0, 180, 0.65);             // rotate to back side
+        imuRotation = lib.getImuYaw();
+        if (imuRotation != 0.0) {
+          lib.drive(0, 0, (imuRotation + 90), 0.65);             // rotate to back side
+        } else {
+          lib.drive(0, 0, 180, 0.65);
+        }
         lib.armraisewait(100, 0.2);             // raise to backdrop
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);               
@@ -136,7 +145,7 @@ public class BlueFrontPixel extends LinearOpMode
         yAdjustment = lib.getYAdjustmentForTag(tagInfo);
         xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
-        lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
+        lib.drive(-6 + yAdjustment, -3 + xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
         lib.drive(4.5, 0, 0, DRIVE_POWER);      // go forwards
         lib.normalFlipper();
@@ -168,7 +177,12 @@ public class BlueFrontPixel extends LinearOpMode
         }
         lib.drive(71.5, 0, 0, 0.65);      // Drive forward 6' 4" to parking zone, with second pixel
         lib.drive(0, -16, 0, DRIVE_POWER);    // line up to right side
-        lib.drive(0, 0, 180, 0.65);           // turn around
+        imuRotation = lib.getImuYaw();
+        if (imuRotation != 0.0) {
+          lib.drive(0, 0, (imuRotation + 90), 0.65);             // rotate to back side
+        } else {
+          lib.drive(0, 0, 180, 0.65);
+        }
         lib.armraisewait(100, 0.2);           // lift arm to backdrop
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);             
@@ -177,7 +191,7 @@ public class BlueFrontPixel extends LinearOpMode
         yAdjustment = lib.getYAdjustmentForTag(tagInfo);
         xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
-        lib.drive(-6 + yAdjustment, xAdjustment, 0, DRIVE_POWER);     // drive back to backdrop
+        lib.drive(-6 + yAdjustment, -3 + xAdjustment, 0, DRIVE_POWER);     // drive back to backdrop
         lib.openClamp();
         lib.drive(4.5, 0, 0, DRIVE_POWER);    // drive forward to let pixel drop
         lib.normalFlipper();
