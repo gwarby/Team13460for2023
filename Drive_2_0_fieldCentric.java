@@ -324,7 +324,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
           }
         }
-      } else {
+      } else { // driverCmd_OverrideArmLim
         armraise.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         armraise.setPower(driverCmd_ArmRaise);
         resetArm = true;
