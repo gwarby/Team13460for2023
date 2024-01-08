@@ -179,9 +179,9 @@ public class AutoCommon extends LinearOpMode {
     sleep(400);                 // wait a beat for pixels to be grabbed before lifting arm
     armraisewait(24,0.3);       // Raise above arm limiter
     avoidArmLimiterFlipper();   // rock flipper so angle bracket doesn't rest on arm limiter
-    sleep(600);
+    sleep(1000);
     activateArmLimiter();       // move arm limiter in place to hold up in "perfect" position
-    sleep(550);
+    sleep(450);
     restOnArmLimiter();         // should result in arm ~10 deg?
     normalFlipper();
   }

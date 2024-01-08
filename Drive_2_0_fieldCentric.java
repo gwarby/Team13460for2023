@@ -63,6 +63,9 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   /**`
    * This function is executed when this OpMode is selected from the Driver Station.
    */
+   
+   boolean resetArm = false;
+   
   @Override
   public void runOpMode() {
     
@@ -215,6 +218,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       telemetry.addData("Robot Heading", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
       telemetry.addData("Robot Roll", imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
       telemetry.addData("Robot Pitch", imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
+      telemetry.addData("Resetting arm?", resetArm);
 
       if (IS_FIELD_CENTRIC) {
         // Rotate the movement direction counter to the bot's rotation
@@ -268,51 +272,62 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       boolean isArmTooHigh = armRaisePositionTicks > MAX_ARM_RAISE_TICKS;
       boolean isArmNearHighLimit = armRaisePositionTicks > (MAX_ARM_RAISE_TICKS - 25);
       
-      if (isArmCmdNone) {  // hold within limits
-        if (!isArmHolding) {  // entering hold state
-          //   without this block, we keep updating the
-          //   target position = to the current position,
-          //   causing the hold to drift due to gravity & bouncing
-          isArmHolding = true;
-
-          armRaiseTargetPosition = armRaisePositionTicks;
-          if (isArmTooLow) {
-            armRaiseTargetPosition = 82;
-          } else if (isArmTooHigh) {
-            armRaiseTargetPosition = MAX_ARM_RAISE_TICKS;
-          }
-          armraise.setTargetPosition(armRaiseTargetPosition);
-          armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-          armraise.setPower(0.265);
-        } else {
-          armraise.setTargetPosition(armRaiseTargetPosition);
-          armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-          armraise.setPower(0.265);
+      if (!driverCmd_OverrideArmLim) {
+        if (resetArm) {
+          armraise.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          resetArm = false;
+          armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
         }
-      } else if (!driverCmd_OverrideArmLim && isArmCmdUp) {
-        isArmHolding = false;
-        if ((isArmTooHigh || isArmNearHighLimit)) {
-          armraise.setTargetPosition(MAX_ARM_RAISE_TICKS);
-          armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-          armraise.setPower(0.265);
-        } else {
-          armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-          if (armRaisePositionTicks > 683.55) {
-            armraise.setPower(0.33 * driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+        if (isArmCmdNone) {  // hold within limits
+          if (!isArmHolding) {  // entering hold state
+            //   without this block, we keep updating the
+            //   target position = to the current position,
+            //   causing the hold to drift due to gravity & bouncing
+            isArmHolding = true;
+  
+            armRaiseTargetPosition = armRaisePositionTicks;
+            if (isArmTooLow) {
+              armRaiseTargetPosition = 82;
+            } else if (isArmTooHigh) {
+              armRaiseTargetPosition = MAX_ARM_RAISE_TICKS;
+            }
+            armraise.setTargetPosition(armRaiseTargetPosition);
+            armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armraise.setPower(0.265);
           } else {
-            armraise.setPower(driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+            armraise.setTargetPosition(armRaiseTargetPosition);
+            armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armraise.setPower(0.265);
+          }
+        } else if (isArmCmdUp) {
+          isArmHolding = false;
+          if ((isArmTooHigh || isArmNearHighLimit)) {
+            armraise.setTargetPosition(MAX_ARM_RAISE_TICKS);
+            armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armraise.setPower(0.265);
+          } else {
+            armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            if (armRaisePositionTicks > 683.55) {
+              armraise.setPower(0.33 * driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+            } else {
+              armraise.setPower(driverCmd_ArmRaise * MAX_ARM_RAISE_POWER);
+            }
+          }
+        } else {  // isArmCmdDown
+          isArmHolding = false;
+          if (isArmTooLow) {
+          armraise.setTargetPosition(82);
+          armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          armraise.setPower(0.265);
+          } else {
+            armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
           }
         }
-      } else if (!driverCmd_OverrideArmLim) {  // isArmCmdDown
-        isArmHolding = false;
-        if (isArmTooLow) {
-        armraise.setTargetPosition(82);
-        armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armraise.setPower(0.265);
-        } else {
-          armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-          armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
-        }
+      } else { // driverCmd_OverrideArmLim
+        armraise.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+        armraise.setPower(driverCmd_ArmRaise);
+        resetArm = true;
       }
       
 
