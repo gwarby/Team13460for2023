@@ -34,6 +34,10 @@ public class BlueFrontPixel extends LinearOpMode
 
     while (!opModeIsActive() & !isStopRequested())
     {
+      if (gamepad1.y)
+        lib.imuResetYaw();
+      if (gamepad1.x)
+        lib.imuReInit();
       telemetry.addLine("Waiting for start");
       telemetry.addData("PROP LOCATION: ", lib.FindPropLocation());
       telemetry.addData("-","-");

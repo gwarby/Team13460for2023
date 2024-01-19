@@ -185,6 +185,16 @@ public class AutoCommon extends LinearOpMode {
     restOnArmLimiter();         // should result in arm ~10 deg?
     normalFlipper();
   }
+  
+  ////////////////
+  public void imuResetYaw()
+  {
+    imu.resetYaw();
+  }
+  
+  public void imuReInit() {
+    imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+  }
 
   /************************************************************************
     *  DROP BOTTOM PIXEL FUNCTION
