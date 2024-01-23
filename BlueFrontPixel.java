@@ -34,6 +34,10 @@ public class BlueFrontPixel extends LinearOpMode
 
     while (!opModeIsActive() & !isStopRequested())
     {
+      if (gamepad1.y)
+        lib.imuResetYaw();
+      if (gamepad1.x)
+        lib.imuReInit();
       telemetry.addLine("Waiting for start");
       telemetry.addData("PROP LOCATION: ", lib.FindPropLocation());
       telemetry.addData("-","-");
@@ -79,12 +83,12 @@ public class BlueFrontPixel extends LinearOpMode
         } else {
           lib.drive(0, 0, -90, 0);
         }
-        lib.drive(72, 0, 0, 0.75);      // Drive forward 6' 4" to parking zone, with second pixel
+        lib.drive(78, 0, 0, 0.75);      // Drive forward 6' 4" to parking zone, with second pixel
         imuRotation = lib.getImuYaw();
         if (imuRotation != 0.0) {
-          lib.drive(0, 0, (imuRotation + 90), 0.65);             // rotate to back side
+          lib.drive(0, 0, (imuRotation + 93), 0.65);             // rotate to back side
         } else {
-          lib.drive(0, 0, 180, 0.65);
+          lib.drive(0, 0, 183, 0.65);
         }
         lib.drive(0, 32.2, 0, 0.75);    // line up with left side
         lib.armraisewait(100, 0.2);             // raise to backdrop
@@ -95,7 +99,7 @@ public class BlueFrontPixel extends LinearOpMode
         yAdjustment = lib.getYAdjustmentForTag(tagInfo);
         xAdjustment = lib.getXAdjustmentForTag(tagInfo);
 
-        lib.drive(-6.5 + yAdjustment, -.25 + xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
+        lib.drive(-6.5 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
         lib.drive(1, 0, 0, DRIVE_POWER);
         lib.drive(3.5, 0, 0, DRIVE_POWER);      // go forwards

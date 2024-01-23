@@ -185,6 +185,16 @@ public class AutoCommon extends LinearOpMode {
     restOnArmLimiter();         // should result in arm ~10 deg?
     normalFlipper();
   }
+  
+  ////////////////
+  public void imuResetYaw()
+  {
+    imu.resetYaw();
+  }
+  
+  public void imuReInit() {
+    imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+  }
 
   /************************************************************************
     *  DROP BOTTOM PIXEL FUNCTION
@@ -216,21 +226,13 @@ public class AutoCommon extends LinearOpMode {
     double frontRightPower;
     double rearLeftPower;
     double rearRightPower;
+    boolean useNormCalc;
 
     // Reset encoders
     frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rearleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rearright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    if (fwd_bck == 0) {
-      fwd_bck = 0;
-    }
-    if (right_left == 0) {
-      right_left = 0;
-    }
-    if (cw_ccw == 0) {
-      cw_ccw = 0;
-    }
     // If power of 0 is input, set to default of 0.7
     if (power == 0) {
       power = 0.7;
@@ -244,6 +246,9 @@ public class AutoCommon extends LinearOpMode {
     frontRightDistance = -fwd_bck + right_left + cw_ccw;
     rearLeftDistance = -fwd_bck -right_left -cw_ccw;
     rearRightDistance = -fwd_bck - right_left + cw_ccw;
+    
+    useNormCalc = (frontLeftDistance > 2880);
+    
     // Find the max distance a motor is going
     maxDistance = JavaUtil.maxOfList(JavaUtil.createListWith(frontLeftDistance, frontRightDistance, rearLeftDistance, rearRightDistance));
     // Set the power proportionate to the distance the motor has to travel relative to the others
@@ -263,13 +268,36 @@ public class AutoCommon extends LinearOpMode {
     rearleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rearright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     // Set motor power to the given power multiplied by the proportional power calculated above
-    frontleft.setPower(Math.abs(frontLeftPower * power));
-    frontright.setPower(Math.abs(frontRightPower * power));
-    rearleft.setPower(Math.abs(rearLeftPower * power));
-    rearright.setPower(Math.abs(rearRightPower * power));
+    //frontleft.setPower(Math.abs(frontLeftPower * power));
+    //frontright.setPower(Math.abs(frontRightPower * power));
+    //rearleft.setPower(Math.abs(rearLeftPower * power));
+    //rearright.setPower(Math.abs(rearRightPower * power));
     // Sleep until motor position is reached
+    
     while (frontleft.isBusy() || frontright.isBusy() || rearleft.isBusy() || rearright.isBusy()) {
-      sleep(10);
+      if (useNormCalc) {
+        if (frontleft.getCurrentPosition() < 3540) {
+          double motorPower = frontleft.getCurrentPosition() / 3540.0 * 0.2 + 0.04; 
+                            //1152.0 * frontleft.getCurrentPosition() + 288;
+          frontleft.setPower(frontLeftPower * motorPower);
+          frontright.setPower(frontRightPower * motorPower);
+          rearleft.setPower(rearLeftPower * motorPower);
+          rearright.setPower(rearRightPower * motorPower);
+        } else if (frontleft.getTargetPosition() - frontleft.getCurrentPosition() < 1440) {
+          //double motorPower = -1152 * (frontleft.getTargetPosition() - frontleft.getCurrentPosition()) + 1440;
+          double motorPower = (frontleft.getTargetPosition() - frontleft.getCurrentPosition()) / 1440.0 * 0.8 + 0.2;
+          frontleft.setPower(frontLeftPower * motorPower);
+          frontright.setPower(frontRightPower * motorPower);
+          rearleft.setPower(rearLeftPower * motorPower);
+          rearright.setPower(rearRightPower * motorPower);
+        }
+      } else {
+        frontleft.setPower(frontLeftPower * power);
+        frontright.setPower(frontRightPower * power);
+        rearleft.setPower(rearLeftPower * power);
+        rearright.setPower(rearRightPower * power);
+      }
+      sleep(1);
     }
     // Set motor power to zero
     frontleft.setPower(0);

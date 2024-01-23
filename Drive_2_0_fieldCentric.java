@@ -324,7 +324,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             armraise.setPower(driverCmd_ArmRaise * MAX_ARM_LOWER_POWER);
           }
         }
-      } else { // driverCmd_OverrideArmLim
+      } else {
         armraise.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         armraise.setPower(driverCmd_ArmRaise);
         resetArm = true;
@@ -489,6 +489,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             lib.drive(12 - yDistance, 0, 0, 0);
             //double zRotation = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             //lib.drive(0, 0, 90 + zRotation, 0);
+            // AFTER using lib.drive MUST set drive motors to Mode other than stop&reset
+            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rearleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rearright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           } else if (look44 != null) {
             telemetry.addLine("found tag 4...");
             telemetry.update();
@@ -499,6 +504,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             //if (imuYaw != 0.0) {
             //  lib.drive(0, 0, imuYaw - 90, 0);
             //}
+            // AFTER using lib.drive MUST set drive motors to Mode other than stop&reset
+            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rearleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rearright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           } else {
             telemetry.addLine("no tags found...");
             telemetry.addLine("Hopefully you lined it up right");
