@@ -32,7 +32,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   double MAX_ARM_RAISE_POWER = 0.45;
   double MAX_ARM_LOWER_POWER = 0.16;
   int MAX_ARM_RAISE_TICKS = 1200;
-  int MIN_ARM_RAISE_TICKS = 20;
+  int MIN_ARM_RAISE_TICKS = 12;
   double STICK_DEADZONE = 0.011;
 
   double MAX_ARM_EXTEND_POWER = 0.45;
@@ -41,7 +41,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
   int MIN_ARM_EXTEND_TICKS_WHEN_NOT_PICKING_UP = 120;
   
   int FLIP_TIME_DEBOUNCE_MS = 350;
-  double CLAW_FLIP_SERVO_NORMAL_POS = 0.27;
+  double CLAW_FLIP_SERVO_NORMAL_POS = 0.19;
   double CLAW_FLIP_SERVO_FLIPPED_POS = 0.93;
   
   int GRABBER_TIME_DEBOUNCE_MS = 350;
@@ -161,23 +161,26 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
     // Pull droneLauncher servo back to load drone
     droneLauncher.setPosition(DRONE_SERVO_LOAD_POS);
     
-    grabber.setPosition(.16);
+    grabber.setPosition(.37);
     armraise.setTargetPosition(200);  // ?
-    armextend.setTargetPosition(250);
-    flipper.setPosition(.35);
+    armextend.setTargetPosition(180);
+    lib.groundTransitionFlipper();
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armextend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(0.2);
     armextend.setPower(0.15);
-    sleep(500);
-    armlimiter.setPosition(0.48);
+    lib.avoidArmLimiterFlipper();
+    sleep(900);
+    armlimiter.setPosition(.48);
     sleep(800);
+    armextend.setTargetPosition(50);
+    sleep(500);
     armraise.setPower(0.0);
     armextend.setPower(0.0);
     armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     armextend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    flipper.setPosition(.28);
-    
+    lib.normalFlipper();
+    double armLimit = armextend.getCurrentPosition();
     telemetry.addLine("Ready for start");
     telemetry.update();
     
@@ -435,6 +438,7 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
       */
       
       if (driverCmd_ClawFlipToggle && isFlipDebounceTimeElapsed) {
+        lastTimeFlippedMs = (int) currentTime.milliseconds();  // refresh 'lastTime', regardless of which direction we went
         if (isClawInFlippedPosition) {
           isClawInFlippedPosition = false;
         } else {
@@ -489,11 +493,11 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             lib.drive(12 - yDistance, 0, 0, 0);
             //double zRotation = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             //lib.drive(0, 0, 90 + zRotation, 0);
-            // AFTER using lib.drive MUST set drive motors to Mode other than stop&reset
-            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rearleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rearright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+          frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          rearleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+          rearright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            
           } else if (look44 != null) {
             telemetry.addLine("found tag 4...");
             telemetry.update();
@@ -504,11 +508,6 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
             //if (imuYaw != 0.0) {
             //  lib.drive(0, 0, imuYaw - 90, 0);
             //}
-            // AFTER using lib.drive MUST set drive motors to Mode other than stop&reset
-            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rearleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rearright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           } else {
             telemetry.addLine("no tags found...");
             telemetry.addLine("Hopefully you lined it up right");
@@ -528,6 +527,10 @@ public class Drive_2_0_fieldCentric extends LinearOpMode {
 
           telemetry.update();
           launchMotor.setPower(0);
+          frontleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          frontright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          rearleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          rearright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } else {
           if (!droneLaunched) {
             telemetry.addLine("Ready to launch drone");
