@@ -217,17 +217,16 @@ public class AutoCommon extends LinearOpMode {
    ************************************************************************/
   public void drive(double fwd_bck, double right_left, double cw_ccw, double power) {
     // Declare variables to be used later
-    double frontLeftDistance;
-    double rearLeftDistance;
-    double frontRightDistance;
-    double rearRightDistance;
-    double maxDistance;
-    double frontLeftPower;
-    double frontRightPower;
-    double rearLeftPower;
-    double rearRightPower;
-    boolean useNormCalc;
-
+    double frontLeftDistance, rearLeftDistance, frontRightDistance, rearRightDistance;
+    double frontLeftPower, frontRightPower, rearLeftPower, rearRightPower;
+    double maxDistance, leftPower, rightPower, driveAngle;
+    boolean useNormCalc, holdAngle;
+    if (cw_ccw == 0) {
+      holdAngle = true;
+      driveAngle = getImuYaw();
+    } else {
+      holdAngle = false;
+    }
     // Reset encoders
     frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -275,27 +274,31 @@ public class AutoCommon extends LinearOpMode {
     // Sleep until motor position is reached
     
     while (frontleft.isBusy() || frontright.isBusy() || rearleft.isBusy() || rearright.isBusy()) {
+      if (holdAngle && getImuYaw() != 0.0) {
+        leftPower = 1 + (getImuYaw() - driveAngle) * 0.05;
+        rightPower = 1 - (getImuYaw() - driveAngle) * 0.05;
+      }
       if (useNormCalc) {
         if (frontleft.getCurrentPosition() < 3540) {
           double motorPower = frontleft.getCurrentPosition() / 3540.0 * 0.2 + 0.04; 
                             //1152.0 * frontleft.getCurrentPosition() + 288;
-          frontleft.setPower(frontLeftPower * motorPower);
-          frontright.setPower(frontRightPower * motorPower);
-          rearleft.setPower(rearLeftPower * motorPower);
-          rearright.setPower(rearRightPower * motorPower);
+          frontleft.setPower(frontLeftPower * motorPower * leftPower);
+          frontright.setPower(frontRightPower * motorPower * rightPower);
+          rearleft.setPower(rearLeftPower * motorPower * leftPower);
+          rearright.setPower(rearRightPower * motorPower * rightPower);
         } else if (frontleft.getTargetPosition() - frontleft.getCurrentPosition() < 1440) {
           //double motorPower = -1152 * (frontleft.getTargetPosition() - frontleft.getCurrentPosition()) + 1440;
           double motorPower = (frontleft.getTargetPosition() - frontleft.getCurrentPosition()) / 1440.0 * 0.8 + 0.2;
-          frontleft.setPower(frontLeftPower * motorPower);
-          frontright.setPower(frontRightPower * motorPower);
-          rearleft.setPower(rearLeftPower * motorPower);
-          rearright.setPower(rearRightPower * motorPower);
+          frontleft.setPower(frontLeftPower * motorPower * leftPower);
+          frontright.setPower(frontRightPower * motorPower * rightPower);
+          rearleft.setPower(rearLeftPower * motorPower * leftPower);
+          rearright.setPower(rearRightPower * motorPower * rightPower);
         }
       } else {
-        frontleft.setPower(frontLeftPower * power);
-        frontright.setPower(frontRightPower * power);
-        rearleft.setPower(rearLeftPower * power);
-        rearright.setPower(rearRightPower * power);
+        frontleft.setPower(frontLeftPower * power * leftPower);
+        frontright.setPower(frontRightPower * power * rightPower);
+        rearleft.setPower(rearLeftPower * power * leftPower);
+        rearright.setPower(rearRightPower * power * rightPower);
       }
       sleep(1);
     }
