@@ -219,11 +219,17 @@ public class AutoCommon extends LinearOpMode {
     // Declare variables to be used later
     double frontLeftDistance, rearLeftDistance, frontRightDistance, rearRightDistance;
     double frontLeftPower, frontRightPower, rearLeftPower, rearRightPower;
-    double maxDistance, leftPower, rightPower, driveAngle;
-    boolean useNormCalc, holdAngle;
+    double maxDistance, frontLeftIMU, fronRightIMU, rearLeftIMU, rearRightIMU;
+    double driveAngle, currentPositionTicks, targetPositionTicks;
+    boolean useNormCalc, holdAngle, moreForward;
     if (cw_ccw == 0) {
       holdAngle = true;
       driveAngle = getImuYaw();
+      if (fwd_back >= right_left) {
+        moreForward = true;
+      } else {
+        moreForward = false;
+      }
     } else {
       holdAngle = false;
     }
@@ -266,39 +272,42 @@ public class AutoCommon extends LinearOpMode {
     frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rearleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rearright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    // Set motor power to the given power multiplied by the proportional power calculated above
-    //frontleft.setPower(Math.abs(frontLeftPower * power));
-    //frontright.setPower(Math.abs(frontRightPower * power));
-    //rearleft.setPower(Math.abs(rearLeftPower * power));
-    //rearright.setPower(Math.abs(rearRightPower * power));
-    // Sleep until motor position is reached
-    
+    targetDistanceTicks = frontleft.getTargetPosition();  // Define variable before, instead of calling function each time
     while (frontleft.isBusy() || frontright.isBusy() || rearleft.isBusy() || rearright.isBusy()) {
+      currentPositionTicks = frontleft.getCurrentPosition();    // Only call .getCurrentPosition() once per cycle, instead of five
       if (holdAngle && getImuYaw() != 0.0) {
-        leftPower = 1 + (getImuYaw() - driveAngle) * 0.05;
-        rightPower = 1 - (getImuYaw() - driveAngle) * 0.05;
+        if (moreForward) {
+          frontLeftIMU = 1 + (getImuYaw() - driveAngle) * 0.05;
+          frontRightIMU = 1 - (getImuYaw() - driveAngle) * 0.05;
+          rearLeftIMU = 1 + (getImuYaw() - driveAngle) * 0.05;
+          rearRightIMU = 1 - (getImuYaw() - driveAngle) * 0.05;
+        } else {
+          frontLeftIMU = 1 + (getImuYaw() - driveAngle) * 0.05;
+          frontRightIMU = 1 - (getImuYaw() - driveAngle) * 0.05;
+          rearLeftIMU = 1 - (getImuYaw() - driveAngle) * 0.05;
+          rearRightIMU = 1 + (getImuYaw() - driveAngle) * 0.05;
       }
       if (useNormCalc) {
-        if (frontleft.getCurrentPosition() < 3540) {
-          double motorPower = frontleft.getCurrentPosition() / 3540.0 * 0.2 + 0.04; 
-                            //1152.0 * frontleft.getCurrentPosition() + 288;
-          frontleft.setPower(frontLeftPower * motorPower * leftPower);
-          frontright.setPower(frontRightPower * motorPower * rightPower);
-          rearleft.setPower(rearLeftPower * motorPower * leftPower);
-          rearright.setPower(rearRightPower * motorPower * rightPower);
-        } else if (frontleft.getTargetPosition() - frontleft.getCurrentPosition() < 1440) {
-          //double motorPower = -1152 * (frontleft.getTargetPosition() - frontleft.getCurrentPosition()) + 1440;
-          double motorPower = (frontleft.getTargetPosition() - frontleft.getCurrentPosition()) / 1440.0 * 0.8 + 0.2;
-          frontleft.setPower(frontLeftPower * motorPower * leftPower);
-          frontright.setPower(frontRightPower * motorPower * rightPower);
-          rearleft.setPower(rearLeftPower * motorPower * leftPower);
-          rearright.setPower(rearRightPower * motorPower * rightPower);
+        if (currentPositionTicks < 3540) {
+          double motorPower = currentPositionTicks / 3540.0 * 0.2 + 0.04; 
+                            //1152.0 * currentPositionTicks + 288;
+          frontleft.setPower(frontLeftPower * motorPower * frontLeftIMU);
+          frontright.setPower(frontRightPower * motorPower * frontRightIMU);
+          rearleft.setPower(rearLeftPower * motorPower * rearLeftIMU);
+          rearright.setPower(rearRightPower * motorPower * rearRightIMU);
+        } else if (targetPositionTicks - currentPositionTicks < 1440) {
+          //double motorPower = -1152 * (targetPositionTicks - currentPositionTicks) + 1440;
+          double motorPower = (targetPositionTicks - currentPositionTicks) / 1440.0 * 0.8 + 0.2;
+          frontleft.setPower(frontLeftPower * motorPower * frontLeftIMU);
+          frontright.setPower(frontRightPower * motorPower * frontRightIMU);
+          rearleft.setPower(rearLeftPower * motorPower * rearLeftIMU);
+          rearright.setPower(rearRightPower * motorPower * rearRightIMU);
         }
       } else {
-        frontleft.setPower(frontLeftPower * power * leftPower);
-        frontright.setPower(frontRightPower * power * rightPower);
-        rearleft.setPower(rearLeftPower * power * leftPower);
-        rearright.setPower(rearRightPower * power * rightPower);
+        frontleft.setPower(frontLeftPower * power * frontLeftIMU);
+        frontright.setPower(frontRightPower * power * frontRightIMU);
+        rearleft.setPower(rearLeftPower * power * rearLeftIMU);
+        rearright.setPower(rearRightPower * power * rearRightIMU);
       }
       sleep(1);
     }
