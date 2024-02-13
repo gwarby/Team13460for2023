@@ -105,13 +105,10 @@ public class RedFrontPixel extends LinearOpMode
 
         lib.drive(-6.0 + yAdjustment,-4.3 + xAdjustment,0,DRIVE_POWER);
         lib.openClampWait();
-        sleep(100);
-        lib.drive(4.5,0,0,DRIVE_POWER);
-        lib.normalFlipper();            // square w/ ground
-        lib.armraisewait(-110, 0.4);
-        lib.armraise(-30, 0.2);
-        
-        lib.drive(-7, 10, 0, DRIVE_POWER);
+        lib.drive(1, 0, 0, 0.2);
+        lib.normalFlipper();
+        lib.armraise(0,0.2);
+        lib.drive(-1.5, 0, 0, 0.4);     // drive to park
         
         // release motors?
 
@@ -125,22 +122,23 @@ public class RedFrontPixel extends LinearOpMode
 
         lib.dropBottomPixel();
 
-        lib.drive(0, -10, 0, DRIVE_POWER);
-        lib.drive(23, 0, 0, DRIVE_POWER);
+        lib.drive(-4, -10, 0, DRIVE_POWER);
+        lib.drive(30, 0, 0, DRIVE_POWER);
+        lib.drive(0, 0, 90, DRIVE_POWER);
         double imuRotation = lib.getImuYaw();
         if (imuRotation != 0) {
-          lib.drive(0, 0, (90 + imuRotation), 0.65);      // Rotate CCW 90 dg to face back wall
+          lib.drive(0, 0, (91 + imuRotation), 0.65);      // Rotate CCW 90 dg to face back wall
         } else {
-          lib.drive(0, 0, 90, 0);
+          lib.drive(0, 0, 89, 0);
         }
         lib.drive(85, 0, 0, 0.65);
         imuRotation = lib.getImuYaw();
         if (imuRotation != 0.0) {
-          lib.drive(0, 0, (imuRotation - 90), 0.65);             // rotate to back side
+          lib.drive(0, 0, (imuRotation - 91), 0.65);             // rotate to back side
         } else {
           lib.drive(0, 0, -180, 0.65);
         }
-        lib.drive(0, -23, 0, 0.65);
+        lib.drive(0, -24, 0, 0.65);
         lib.armraisewait(100, 0.2);
         lib.reverseFlipper();
         lib.armraisewait(30,0.2);
@@ -151,11 +149,10 @@ public class RedFrontPixel extends LinearOpMode
 
         lib.drive(-6 + yAdjustment,-4 + xAdjustment,0,DRIVE_POWER);
         lib.openClampWait();
-        lib.drive(3, 0, 0, DRIVE_POWER);
+        lib.drive(1, 0, 0, 0.2);
         lib.normalFlipper();
-        lib.armraisewait(-110, 0.4);
-        lib.armraise(-30,0.2);
-        lib.drive(-3, 13, 0, DRIVE_POWER);
+        lib.armraise(0,0.2);
+        lib.drive(-1.5, 0, 0, 0.4);     // drive to park
         
       } else { // RIGHT code
         /************************************************************************
@@ -199,12 +196,9 @@ public class RedFrontPixel extends LinearOpMode
         lib.drive(-6.0 + yAdjustment, -1 + xAdjustment,0,0.5);
         lib.openClampWait();
         lib.drive(1, 0, 0, 0.2);
-        lib.drive(3.5,0,0,DRIVE_POWER);
-        lib.normalFlipper();            // square w/ ground
-        lib.armraisewait(-110, 0.4);
-        lib.armraise(-30, 0.2);
-        
-        lib.drive(-5, 22, 0, DRIVE_POWER);
+        lib.normalFlipper();
+        lib.armraise(0,0.2);
+        lib.drive(-1.5, 0, 0, 0.4);     // drive to park
       }
 
       telemetry.addLine("Opmode COMPLETE");
