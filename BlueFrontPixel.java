@@ -101,13 +101,10 @@ public class BlueFrontPixel extends LinearOpMode
 
         lib.drive(-6.5 + yAdjustment, xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
-        lib.drive(1, 0, 0, DRIVE_POWER);
-        lib.drive(3.5, 0, 0, DRIVE_POWER);      // go forwards
+        lib.drive(1, 0, 0, 0.2);
         lib.normalFlipper();
-        lib.armraisewait(-70, 0.4);            // bring arm back down
-        lib.armraise(-70,0.2);
-        
-        lib.drive(-8, -19, 0, 0.7);     // drive to park
+        lib.armraise(0,0.2);
+        lib.drive(-1.5, 0, 0, 0.4);     // drive to park
         
         // release motors
 
@@ -151,12 +148,9 @@ public class BlueFrontPixel extends LinearOpMode
         lib.drive(-6 + yAdjustment, -3 + xAdjustment, 0, DRIVE_POWER);       // go backwards to put on pixel
         lib.openClamp();
         lib.drive(1, 0, 0, 0.2);
-        lib.drive(3, 0, 0, DRIVE_POWER);      // go forwards
         lib.normalFlipper();
-        lib.armraisewait(-110, 0.4);            // bring arm back down
-        lib.armraise(-30,0.2);
-        
-        lib.drive(-8, -16, 0, DRIVE_POWER);     // drive to park
+        lib.armraise(0,0.2);
+        lib.drive(-1.5, 0, 0, 0.4);     // drive to park
 
       } else { // RIGHT code
         /************************************************************************
@@ -195,12 +189,10 @@ public class BlueFrontPixel extends LinearOpMode
 
         lib.drive(-6 + yAdjustment, -3 + xAdjustment, 0, DRIVE_POWER);     // drive back to backdrop
         lib.openClamp();
-        lib.drive(4.5, 0, 0, DRIVE_POWER);    // drive forward to let pixel drop
+        lib.drive(1, 0, 0, 0.2);
         lib.normalFlipper();
-        lib.armraisewait(-110, 0.4);          // bring arm back down
-        lib.armraise(-30,0.2);                
-        
-        lib.drive(-10, -10, 0, DRIVE_POWER);   // park
+        lib.armraise(0,0.2);
+        lib.drive(-1.5, 0, 0, 0.4);     // drive to park
       }
       
       telemetry.addLine("Opmode COMPLETE");
