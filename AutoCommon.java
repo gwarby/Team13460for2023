@@ -273,6 +273,8 @@ public class AutoCommon extends LinearOpMode {
     rearleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rearright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     targetDistanceTicks = frontleft.getTargetPosition();  // Define variable before, instead of calling function each time
+    double firstQuarter = frontleft.getTargetPosition() / 4;
+    double thirdQuarter = 3 * frontleft.getTargetPosition() / 4;
     while (frontleft.isBusy() || frontright.isBusy() || rearleft.isBusy() || rearright.isBusy()) {
       currentPositionTicks = frontleft.getCurrentPosition();    // Only call .getCurrentPosition() once per cycle, instead of five
       if (holdAngle && getImuYaw() != 0.0) {
@@ -287,27 +289,27 @@ public class AutoCommon extends LinearOpMode {
           rearLeftIMU = 1 - (getImuYaw() - driveAngle) * 0.05;
           rearRightIMU = 1 + (getImuYaw() - driveAngle) * 0.05;
       }
-      if (useNormCalc) {
-        if (currentPositionTicks < 3540) {
-          double motorPower = currentPositionTicks / 3540.0 * 0.2 + 0.04; 
-                            //1152.0 * currentPositionTicks + 288;
+      if (useNormCalc) {            // Drive is long enough to use full acceleration calculation
+        if (currentPositionTicks < firstQuarter) {              // In first quarter of drive, use acceleration
+          double motorPower = currentPositionTicks / firstQuarter * 0.8 + 0.2; 
           frontleft.setPower(frontLeftPower * motorPower * frontLeftIMU);
           frontright.setPower(frontRightPower * motorPower * frontRightIMU);
           rearleft.setPower(rearLeftPower * motorPower * rearLeftIMU);
           rearright.setPower(rearRightPower * motorPower * rearRightIMU);
-        } else if (targetPositionTicks - currentPositionTicks < 1440) {
-          //double motorPower = -1152 * (targetPositionTicks - currentPositionTicks) + 1440;
-          double motorPower = (targetPositionTicks - currentPositionTicks) / 1440.0 * 0.8 + 0.2;
+        } else if (currentPositionTicks > thirdQuarter) {      // In third quarter of drive, use decceleration
+          double motorPower = (targetPositionTicks - currentPositionTicks) / firstQuarter * 0.8 + 0.2;
           frontleft.setPower(frontLeftPower * motorPower * frontLeftIMU);
           frontright.setPower(frontRightPower * motorPower * frontRightIMU);
           rearleft.setPower(rearLeftPower * motorPower * rearLeftIMU);
           rearright.setPower(rearRightPower * motorPower * rearRightIMU);
         }
-      } else {
-        frontleft.setPower(frontLeftPower * power * frontLeftIMU);
-        frontright.setPower(frontRightPower * power * frontRightIMU);
-        rearleft.setPower(rearLeftPower * power * rearLeftIMU);
-        rearright.setPower(rearRightPower * power * rearRightIMU);
+      } else {                    // Use single equation instead for acceleration
+        double position = frontleft.getCurrentPosition() / frontleft.getTargetPosition();
+        double acceleration = -8 * Math.pow((position - .5), 4) + 1;
+        frontleft.setPower(frontLeftPower * acceleration * frontLeftIMU);
+        frontright.setPower(frontRightPower * acceleration * frontRightIMU);
+        rearleft.setPower(rearLeftPower * acceleration * rearLeftIMU);
+        rearright.setPower(rearRightPower * acceleration * rearRightIMU);
       }
       sleep(1);
     }
