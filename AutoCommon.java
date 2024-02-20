@@ -46,10 +46,10 @@ public class AutoCommon extends LinearOpMode {
   private final double ARM_RAISE_TICKS_PER_DEG = 7.595;
   private final double ARM_EXTEND_TICKS_PER_INCH = 120.0;
   
-  private final double CLAW_FLIP_SERVO_NORMAL_POS = 0.28; //0.263;//0.27;
-  private final double CLAW_FLIP_SERVO_TO_FROM_GROUND = 0.24;
-  private final double CLAW_FLIP_SERVO_AVOID_ARM_LIMITER = 0.35;
-  private final double CLAW_FLIP_SERVO_FLIPPED_POS = 0.93;
+  private final double CLAW_FLIP_SERVO_NORMAL_POS = 0.24; //0.263;//0.27;
+  private final double CLAW_FLIP_SERVO_TO_FROM_GROUND = 0.16;
+  private final double CLAW_FLIP_SERVO_AVOID_ARM_LIMITER = 0.31;
+  private final double CLAW_FLIP_SERVO_FLIPPED_POS = 0.89;
   private final int FLIPPER_SERVO_PAUSE_TIME_MS = 910;//1000;
   private final int CALC_GRABBER_WAIT_MS = 1000;
   private final int CALC_FLIPPER_WAIT_MS = 1500;
@@ -183,7 +183,6 @@ public class AutoCommon extends LinearOpMode {
     activateArmLimiter();       // move arm limiter in place to hold up in "perfect" position
     sleep(450);
     restOnArmLimiter();         // should result in arm ~10 deg?
-    normalFlipper();
   }
   
   ////////////////
@@ -201,7 +200,8 @@ public class AutoCommon extends LinearOpMode {
     *     Used to improve readability/ simplify editing of pixel drop off procedure
   *************************************************************************/
   public void dropBottomPixel() {
-    armextendwait(4.5,0.47);          // Extend arm 4" reaching pixel over spike
+    drive(1,0,0,0.2);
+    armextendwait(3.5,0.47);          // Extend arm 4" reaching pixel over spike
     openClampLittleWait();          // drop bottom stack
     sleep(300);
     closeClampWait();               // Grab the top pixel
@@ -349,7 +349,9 @@ public class AutoCommon extends LinearOpMode {
     armraise.setTargetPosition(80);  // ?
     armraise.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     armraise.setPower(0.11);
-    sleep(1000);
+    sleep(500);
+    normalFlipper();
+    sleep(300);
     armraise.setPower(0.0);
     armraise.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
   }
